@@ -1,0 +1,434 @@
+@extends('layouts.admin')
+
+@section('title', 'Gestion des Sous-catégories - La Réserve Naturelle')
+
+@section('content')
+<div class="container" style="padding: 40px 0;">
+    <div class="row">
+        <div class="col-12">
+            <!-- Entête avec titre et bouton ajout -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px;">
+                <div>
+                    <h1 style="font-family: 'Playfair Display', serif; color: #2d5a27; font-size: 2rem; margin: 0;">
+                        <i class="fas fa-sitemap" style="color: #b8860b; margin-right: 10px;"></i>
+                        Gestion des sous-catégories
+                    </h1>
+                    <p style="color: #6c757d; margin: 5px 0 0 0;">Gérez les sous-catégories de produits de votre boutique</p>
+                </div>
+                <a href="{{ route('admin.sous-categories.create') }}" style="
+                    background: #2d5a27;
+                    color: white;
+                    padding: 12px 24px;
+                    border-radius: 30px;
+                    text-decoration: none;
+                    font-weight: 500;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    transition: all 0.3s ease;
+                    border: none;
+                    cursor: pointer;
+                " onmouseover="this.style.background='#1e3d1a'" onmouseout="this.style.background='#2d5a27'">
+                    <i class="fas fa-plus-circle"></i> Nouvelle sous-catégorie
+                </a>
+            </div>
+
+            <!-- Messages flash -->
+            @if(session('success'))
+                <div style="
+                    background: #d4edda;
+                    color: #155724;
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    border-left: 4px solid #28a745;
+                    margin-bottom: 20px;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                ">
+                    <i class="fas fa-check-circle" style="font-size: 20px;"></i>
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div style="
+                    background: #f8d7da;
+                    color: #721c24;
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    border-left: 4px solid #dc3545;
+                    margin-bottom: 20px;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                ">
+                    <i class="fas fa-exclamation-circle" style="font-size: 20px;"></i>
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            <!-- Formulaire de filtre -->
+            <div style="
+                background: #f8f5f0;
+                padding: 20px;
+                border-radius: 12px;
+                margin-bottom: 25px;
+                border: 1px solid #e8e0d5;
+            ">
+                <form method="GET" action="{{ route('admin.sous-categories.index') }}" style="display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end;">
+                    <div style="flex: 1; min-width: 180px;">
+                        <label for="search" style="display: block; font-weight: 600; color: #2d5a27; font-size: 0.9rem; margin-bottom: 5px;">
+                            <i class="fas fa-search" style="color: #b8860b; margin-right: 5px;"></i> Recherche
+                        </label>
+                        <input type="text" 
+                               name="search" 
+                               id="search" 
+                               style="
+                                   width: 100%;
+                                   padding: 10px 15px;
+                                   border: 1px solid #e8e0d5;
+                                   border-radius: 8px;
+                                   font-size: 0.95rem;
+                                   transition: border-color 0.3s;
+                                   outline: none;
+                                   background: white;
+                               "
+                               onfocus="this.style.borderColor='#2d5a27'"
+                               onblur="this.style.borderColor='#e8e0d5'"
+                               placeholder="Nom de la sous-catégorie..." 
+                               value="{{ request('search') }}">
+                    </div>
+                    
+                    <div style="flex: 0 0 200px; min-width: 150px;">
+                        <label for="category_id" style="display: block; font-weight: 600; color: #2d5a27; font-size: 0.9rem; margin-bottom: 5px;">
+                            <i class="fas fa-tag" style="color: #b8860b; margin-right: 5px;"></i> Catégorie
+                        </label>
+                        <select name="category_id" id="category_id" style="
+                            width: 100%;
+                            padding: 10px 15px;
+                            border: 1px solid #e8e0d5;
+                            border-radius: 8px;
+                            font-size: 0.95rem;
+                            background: white;
+                            transition: border-color 0.3s;
+                            outline: none;
+                            cursor: pointer;
+                        " onfocus="this.style.borderColor='#2d5a27'" onblur="this.style.borderColor='#e8e0d5'">
+                            <option value="">Toutes les catégories</option>
+                            @foreach($categories as $category)
+                                <option value="{{ $category->id }}" 
+                                    {{ request('category_id') == $category->id ? 'selected' : '' }}>
+                                    {{ $category->nom }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div style="flex: 0 0 170px; min-width: 140px;">
+                        <label for="statut" style="display: block; font-weight: 600; color: #2d5a27; font-size: 0.9rem; margin-bottom: 5px;">
+                            <i class="fas fa-circle" style="color: #b8860b; margin-right: 5px;"></i> Statut
+                        </label>
+                        <select name="statut" id="statut" style="
+                            width: 100%;
+                            padding: 10px 15px;
+                            border: 1px solid #e8e0d5;
+                            border-radius: 8px;
+                            font-size: 0.95rem;
+                            background: white;
+                            transition: border-color 0.3s;
+                            outline: none;
+                            cursor: pointer;
+                        " onfocus="this.style.borderColor='#2d5a27'" onblur="this.style.borderColor='#e8e0d5'">
+                            <option value="">Tous les statuts</option>
+                            <option value="actif" {{ request('statut') == 'actif' ? 'selected' : '' }}>Actif</option>
+                            <option value="inactif" {{ request('statut') == 'inactif' ? 'selected' : '' }}>Inactif</option>
+                        </select>
+                    </div>
+                    
+                    <div style="flex: 0 0 auto; display: flex; gap: 10px;">
+                        <button type="submit" style="
+                            background: #2d5a27;
+                            color: white;
+                            padding: 10px 25px;
+                            border-radius: 30px;
+                            border: none;
+                            font-weight: 500;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                            display: inline-flex;
+                            align-items: center;
+                            gap: 8px;
+                        " onmouseover="this.style.background='#1e3d1a'" onmouseout="this.style.background='#2d5a27'">
+                            <i class="fas fa-filter"></i> Filtrer
+                        </button>
+                        <a href="{{ route('admin.sous-categories.index') }}" style="
+                            background: #e8e0d5;
+                            color: #2d5a27;
+                            padding: 10px 25px;
+                            border-radius: 30px;
+                            text-decoration: none;
+                            font-weight: 500;
+                            transition: all 0.3s ease;
+                            display: inline-flex;
+                            align-items: center;
+                            gap: 8px;
+                        " onmouseover="this.style.background='#d4c9bb'" onmouseout="this.style.background='#e8e0d5'">
+                            <i class="fas fa-undo"></i> Réinitialiser
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Tableau des sous-catégories -->
+            <div style="
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+                overflow: hidden;
+                border: 1px solid #e8e0d5;
+            ">
+                <div style="overflow-x: auto;">
+                    <table style="
+                        width: 100%;
+                        border-collapse: collapse;
+                        font-size: 0.95rem;
+                    ">
+                        <thead style="
+                            background: #f8f5f0;
+                            border-bottom: 2px solid #e8e0d5;
+                        ">
+                            <tr>
+                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 5%;">#</th>
+                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 20%;">Nom</th>
+                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 18%;">Catégorie parente</th>
+                                <th style="padding: 15px 20px; text-align: center; font-weight: 600; color: #2d5a27; width: 12%;">Statut</th>
+                                <th style="padding: 15px 20px; text-align: center; font-weight: 600; color: #2d5a27; width: 8%;">Ordre</th>
+                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 22%;">Description</th>
+                                <th style="padding: 15px 20px; text-align: center; font-weight: 600; color: #2d5a27; width: 15%;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($sousCategories as $sousCategory)
+                                <tr style="border-bottom: 1px solid #f0ebe5; transition: background 0.2s;" onmouseover="this.style.background='#faf8f5'" onmouseout="this.style.background='transparent'">
+                                    <td style="padding: 15px 20px; color: #6c757d; font-weight: 500;">{{ $sousCategory->id }}</td>
+                                    <td style="padding: 15px 20px; font-weight: 500; color: #2d5a27;">
+                                        <i class="fas fa-folder-open" style="color: #b8860b; margin-right: 8px;"></i>
+                                        {{ $sousCategory->nom }}
+                                    </td>
+                                    <td style="padding: 15px 20px;">
+                                        <span style="
+                                            background: #e8f5e9;
+                                            color: #2d5a27;
+                                            padding: 4px 14px;
+                                            border-radius: 20px;
+                                            font-size: 0.8rem;
+                                            font-weight: 500;
+                                            display: inline-block;
+                                        ">
+                                            <i class="fas fa-folder" style="margin-right: 4px;"></i>
+                                            {{ $sousCategory->category->nom ?? 'N/A' }}
+                                        </span>
+                                    </td>
+                                    <td style="padding: 15px 20px; text-align: center;">
+                                        @if($sousCategory->statut == 'actif' || $sousCategory->statut == 1)
+                                            <span style="
+                                                background: #d4edda;
+                                                color: #155724;
+                                                padding: 4px 14px;
+                                                border-radius: 20px;
+                                                font-size: 0.8rem;
+                                                font-weight: 500;
+                                                display: inline-block;
+                                            ">
+                                                <i class="fas fa-circle" style="font-size: 8px; margin-right: 5px; color: #28a745;"></i>
+                                                Actif
+                                            </span>
+                                        @else
+                                            <span style="
+                                                background: #f8d7da;
+                                                color: #721c24;
+                                                padding: 4px 14px;
+                                                border-radius: 20px;
+                                                font-size: 0.8rem;
+                                                font-weight: 500;
+                                                display: inline-block;
+                                            ">
+                                                <i class="fas fa-circle" style="font-size: 8px; margin-right: 5px; color: #dc3545;"></i>
+                                                Inactif
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td style="padding: 15px 20px; text-align: center; font-weight: 600; color: #2d5a27;">
+                                        {{ $sousCategory->ordre ?? 0 }}
+                                    </td>
+                                    <td style="padding: 15px 20px; color: #6c757d; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                        {{ $sousCategory->description ? Str::limit($sousCategory->description, 60) : '—' }}
+                                    </td>
+                                    <td style="padding: 15px 20px; text-align: center;">
+                                        <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
+                                            <a href="{{ route('admin.sous-categories.show', $sousCategory->id) }}" style="
+                                                background: #f0ebe5;
+                                                color: #2d5a27;
+                                                padding: 6px 12px;
+                                                border-radius: 20px;
+                                                text-decoration: none;
+                                                font-size: 0.8rem;
+                                                transition: all 0.2s;
+                                                display: inline-flex;
+                                                align-items: center;
+                                                gap: 4px;
+                                            " onmouseover="this.style.background='#e0d6c8'" onmouseout="this.style.background='#f0ebe5'">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            
+                                            <a href="{{ route('admin.sous-categories.edit', $sousCategory->id) }}" style="
+                                                background: #f0ebe5;
+                                                color: #2d5a27;
+                                                padding: 6px 12px;
+                                                border-radius: 20px;
+                                                text-decoration: none;
+                                                font-size: 0.8rem;
+                                                transition: all 0.2s;
+                                                display: inline-flex;
+                                                align-items: center;
+                                                gap: 4px;
+                                            " onmouseover="this.style.background='#e0d6c8'" onmouseout="this.style.background='#f0ebe5'">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            
+                                            <form action="{{ route('admin.sous-categories.destroy', $sousCategory->id) }}" method="POST" style="display: inline-block;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette sous-catégorie ?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" style="
+                                                    background: #f8d7da;
+                                                    color: #721c24;
+                                                    padding: 6px 12px;
+                                                    border-radius: 20px;
+                                                    border: none;
+                                                    font-size: 0.8rem;
+                                                    cursor: pointer;
+                                                    transition: all 0.2s;
+                                                    display: inline-flex;
+                                                    align-items: center;
+                                                    gap: 4px;
+                                                " onmouseover="this.style.background='#f5c6cb'" onmouseout="this.style.background='#f8d7da'">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="7" style="padding: 60px 20px; text-align: center; color: #6c757d;">
+                                        <i class="fas fa-folder-open" style="font-size: 48px; display: block; margin-bottom: 15px; color: #d4c9bb;"></i>
+                                        <p style="font-size: 1.1rem; margin: 0;">Aucune sous-catégorie trouvée</p>
+                                        <p style="margin-top: 5px;">Cliquez sur "Nouvelle sous-catégorie" pour en créer une</p>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <div style="color: #6c757d; font-size: 0.9rem;">
+                    <i class="fas fa-info-circle" style="color: #b8860b;"></i>
+                    Affichage de {{ $sousCategories->firstItem() ?? 0 }} à {{ $sousCategories->lastItem() ?? 0 }} sur {{ $sousCategories->total() }} sous-catégories
+                </div>
+                <div style="display: flex; justify-content: center;">
+                    {{ $sousCategories->appends(request()->query())->links() }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+@push('styles')
+<style>
+    /* Personnalisation de la pagination pour correspondre au thème */
+    .pagination {
+        display: flex;
+        list-style: none;
+        gap: 5px;
+        padding: 0;
+        margin: 0;
+    }
+    .pagination li {
+        display: inline-block;
+    }
+    .pagination li a, .pagination li span {
+        display: inline-block;
+        padding: 8px 16px;
+        background: white;
+        border: 1px solid #e8e0d5;
+        border-radius: 6px;
+        color: #2d5a27;
+        text-decoration: none;
+        transition: all 0.2s;
+        font-size: 0.9rem;
+    }
+    .pagination li a:hover {
+        background: #2d5a27;
+        color: white;
+        border-color: #2d5a27;
+    }
+    .pagination li.active span {
+        background: #2d5a27;
+        color: white;
+        border-color: #2d5a27;
+    }
+    .pagination li.disabled span {
+        color: #adb5bd;
+        background: #f8f5f0;
+        border-color: #e8e0d5;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .container {
+            padding: 20px 15px !important;
+        }
+        .container > div > div:first-child {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+        }
+        .container > div > div:first-child > div:last-child {
+            width: 100%;
+        }
+        .container > div > div:first-child > div:last-child a {
+            width: 100%;
+            justify-content: center;
+        }
+        form {
+            flex-direction: column !important;
+        }
+        form > div {
+            width: 100% !important;
+            flex: 1 1 auto !important;
+        }
+        form > div:last-child {
+            flex-direction: column !important;
+        }
+        form > div:last-child button,
+        form > div:last-child a {
+            width: 100%;
+            justify-content: center;
+        }
+        .pagination li a, .pagination li span {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+        table {
+            font-size: 0.85rem !important;
+        }
+        th, td {
+            padding: 10px 12px !important;
+        }
+    }
+</style>
+@endpush

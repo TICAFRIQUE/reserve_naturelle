@@ -32,7 +32,22 @@ class User extends Authenticatable
     public function isAdmin(){
         return $this->role === "admin";
     }
-    
+
+    // Méthode pour vérifier si l'utilisateur est fournisseur
+    public function isFournisseur(){
+        return $this->role === 'fournisseur';
+    }
+
+    // Méthode pour vérifier si l'utilisateur est user normal ou client
+    public function isUser(){
+        return $this->role === 'user';
+    }
+
+    // Accesseur pour le nom complet
+    public function getFullNameAttribute(){
+        return $this->prenom . ' ' . $this->nom;
+    }
+
     public function carts(){
         return $this->hasMany(Cart::class);
     }
