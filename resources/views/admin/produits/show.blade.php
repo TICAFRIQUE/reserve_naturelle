@@ -19,7 +19,7 @@
                     </p>
                 </div>
                 <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <a href="{{ route('admin.products.edit', $product) }}" style="
+                    <a href="{{ route('admin.produits.edit', $product) }}" style="
                         background: #2d5a27;
                         color: white;
                         padding: 12px 24px;
@@ -33,7 +33,7 @@
                     " onmouseover="this.style.background='#1e3d1a'" onmouseout="this.style.background='#2d5a27'">
                         <i class="fas fa-edit"></i> Modifier
                     </a>
-                    <a href="{{ route('admin.products.index') }}" style="
+                    <a href="{{ route('admin.produits.index') }}" style="
                         background: #e8e0d5;
                         color: #2d5a27;
                         padding: 12px 24px;
@@ -50,46 +50,6 @@
                 </div>
             </div>
 
-            <!-- Message si produit supprimé -->
-            @if($product->trashed())
-                <div style="
-                    background: #fff3cd;
-                    color: #856404;
-                    padding: 12px 20px;
-                    border-radius: 8px;
-                    border-left: 4px solid #ffc107;
-                    margin-bottom: 20px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    flex-wrap: wrap;
-                    gap: 10px;
-                ">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <i class="fas fa-exclamation-triangle" style="font-size: 20px;"></i>
-                        Ce produit est dans la corbeille (supprimé le {{ $product->deleted_at->format('d/m/Y à H:i') }})
-                    </div>
-                    <form action="{{ route('admin.products.restore', $product) }}" method="POST" style="display:inline;">
-                        @csrf
-                        <button type="submit" style="
-                            background: #28a745;
-                            color: white;
-                            padding: 8px 20px;
-                            border-radius: 30px;
-                            border: none;
-                            font-weight: 500;
-                            cursor: pointer;
-                            transition: all 0.3s ease;
-                            display: inline-flex;
-                            align-items: center;
-                            gap: 6px;
-                        " onmouseover="this.style.background='#218838'" onmouseout="this.style.background='#28a745'">
-                            <i class="fas fa-undo"></i> Restaurer
-                        </button>
-                    </form>
-                </div>
-            @endif
-
             <!-- Messages flash -->
             @if(session('success'))
                 <div style="
@@ -105,6 +65,23 @@
                 ">
                     <i class="fas fa-check-circle" style="font-size: 20px;"></i>
                     {{ session('success') }}
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div style="
+                    background: #f8d7da;
+                    color: #721c24;
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    border-left: 4px solid #dc3545;
+                    margin-bottom: 20px;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                ">
+                    <i class="fas fa-exclamation-circle" style="font-size: 20px;"></i>
+                    {{ session('error') }}
                 </div>
             @endif
 
@@ -205,29 +182,16 @@
                                         <tr>
                                             <td style="padding: 8px 0; font-weight: 600; color: #2d5a27;">Statut</td>
                                             <td style="padding: 8px 0;">
-                                                @if($product->trashed())
-                                                    <span style="
-                                                        background: #f8d7da;
-                                                        color: #721c24;
-                                                        padding: 4px 14px;
-                                                        border-radius: 20px;
-                                                        font-size: 0.85rem;
-                                                        display: inline-block;
-                                                    ">
-                                                        <i class="fas fa-trash-alt"></i> Supprimé
-                                                    </span>
-                                                @else
-                                                    <span style="
-                                                        background: #d4edda;
-                                                        color: #155724;
-                                                        padding: 4px 14px;
-                                                        border-radius: 20px;
-                                                        font-size: 0.85rem;
-                                                        display: inline-block;
-                                                    ">
-                                                        <i class="fas fa-check-circle"></i> Actif
-                                                    </span>
-                                                @endif
+                                                <span style="
+                                                    background: #d4edda;
+                                                    color: #155724;
+                                                    padding: 4px 14px;
+                                                    border-radius: 20px;
+                                                    font-size: 0.85rem;
+                                                    display: inline-block;
+                                                ">
+                                                    <i class="fas fa-check-circle"></i> Actif
+                                                </span>
                                             </td>
                                         </tr>
                                         <tr>
@@ -348,8 +312,17 @@
                             </h5>
                         </div>
                         <div style="padding: 20px; text-align: center;">
-                            @if($product->image_path)
+                            @if($product->image_path && file_exists(public_path('storage/' . $product->image_path)))
                                 <img src="{{ asset('storage/' . $product->image_path) }}" 
+                                     alt="{{ $product->designation }}" 
+                                     style="
+                                         max-width: 100%;
+                                         max-height: 300px;
+                                         border-radius: 8px;
+                                         object-fit: cover;
+                                     ">
+                            @elseif($product->image_path && Storage::disk('public')->exists($product->image_path))
+                                <img src="{{ Storage::url($product->image_path) }}" 
                                      alt="{{ $product->designation }}" 
                                      style="
                                          max-width: 100%;
@@ -391,7 +364,7 @@
                         </div>
                         <div style="padding: 20px 25px;">
                             <!-- Mise à jour du stock -->
-                            <form action="{{ route('admin.products.update-stock', $product) }}" method="POST" style="margin-bottom: 15px;">
+                            <form action="{{ route('admin.produits.update-stock', $product) }}" method="POST" style="margin-bottom: 15px;">
                                 @csrf
                                 <div style="display: flex; gap: 10px;">
                                     <input type="number" 
@@ -426,30 +399,28 @@
                             </form>
 
                             <!-- Suppression -->
-                            @if(!$product->trashed())
-                                <form action="{{ route('admin.products.destroy', $product) }}" method="POST">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" style="
-                                        background: #dc3545;
-                                        color: white;
-                                        padding: 10px 20px;
-                                        border-radius: 30px;
-                                        border: none;
-                                        font-weight: 500;
-                                        cursor: pointer;
-                                        transition: all 0.3s ease;
-                                        width: 100%;
-                                        display: inline-flex;
-                                        align-items: center;
-                                        justify-content: center;
-                                        gap: 8px;
-                                    " onmouseover="this.style.background='#c82333'" onmouseout="this.style.background='#dc3545'"
-                                    onclick="return confirm('Êtes-vous sûr de vouloir supprimer définitivement ce produit ? Cette action est irréversible.');">
-                                        <i class="fas fa-trash-alt"></i> Supprimer le produit
-                                    </button>
-                                </form>
-                            @endif
+                            <form action="{{ route('admin.produits.destroy', $product) }}" method="POST">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" style="
+                                    background: #dc3545;
+                                    color: white;
+                                    padding: 10px 20px;
+                                    border-radius: 30px;
+                                    border: none;
+                                    font-weight: 500;
+                                    cursor: pointer;
+                                    transition: all 0.3s ease;
+                                    width: 100%;
+                                    display: inline-flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    gap: 8px;
+                                " onmouseover="this.style.background='#c82333'" onmouseout="this.style.background='#dc3545'"
+                                onclick="return confirm('⚠️ Êtes-vous sûr de vouloir supprimer définitivement ce produit ?\n\nCette action est irréversible !');">
+                                    <i class="fas fa-trash-alt"></i> Supprimer le produit
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>

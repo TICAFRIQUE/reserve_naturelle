@@ -1,4 +1,4 @@
-@extends('layouts.auth')
+@extends('layouts.admin')
 
 @section('title', 'Gestion des catégories - La Réserve Naturelle')
 

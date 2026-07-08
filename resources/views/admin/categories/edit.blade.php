@@ -1,5 +1,5 @@
 {{-- resources/views/admin/categories/edit.blade.php --}}
-@extends('layouts.auth')
+@extends('layouts.admin')
 
 @section('title', 'Modifier la catégorie - La Réserve Naturelle')
 

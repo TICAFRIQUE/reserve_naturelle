@@ -53,7 +53,7 @@ class AuthController extends Controller
             if ($user->isAdmin()) {
                 return redirect()->intended(route("admin.dashboard"));
             }
-            return redirect()->intended(route('client.index'));  
+            return redirect()->intended(route('client.products.index'));  
         }
         
         return back()->withErrors(["email" => "Identifiants invalides ou compte inactif"])

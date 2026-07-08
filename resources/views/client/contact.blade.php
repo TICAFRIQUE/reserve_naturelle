@@ -152,7 +152,7 @@
     </div>
 </section>
 
-<!-- ====== MAP ====== -->
+<!-- ====== MAP - VERSION CORRIGÉE ====== -->
 <section class="section" style="background: var(--white); padding: 60px 0;">
     <div class="container">
         <div style="text-align: center; margin-bottom: 30px;">
@@ -162,12 +162,35 @@
             </h2>
         </div>
 
-        <div style="border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); height: 400px; background: #e8ecf1; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 18px; border: 1px solid var(--line);">
-            <div style="text-align: center;">
-                <div style="font-size: 64px; margin-bottom: 15px;">🗺️</div>
-                <p>Carte interactive (Google Maps)</p>
-                <p style="font-size: 14px; margin-top: 5px;">Abidjan, Côte d'Ivoire</p>
+        <!-- CARTE GOOGLE MAPS INTÉGRÉE -->
+        <div style="border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid var(--line); position: relative;">
+            <!-- L'iframe de la carte -->
+            <div style="width: 100%; height: 450px; background: #e8ecf1;">
+                <iframe 
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d126914.74890170723!2d-4.06931645!3d5.35995115!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xfc1d2be6f440d8b%3A0xde4fa0755586a55c!2sAbidjan%2C%20C%C3%B4te%20d%27Ivoire!5e0!3m2!1sfr!2sfr!4v1700000000000!5m2!1sfr!2sfr" 
+                    width="100%" 
+                    height="450" 
+                    style="border:0; display: block;" 
+                    allowfullscreen="" 
+                    loading="lazy" 
+                    referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
             </div>
+            
+            <!-- Bouton pour ouvrir dans Google Maps -->
+            <a href="https://www.google.com/maps/dir//Abidjan,+C%C3%B4te+d%27Ivoire/@5.35995115,-4.06931645,12z" 
+               target="_blank" 
+               style="position: absolute; bottom: 20px; right: 20px; background: #055936; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: all 0.3s; z-index: 10;"
+               onmouseover="this.style.transform='scale(1.05)'" 
+               onmouseout="this.style.transform='scale(1)'">
+                <i class="fas fa-directions"></i> Obtenir l'itinéraire
+            </a>
+        </div>
+        
+        <!-- Adresse sous la carte -->
+        <div style="text-align: center; margin-top: 15px; color: var(--muted); font-size: 14px;">
+            <i class="fas fa-map-marker-alt" style="color: var(--green);"></i> 
+            <strong style="color: var(--brown);">Zone 4, Rue des Jardins</strong> - Abidjan, Côte d'Ivoire
         </div>
     </div>
 </section>

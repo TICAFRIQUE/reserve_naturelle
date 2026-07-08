@@ -26,8 +26,8 @@ class UserController extends Controller
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->where('nom', 'LIKE', "%{$search}%")
-                ->orWhere('prenom', 'LIKE', "%{$search}%")
-                ->orWhere('email', 'LIKE', "%{$search}%");
+                  ->orWhere('prenom', 'LIKE', "%{$search}%")
+                  ->orWhere('email', 'LIKE', "%{$search}%");
             });
         }
         
@@ -66,6 +66,16 @@ class UserController extends Controller
     }
 
     /**
+     * Display the specified resource.
+     */
+    public function show(string $id){
+
+        // Afficher un utilisateur avec ses relations
+        $user = User::with(['carts', 'achats', 'orders'])->findOrFail($id);
+        return view('admin.users.show', compact('user'));
+    }
+
+    /**
      * Show the form for editing the specified resource.
      */
     public function edit(string $id){
@@ -78,6 +88,7 @@ class UserController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id){
+
         // Récupérer l'utilisateur
         $user = User::findOrFail($id);
 
@@ -98,6 +109,7 @@ class UserController extends Controller
             // Sinon on le retire des données à mettre à jour
             unset($data['password']);
         }
+
         $user->update($data);
 
         return redirect()->route('admin.users.index')
@@ -108,7 +120,7 @@ class UserController extends Controller
      * Remove the specified resource from storage.
      */
     public function destroy(string $id){
-       // Récupérer l'utilisateur
+        // Récupérer l'utilisateur
         $user = User::findOrFail($id);
 
         // Vérifier si l'utilisateur a des commandes ou achats
@@ -122,4 +134,40 @@ class UserController extends Controller
         return redirect()->route('admin.users.index')
             ->with('success', 'Utilisateur supprimé avec succès.');
     }
+
+    /**
+     * Changer le rôle d'un utilisateur
+     */
+    // public function changeRole(Request $request, string $id){
+    //     $user = User::findOrFail($id);
+
+    //     $request->validate([
+    //         'role' => ['required', Rule::in(['admin', 'fournisseur', 'user'])]
+    //     ]);
+
+    //     $user->update(['role' => $request->role]);
+
+    //     return redirect()->route('admin.users.index')
+    //         ->with('success', 'Rôle de l\'utilisateur mis à jour.');
+    // }
+
+    /**
+     * Récupérer les utilisateurs par rôle (API)
+     */
+    // public function getByRole(string $role)
+    // {
+    //     if (!in_array($role, ['admin', 'fournisseur', 'user'])) {
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'message' => 'Rôle invalide'
+    //         ], 400);
+    //     }
+
+    //     $users = User::where('role', $role)->get();
+
+    //     return response()->json([
+    //         'status' => 'success',
+    //         'data' => $users
+    //     ], 200);
+    // }
 }

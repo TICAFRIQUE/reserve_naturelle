@@ -18,7 +18,7 @@
                         Modification du produit : <strong style="color: #2d5a27;">{{ $product->designation }}</strong>
                     </p>
                 </div>
-                <a href="{{ route('admin.products.index') }}" style="
+                <a href="{{ route('admin.produits.index') }}" style="
                     background: #e8e0d5;
                     color: #2d5a27;
                     padding: 12px 24px;
@@ -149,7 +149,7 @@
                 border: 1px solid #e8e0d5;
                 padding: 40px;
             ">
-                <form action="{{ route('admin.products.update', $product) }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('admin.produits.update', $product) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
 
@@ -430,7 +430,7 @@
 
                     <!-- Boutons -->
                     <div style="display: flex; justify-content: flex-end; gap: 15px; padding-top: 25px; border-top: 1px solid #e8e0d5;">
-                        <a href="{{ route('admin.products.index') }}" style="
+                        <a href="{{ route('admin.produits.index') }}" style="
                             background: #e8e0d5;
                             color: #2d5a27;
                             padding: 12px 30px;
