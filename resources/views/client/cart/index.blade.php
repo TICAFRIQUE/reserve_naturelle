@@ -86,10 +86,13 @@
                                 style="background: #dc3545; color: white; padding: 10px 25px; border: none; border-radius: 8px; cursor: pointer;">
                             🗑️ Vider
                         </button>
+                        </form>
+                    <form action="{{ route('client.orders.store') }}" method="POST" onsubmit="return confirm('Confirmer la commande ?');">
+                        @csrf
+                        <button type="submit" style="background: #2e7d32; color: white; padding: 10px 30px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                            📦 Passer commande
+                        </button>
                     </form>
-                    <button style="background: #2e7d32; color: white; padding: 10px 30px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
-                        📦 Passer commande
-                    </button>
                 </div>
             </div>
         </div>

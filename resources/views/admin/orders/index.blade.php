@@ -224,7 +224,7 @@
                                         </span>
                                     </td>
                                     <td style="padding: 15px 20px;">
-                                        <div style="font-weight: 500; color: #2d5a27;">{{ $order->user->name ?? 'N/A' }}</div>
+                                        <div style="font-weight: 500; color: #2d5a27;">{{ $order->user->nom ?? 'N/A' }}</div>
                                         <div style="color: #6c757d; font-size: 0.8rem;">
                                             <i class="fas fa-envelope" style="color: #2d5a27; font-size: 10px;"></i>
                                             {{ $order->user->email ?? '' }}

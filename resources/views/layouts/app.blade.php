@@ -136,8 +136,8 @@
             </a>
             <ul class="dropdown-menu">
               <li>
-                <a href="{{ Auth::user()->isAdmin() ? route('admin.dashboard') : route('client.products.catalogue') }}">
-                  <i class="fas fa-tachometer-alt"></i> Tableau de bord
+                <a href="{{ Auth::user()->isAdmin() ? route('client.orders.index') : route('client.orders.index') }}">
+                  <i class="fas fa-tachometer-alt"></i> Mes commandes
                 </a>
               </li>
               <li><a href="#"><i class="fas fa-key"></i> Changer mot de passe</a></li>

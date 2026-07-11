@@ -23,7 +23,7 @@ class OrderController extends Controller
         abort_unless($order->user_id === auth()->id(), 403);
         $order->load('items.product');
 
-        return view('orders.show', compact('order'));
+        return view('client.orders.show', compact('order'));
     }
 
     public function store(Request $request){

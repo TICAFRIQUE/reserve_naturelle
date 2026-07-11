@@ -109,8 +109,8 @@
                     <div style="padding: 20px 25px;">
                         <table style="width: 100%; border-collapse: collapse;">
                             <tr>
-                                <td style="padding: 8px 0; font-weight: 600; color: #2d5a27; width: 40%;">ID</td>
-                                <td style="padding: 8px 0; color: #6c757d;">#{{ $order->id }}</td>
+                                {{-- <td style="padding: 8px 0; font-weight: 600; color: #2d5a27; width: 40%;">ID</td>
+                                <td style="padding: 8px 0; color: #6c757d;">#{{ $order->id }}</td> --}}
                             </tr>
                             <tr>
                                 <td style="padding: 8px 0; font-weight: 600; color: #2d5a27;">Numéro de Commande</td>
@@ -237,7 +237,7 @@
                                 <td style="padding: 8px 0; font-weight: 600; color: #2d5a27; width: 40%;">Client</td>
                                 <td style="padding: 8px 0;">
                                     <span style="font-weight: 500; color: #2d5a27; font-size: 1.05rem;">
-                                        {{ $order->user->name ?? 'N/A' }}
+                                        {{ $order->user->prenom ?? 'N/A' }}
                                     </span>
                                 </td>
                             </tr>
@@ -251,12 +251,12 @@
                                     </a>
                                 </td>
                             </tr>
-                            <tr>
+                            {{-- <tr>
                                 <td style="padding: 8px 0; font-weight: 600; color: #2d5a27;">
                                     <i class="fas fa-hashtag" style="color: #2d5a27; margin-right: 5px;"></i> ID Client
                                 </td>
                                 <td style="padding: 8px 0; color: #6c757d;">#{{ $order->user->id ?? 'N/A' }}</td>
-                            </tr>
+                            </tr> --}}
                             <tr>
                                 <td style="padding: 8px 0; font-weight: 600; color: #2d5a27;">
                                     <i class="fas fa-calendar-plus" style="color: #2d5a27; margin-right: 5px;"></i> Inscrit le
@@ -382,7 +382,7 @@
                                                 @endif
                                                 <div>
                                                     <div style="font-weight: 500; color: #2d5a27;">
-                                                        {{ $item->product->designation ?? $item->product->name ?? 'Produit supprimé' }}
+                                                        {{ $item->product->designation ?? $item->product->nom ?? 'Produit supprimé' }}
                                                     </div>
                                                     @if(!$item->product)
                                                         <span style="
@@ -413,14 +413,14 @@
                                                 font-weight: 600;
                                                 display: inline-block;
                                             ">
-                                                {{ $item->quantity }}
+                                                {{ $item->qte }}
                                             </span>
                                         </td>
                                         <td style="padding: 12px 20px; text-align: right; color: #6c757d;">
-                                            {{ number_format($item->price, 0, ',', ' ') }} FCFA
+                                            {{ number_format($item->product->prix_vente, 0, ',', ' ') }} FCFA
                                         </td>
                                         <td style="padding: 12px 20px; text-align: right; font-weight: 700; color: #2d5a27;">
-                                            {{ number_format($item->quantity * $item->price, 0, ',', ' ') }} FCFA
+                                            {{ number_format($item->qte * ($item->product->prix_vente ?? 0), 0, ',', ' ') }} FCFA
                                         </td>
                                     </tr>
                                 @endforeach
