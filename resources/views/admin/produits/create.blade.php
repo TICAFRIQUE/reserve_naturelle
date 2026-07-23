@@ -69,73 +69,36 @@
                 <form action="{{ route('admin.produits.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
-                    <!-- Référence et Désignation -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 25px;">
-                        <!-- Référence -->
-                        <div>
-                            <label for="reference_prod" style="display: block; font-weight: 600; color: #2d5a27; margin-bottom: 8px; font-size: 0.95rem;">
-                                <i class="fas fa-hashtag" style="color: #2d5a27; margin-right: 5px;"></i>
-                                Référence <span style="color: #dc3545;">*</span>
-                            </label>
-                            <input type="text" 
-                                   id="reference_prod" 
-                                   name="reference_prod" 
-                                   value="{{ old('reference_prod') }}"
-                                   style="
-                                       width: 100%;
-                                       padding: 12px 16px;
-                                       border: 2px solid {{ $errors->has('reference_prod') ? '#dc3545' : '#e8e0d5' }};
-                                       border-radius: 8px;
-                                       font-size: 1rem;
-                                       transition: border-color 0.3s;
-                                       outline: none;
-                                       background: #faf8f5;
-                                   "
-                                   onfocus="this.style.borderColor='#2d5a27'; this.style.background='white'"
-                                   onblur="this.style.borderColor='{{ $errors->has('reference_prod') ? '#dc3545' : '#e8e0d5' }}'; this.style.background='#faf8f5'"
-                                   placeholder="Ex: PROD-001"
-                                   required>
-                            <div style="color: #6c757d; font-size: 0.8rem; margin-top: 5px;">
-                                <i class="fas fa-info-circle"></i> Référence unique du produit
-                            </div>
-                            @error('reference_prod')
-                                <div style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;">
-                                    <i class="fas fa-exclamation-circle"></i> {{ $message }}
-                                </div>
-                            @enderror
-                        </div>
-
                         <!-- Désignation -->
-                        <div>
+                        <div style="margin-bottom: 25px;">
                             <label for="designation" style="display: block; font-weight: 600; color: #2d5a27; margin-bottom: 8px; font-size: 0.95rem;">
                                 <i class="fas fa-tag" style="color: #2d5a27; margin-right: 5px;"></i>
                                 Désignation <span style="color: #dc3545;">*</span>
                             </label>
                             <input type="text" 
-                                   id="designation" 
-                                   name="designation" 
-                                   value="{{ old('designation') }}"
-                                   style="
-                                       width: 100%;
-                                       padding: 12px 16px;
-                                       border: 2px solid {{ $errors->has('designation') ? '#dc3545' : '#e8e0d5' }};
-                                       border-radius: 8px;
-                                       font-size: 1rem;
-                                       transition: border-color 0.3s;
-                                       outline: none;
-                                       background: #faf8f5;
-                                   "
-                                   onfocus="this.style.borderColor='#2d5a27'; this.style.background='white'"
-                                   onblur="this.style.borderColor='{{ $errors->has('designation') ? '#dc3545' : '#e8e0d5' }}'; this.style.background='#faf8f5'"
-                                   placeholder="Ex: T-shirt Coton Bio"
-                                   required>
+                                id="designation" 
+                                name="designation" 
+                                value="{{ old('designation') }}"
+                                style="
+                                    width: 100%;
+                                    padding: 12px 16px;
+                                    border: 2px solid {{ $errors->has('designation') ? '#dc3545' : '#e8e0d5' }};
+                                    border-radius: 8px;
+                                    font-size: 1rem;
+                                    transition: border-color 0.3s;
+                                    outline: none;
+                                    background: #faf8f5;
+                                "
+                                onfocus="this.style.borderColor='#2d5a27'; this.style.background='white'"
+                                onblur="this.style.borderColor='{{ $errors->has('designation') ? '#dc3545' : '#e8e0d5' }}'; this.style.background='#faf8f5'"
+                                placeholder="Ex: T-shirt Coton Bio"
+                                required>
                             @error('designation')
                                 <div style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;">
                                     <i class="fas fa-exclamation-circle"></i> {{ $message }}
                                 </div>
                             @enderror
                         </div>
-                    </div>
 
                     <!-- Catégorie et Prix -->
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 25px;">

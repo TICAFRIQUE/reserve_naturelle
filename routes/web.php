@@ -6,16 +6,16 @@
     use App\Http\Controllers\Admin\FournisseurController;
     use App\Http\Controllers\Admin\SousCategoryController;
     use App\Http\Controllers\Admin\UserController;
+    use App\Http\Controllers\Admin\LivreurController;
+    use App\Http\Controllers\Admin\TourneeController;
+    use App\Http\Controllers\Admin\ZoneController;
     use App\Http\Controllers\Admin\OrderController as AdminOrderController;
     use App\Http\Controllers\Admin\ProductController as AdminProductController;
     use App\Http\Controllers\Client\ProductController as ClientProductController;
     use App\Http\Controllers\Client\OrderController as ClientOrderController;
     use App\Http\Controllers\Client\CartController;
+    use App\Http\Controllers\Client\CheckoutController;
     use Illuminate\Support\Facades\Route;
-
-    //-------------------------------------------------
-    // LES ROUTES ADMIN
-    //-------------------------------------------------
 
     // Accueil = catalogue produit (public)
         Route::get('/', [ClientProductController::class, 'index'])->name('home');
@@ -28,16 +28,15 @@
         Route::get('/catalogue', [ClientProductController::class, 'catalogue'])->name('products.catalogue');
     });
 
-    // Fiche produit + recherche AJAX : réservées aux utilisateurs connectés
+        // Fiche produit + recherche AJAX : réservées aux utilisateurs connectés
     Route::prefix('client')->name('client.')->middleware(['auth'])->group(function () {
 
         Route::prefix('produits')->name('products.')->group(function () {
-        
             Route::get('/recherche', [ClientProductController::class, 'search'])->name('search');
             Route::get('/{product}', [ClientProductController::class, 'show'])->name('show');
         });
         
-        //Les routes paniers et commandes : réservés aux utilisateurs connectés
+        // Les routes paniers : réservés aux utilisateurs connectés
         Route::prefix('panier')->name('cart.')->group(function(){
             Route::get('/', [CartController::class, 'index'])->name('index');
             Route::post('/', [CartController::class, 'store'])->name('store');
@@ -45,10 +44,24 @@
             Route::post('/items/{item}', [CartController::class, 'destroy'])->name('destroy');
             Route::delete('/clear', [CartController::class, 'clear'])->name('clear');
         });
+        
+        // Les routes commandes
         Route::prefix('commandes')->name('orders.')->group(function(){
             Route::get('/', [ClientOrderController::class, 'index'])->name('index');
             Route::get('/{order}', [ClientOrderController::class, 'show'])->name('show');
-            Route::post('/',[ClientOrderController::class, 'store'])->name('store');
+            Route::post('/', [ClientOrderController::class, 'store'])->name('store');
+            
+            // Routes paiement (déplacées ici pour cohérence)
+            Route::get('/{order}/pay', [ClientOrderController::class, 'pay'])->name('pay');
+            Route::post('/{order}/confirm', [ClientOrderController::class, 'confirm'])->name('confirm');
+        });
+        
+        // Routes checkout (avec l'ID de la commande en paramètre)
+        Route::prefix('checkout')->name('checkout.')->group(function(){
+            // Affiche le formulaire de validation pour une commande spécifique
+            Route::get('/{order}', [CheckoutController::class, 'show'])->name('show');
+            // Met à jour la commande avec les infos de livraison
+            Route::post('/{order}', [CheckoutController::class, 'store'])->name('store');
         });
     });
 
@@ -73,10 +86,12 @@
         Route::prefix('admin')->middleware(['admin'])->name('admin.')->group(function () {
             Route::get('/dashboard', fn () => view('admin.dashboard'))->name('dashboard');
 
-            //Routes CRUD categories,sous-categories,users, produits et fournisseurs admin
+            //Routes CRUD categories,sous-categories,users,zones, produits,livreur et fournisseurs admin
             Route::resource('categories', CategoryController::class);
             Route::resource('sous-categories', SousCategoryController::class);
+            Route::resource('zones', ZoneController::class)->except(['show']);
             Route::resource('users', UserController::class);
+            Route::resource('livreurs', LivreurController::class);
             Route::resource('fournisseurs', FournisseurController::class);
             Route::resource('produits', AdminProductController::class);
 
@@ -88,5 +103,18 @@
             Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
             Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
             Route::patch('/orders/{order}/status', [AdminOrderController::class, 'changeStatus'])->name('orders.status');
+            Route::delete('orders/{order}', [AdminOrderController::class, 'destroy'])->name('orders.destroy');
+
+            //Routes concernant les tournées(Livraison et expedition)
+            Route::prefix('tournees')->name('tournees.')->group(function(){
+                Route::get('/', [TourneeController::class, 'index'])->name('index');
+                Route::get('/create', [TourneeController::class, 'create'])->name('create');
+                Route::get('/zones/{zone}/orders', [TourneeController::class, 'ordersByZone'])->name('orders-by-zone');
+                Route::post('/', [TourneeController::class, 'store'])->name('store');
+                Route::get('/{tournee}', [TourneeController::class, 'show'])->name('show');
+                Route::post('/{tournee}/orders/{order}/deliver', [TourneeController::class, 'markOrderDelivered'])->name('deliver-order');
+                Route::post('/{tournee}/close', [TourneeController::class, 'close'])->name('close');
+            });
         });
+        
     });

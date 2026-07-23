@@ -23,7 +23,7 @@ class RegisterController extends Controller
             'nom' => ['required', 'string', 'max:255'],
             'prenom' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => ['required', 'string', 'min:6', 'confirmed'],
             'tel' => ['nullable', 'string', 'max:20'], 
         ]);
 
@@ -51,7 +51,7 @@ class RegisterController extends Controller
         }
 
         // Message de bienvenue
-        return redirect()->route('dashboard')->with('success', 'Bienvenue ' . $user->prenom . ' ' . $user->nom . ' !');
+        return redirect()->route('client.products.index')->with('success', 'Bienvenue '  . $user->nom  . ' ' . $user->prenom. ' !');
     }
 
     public function checkEmail(Request $request)

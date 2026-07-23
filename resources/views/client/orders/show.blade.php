@@ -16,6 +16,19 @@
 @endphp
 
 <div class="container" style="max-width: 900px; margin: 40px auto; padding: 0 20px 60px;">
+    @if(session('success'))
+        <div style="background: #d4edda; color: #155724; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-check-circle"></i>
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div style="background: #f8d7da; color: #721c24; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-exclamation-circle"></i>
+            {{ session('error') }}
+        </div>
+    @endif
     <a href="{{ route('client.orders.index') }}" style="color: var(--muted); text-decoration: none; font-size: 14px; display: inline-block; margin-bottom: 20px;">
         ← Retour aux commandes
     </a>
@@ -58,8 +71,15 @@
     </div>
 
     @if($order->statut === 'en_attente')
+        <div style="text-align: center; margin-top: 25px;">
+            <a href="{{ route('client.checkout.show', $order) }}"
+               style="background: var(--green-dark, #1565c0); color: white; padding: 14px 40px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block;">
+                Valider le panier
+            </a>
+        </div>
+    @elseif($order->statut === 'payee')
         <p style="text-align: center; color: var(--muted); font-size: 13px; margin-top: 20px;">
-            Votre commande est en cours de traitement. Contactez-nous pour toute question.
+            Paiement reçu, commande en attente de validation par l'administration.
         </p>
     @endif
 </div>

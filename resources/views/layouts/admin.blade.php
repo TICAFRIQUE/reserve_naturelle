@@ -574,6 +574,12 @@
                 <span class="nav-badge">{{ \App\Models\Fournisseur::count() }}</span>
             </a>
 
+            <!-- LIVREURS -->
+            <a href="{{ route('admin.livreurs.index') }}" class="nav-item {{ request()->routeIs('admin.livreurs.*') ? 'active' : '' }}">
+                <i class="fas fa-motorcycle"></i> Livreurs
+                <span class="nav-badge">{{ \App\Models\Livreur::count() }}</span>
+            </a>
+
             <div class="nav-section">Utilisateurs</div>
 
             <!-- UTILISATEURS -->
@@ -752,10 +758,8 @@
                 </div>
             </div>
         </footer>
-
     </div><!-- /admin-main-wrapper -->
-
-</div><!-- /admin-dashboard -->
+</div>
 
 <!-- ========================================= -->
 <!-- SCRIPTS -->
@@ -790,14 +794,12 @@
     // ====== MENU HAMBURGER NAVBAR ======
     const hamburger = document.getElementById('hamburger');
     const navbar = document.getElementById('navbar');
-
     if (hamburger && navbar) {
         hamburger.addEventListener('click', function(e) {
             e.stopPropagation();
             this.classList.toggle('active');
             navbar.classList.toggle('active');
         });
-
         document.addEventListener('click', function(e) {
             if (!navbar.contains(e.target) && !hamburger.contains(e.target)) {
                 hamburger.classList.remove('active');
@@ -805,7 +807,6 @@
             }
         });
     }
-
     // ====== DROPDOWN MOBILE ======
     const dropdowns = document.querySelectorAll('.dropdown-profile');
 
@@ -823,7 +824,6 @@
             });
         }
     });
-
     // Fermer le dropdown en cliquant ailleurs
     document.querySelectorAll('.nav-links > li:not(.dropdown-profile) a').forEach(link => {
         link.addEventListener('click', () => {
@@ -834,7 +834,6 @@
             }
         });
     });
-
     window.addEventListener('resize', function() {
         if (window.innerWidth > 992) {
             hamburger.classList.remove('active');
@@ -843,8 +842,6 @@
         }
     });
 </script>
-
 @stack('scripts')
-
 </body>
 </html>

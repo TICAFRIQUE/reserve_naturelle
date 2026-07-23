@@ -9,10 +9,10 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
+    public function up(): void{
         Schema::create('ajustements', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('product_id')->constrained()->onDelete('cascade');
             $table->integer('qte_corriger');
             $table->integer('qte_apres');
             $table->integer('qte_avant');
@@ -22,7 +22,7 @@ return new class extends Migration
             $table->enum('type', ['ajout', 'retrait'])->default('ajout');
             $table->string('motif');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('achat_id')->constrained()->onDelete('cascade');
+            $table->foreignId('achat_id')->nullable()->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

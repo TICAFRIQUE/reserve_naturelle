@@ -285,6 +285,22 @@
                         <span style="font-weight: 500;">Commandes</span>
                     </a>
 
+                    <!-- Tournées -->
+                    <a href="{{ route('admin.tournees.index') }}" style="
+                        background: white;
+                        padding: 20px 15px;
+                        border-radius: 12px;
+                        border: 1px solid #e8e0d5;
+                        text-decoration: none;
+                        color: #2d5a27;
+                        text-align: center;
+                        transition: all 0.3s;
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+                    " onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 20px rgba(45,90,39,0.1)'; this.style.borderColor='#b8860b'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.04)'; this.style.borderColor='#e8e0d5'">
+                        <i class="fas fa-route" style="font-size: 28px; color: #b8860b; display: block; margin-bottom: 8px;"></i>
+                        <span style="font-weight: 500;">Tournées</span>
+                    </a>
+
                     <!-- Fournisseurs -->
                     <a href="{{ route('admin.fournisseurs.index') }}" style="
                         background: white;
@@ -299,6 +315,38 @@
                     " onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 20px rgba(45,90,39,0.1)'; this.style.borderColor='#2d5a27'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.04)'; this.style.borderColor='#e8e0d5'">
                         <i class="fas fa-truck" style="font-size: 28px; color: #2d5a27; display: block; margin-bottom: 8px;"></i>
                         <span style="font-weight: 500;">Fournisseurs</span>
+                    </a>
+
+                    <!-- Livreurs -->
+                    <a href="{{ route('admin.livreurs.index') }}" style="
+                        background: white;
+                        padding: 20px 15px;
+                        border-radius: 12px;
+                        border: 1px solid #e8e0d5;
+                        text-decoration: none;
+                        color: #2d5a27;
+                        text-align: center;
+                        transition: all 0.3s;
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+                    " onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 20px rgba(45,90,39,0.1)'; this.style.borderColor='#2d5a27'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.04)'; this.style.borderColor='#e8e0d5'">
+                        <i class="fas fa-motorcycle" style="font-size: 28px; color: #2d5a27; display: block; margin-bottom: 8px;"></i>
+                        <span style="font-weight: 500;">Livreurs</span>
+                    </a>
+
+                    <!-- Zones -->
+                    <a href="{{ route('admin.zones.index') }}" style="
+                        background: white;
+                        padding: 20px 15px;
+                        border-radius: 12px;
+                        border: 1px solid #e8e0d5;
+                        text-decoration: none;
+                        color: #2d5a27;
+                        text-align: center;
+                        transition: all 0.3s;
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+                    " onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 20px rgba(45,90,39,0.1)'; this.style.borderColor='#b8860b'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.04)'; this.style.borderColor='#e8e0d5'">
+                        <i class="fas fa-map-marked-alt" style="font-size: 28px; color: #b8860b; display: block; margin-bottom: 8px;"></i>
+                        <span style="font-weight: 500;">Zones de livraison</span>
                     </a>
 
                     <!-- Utilisateurs -->
@@ -460,6 +508,21 @@
                             " onmouseover="this.style.background='#1e3d1a'" onmouseout="this.style.background='#2d5a27'">
                                 <i class="fas fa-folder"></i> Catégories
                             </a>
+                            <a href="{{ route('admin.tournees.index') }}" style="
+                                background: #b8860b;
+                                color: white;
+                                padding: 8px 20px;
+                                border-radius: 30px;
+                                text-decoration: none;
+                                font-weight: 500;
+                                transition: all 0.3s;
+                                display: inline-flex;
+                                align-items: center;
+                                gap: 8px;
+                                font-size: 0.9rem;
+                            " onmouseover="this.style.background='#9a7209'" onmouseout="this.style.background='#b8860b'">
+                                <i class="fas fa-route"></i> Tournées
+                            </a>
                             <a href="{{ route('admin.produits.create') }}" style="
                                 background: #2d5a27;
                                 color: white;
@@ -489,6 +552,21 @@
                                 font-size: 0.9rem;
                             " onmouseover="this.style.background='#0d47a1'" onmouseout="this.style.background='#1565c0'">
                                 <i class="fas fa-shopping-cart"></i> Commandes
+                            </a>
+                            <a href="{{ route('admin.zones.index') }}" style="
+                                background: #b8860b;
+                                color: white;
+                                padding: 8px 20px;
+                                border-radius: 30px;
+                                text-decoration: none;
+                                font-weight: 500;
+                                transition: all 0.3s;
+                                display: inline-flex;
+                                align-items: center;
+                                gap: 8px;
+                                font-size: 0.9rem;
+                            " onmouseover="this.style.background='#9a7209'" onmouseout="this.style.background='#b8860b'">
+                                <i class="fas fa-map-marked-alt"></i> Zones
                             </a>
                         </div>
                     </div>

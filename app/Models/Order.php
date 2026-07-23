@@ -10,12 +10,17 @@ class Order extends Model
     use HasFactory;
 
     protected $fillable = [
-        'num_order',
-        'date_order',
-        'mt_total',
-        'statut',
-        'remise',
-        'user_id',
+    'num_order',
+    'date_order',
+    'mt_total',
+    'statut',
+    'remise',
+    'user_id',
+    'zone_id',
+    'adresse_precise',
+    'ville_expedition',
+    'tarif_livraison',
+    'montant_ttc',
     ];
 
     protected $casts = [
@@ -30,7 +35,15 @@ class Order extends Model
         return $this->hasMany(OrderItem::class);
     }
 
+    public function zone(){
+        return $this->belongsTo(Zone::class);
+    }
+
     public function products(){
         return $this->belongsToMany(Product::class, 'order_items');
+    }
+
+    public function tournees(){
+        return $this->belongsToMany(Tournee::class, 'tournee_order');
     }
 }

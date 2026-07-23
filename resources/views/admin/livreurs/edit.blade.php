@@ -1,24 +1,24 @@
 @extends('layouts.admin')
 
-@section('title', 'Modifier le Fournisseur - La Réserve Naturelle')
+@section('title', 'Modifier ' . $livreur->nom . ' - La Réserve Naturelle')
 
 @section('content')
 <div class="container" style="padding: 40px 0;">
     <div class="row">
         <div class="col-12">
-            <!-- Entête avec titre et bouton retour -->
+            <!-- Entête -->
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px;">
                 <div>
                     <h1 style="font-family: 'Playfair Display', serif; color: #2d5a27; font-size: 2rem; margin: 0;">
                         <i class="fas fa-user-edit" style="color: #2d5a27; margin-right: 10px;"></i>
-                        Modifier le fournisseur
+                        Modifier {{ $livreur->nom }}
                     </h1>
                     <p style="color: #6c757d; margin: 5px 0 0 0;">
-                        <i class="fas fa-truck" style="color: #2d5a27; margin-right: 5px;"></i>
-                        Modification de : <strong style="color: #2d5a27;">{{ $fournisseur->full_name }}</strong>
+                        <i class="fas fa-motorcycle" style="color: #2d5a27; margin-right: 5px;"></i>
+                        Modification des informations du livreur
                     </p>
                 </div>
-                <a href="{{ route('admin.fournisseurs.index') }}" style="
+                <a href="{{ route('admin.livreurs.index') }}" style="
                     background: #e8e0d5;
                     color: #2d5a27;
                     padding: 12px 24px;
@@ -35,23 +35,6 @@
             </div>
 
             <!-- Messages d'erreur -->
-            @if(session('error'))
-                <div style="
-                    background: #f8d7da;
-                    color: #721c24;
-                    padding: 12px 20px;
-                    border-radius: 8px;
-                    border-left: 4px solid #dc3545;
-                    margin-bottom: 20px;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                ">
-                    <i class="fas fa-exclamation-circle" style="font-size: 20px;"></i>
-                    {{ session('error') }}
-                </div>
-            @endif
-
             @if($errors->any())
                 <div style="
                     background: #f8d7da;
@@ -75,7 +58,7 @@
                 </div>
             @endif
 
-            <!-- Information sur le fournisseur -->
+            <!-- Information sur le livreur -->
             <div style="
                 background: #f8f5f0;
                 padding: 15px 20px;
@@ -100,12 +83,12 @@
                         font-weight: bold;
                         font-size: 16px;
                     ">
-                        {{ strtoupper(substr($fournisseur->prenom ?? '', 0, 1)) }}{{ strtoupper(substr($fournisseur->nom ?? '', 0, 1)) }}
+                        <i class="fas fa-user"></i>
                     </div>
                     <div>
-                        <div style="font-weight: 600; color: #2d5a27; font-size: 1.05rem;">{{ $fournisseur->full_name }}</div>
+                        <div style="font-weight: 600; color: #2d5a27; font-size: 1.05rem;">{{ $livreur->nom }}</div>
                         <div style="color: #6c757d; font-size: 0.85rem;">
-                            <i class="fas fa-phone" style="color: #2d5a27;"></i> {{ $fournisseur->tel }}
+                            <i class="fas fa-phone" style="color: #2d5a27;"></i> {{ $livreur->tel }}
                         </div>
                     </div>
                 </div>
@@ -121,32 +104,22 @@
                             display: inline-block;
                             margin-top: 2px;
                         ">
-                            <i class="fas fa-city"></i> {{ $fournisseur->ville }}
+                            <i class="fas fa-city"></i> {{ $livreur->ville ?? '—' }}
                         </span>
                     </div>
                     <div style="text-align: center;">
-                        <div style="font-weight: 600; color: #2d5a27; font-size: 0.85rem;">Date d'ajout</div>
-                        <div style="color: #6c757d; font-size: 0.85rem; margin-top: 2px;">
-                            @if($fournisseur->date_ajout instanceof \Carbon\Carbon)
-                                {{ $fournisseur->date_ajout->format('d/m/Y') }}
-                            @else
-                                {{ date('d/m/Y', strtotime($fournisseur->date_ajout)) }}
-                            @endif
-                        </div>
-                    </div>
-                    <div style="text-align: center;">
-                        <div style="font-weight: 600; color: #2d5a27; font-size: 0.85rem;">Achats</div>
+                        <div style="font-weight: 600; color: #2d5a27; font-size: 0.85rem;">Statut</div>
                         <span style="
-                            background: #f8f5f0;
-                            color: #2d5a27;
-                            padding: 4px 12px;
+                            background: {{ $livreur->statut === 'disponible' ? '#d4edda' : '#f8d7da' }};
+                            color: {{ $livreur->statut === 'disponible' ? '#155724' : '#721c24' }};
+                            padding: 4px 14px;
                             border-radius: 20px;
                             font-size: 0.8rem;
-                            font-weight: 600;
                             display: inline-block;
                             margin-top: 2px;
                         ">
-                            {{ $fournisseur->achats()->count() }}
+                            <i class="fas {{ $livreur->statut === 'disponible' ? 'fa-check-circle' : 'fa-times-circle' }}"></i>
+                            {{ $livreur->statut === 'disponible' ? 'Disponible' : 'Indisponible' }}
                         </span>
                     </div>
                 </div>
@@ -159,74 +132,42 @@
                 box-shadow: 0 2px 8px rgba(0,0,0,0.08);
                 border: 1px solid #e8e0d5;
                 padding: 40px;
-                max-width: 800px;
+                max-width: 700px;
                 margin: 0 auto;
             ">
-                <form action="{{ route('admin.fournisseurs.update', $fournisseur->id) }}" method="POST">
+                <form action="{{ route('admin.livreurs.update', $livreur->id) }}" method="POST">
                     @csrf
                     @method('PUT')
 
-                    <!-- Nom et Prénom -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 25px;">
-                        <!-- Nom -->
-                        <div>
-                            <label for="nom" style="display: block; font-weight: 600; color: #2d5a27; margin-bottom: 8px; font-size: 0.95rem;">
-                                Nom <span style="color: #dc3545;">*</span>
-                            </label>
-                            <input type="text" 
-                                   id="nom" 
-                                   name="nom" 
-                                   value="{{ old('nom', $fournisseur->nom) }}"
-                                   style="
-                                       width: 100%;
-                                       padding: 12px 16px;
-                                       border: 2px solid {{ $errors->has('nom') ? '#dc3545' : '#e8e0d5' }};
-                                       border-radius: 8px;
-                                       font-size: 1rem;
-                                       transition: border-color 0.3s;
-                                       outline: none;
-                                       background: #faf8f5;
-                                   "
-                                   onfocus="this.style.borderColor='#2d5a27'; this.style.background='white'"
-                                   onblur="this.style.borderColor='{{ $errors->has('nom') ? '#dc3545' : '#e8e0d5' }}'; this.style.background='#faf8f5'"
-                                   placeholder="Ex: Dupont"
-                                   required>
-                            @error('nom')
-                                <div style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;">
-                                    <i class="fas fa-exclamation-circle"></i> {{ $message }}
-                                </div>
-                            @enderror
-                        </div>
-
-                        <!-- Prénom -->
-                        <div>
-                            <label for="prenom" style="display: block; font-weight: 600; color: #2d5a27; margin-bottom: 8px; font-size: 0.95rem;">
-                                Prénom <span style="color: #dc3545;">*</span>
-                            </label>
-                            <input type="text" 
-                                   id="prenom" 
-                                   name="prenom" 
-                                   value="{{ old('prenom', $fournisseur->prenom) }}"
-                                   style="
-                                       width: 100%;
-                                       padding: 12px 16px;
-                                       border: 2px solid {{ $errors->has('prenom') ? '#dc3545' : '#e8e0d5' }};
-                                       border-radius: 8px;
-                                       font-size: 1rem;
-                                       transition: border-color 0.3s;
-                                       outline: none;
-                                       background: #faf8f5;
-                                   "
-                                   onfocus="this.style.borderColor='#2d5a27'; this.style.background='white'"
-                                   onblur="this.style.borderColor='{{ $errors->has('prenom') ? '#dc3545' : '#e8e0d5' }}'; this.style.background='#faf8f5'"
-                                   placeholder="Ex: Jean"
-                                   required>
-                            @error('prenom')
-                                <div style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;">
-                                    <i class="fas fa-exclamation-circle"></i> {{ $message }}
-                                </div>
-                            @enderror
-                        </div>
+                    <!-- Nom -->
+                    <div style="margin-bottom: 25px;">
+                        <label for="nom" style="display: block; font-weight: 600; color: #2d5a27; margin-bottom: 8px; font-size: 0.95rem;">
+                            <i class="fas fa-user" style="color: #2d5a27; margin-right: 5px;"></i>
+                            Nom complet <span style="color: #dc3545;">*</span>
+                        </label>
+                        <input type="text" 
+                               name="nom" 
+                               id="nom" 
+                               value="{{ old('nom', $livreur->nom) }}" 
+                               required 
+                               style="
+                                   width: 100%;
+                                   padding: 12px 16px;
+                                   border: 2px solid {{ $errors->has('nom') ? '#dc3545' : '#e8e0d5' }};
+                                   border-radius: 8px;
+                                   font-size: 1rem;
+                                   transition: border-color 0.3s;
+                                   outline: none;
+                                   background: #faf8f5;
+                               "
+                               onfocus="this.style.borderColor='#2d5a27'; this.style.background='white'"
+                               onblur="this.style.borderColor='{{ $errors->has('nom') ? '#dc3545' : '#e8e0d5' }}'; this.style.background='#faf8f5'"
+                               placeholder="Ex: Jean Kouadio">
+                        @error('nom')
+                            <div style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;">
+                                <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                            </div>
+                        @enderror
                     </div>
 
                     <!-- Téléphone -->
@@ -236,9 +177,10 @@
                             Téléphone <span style="color: #dc3545;">*</span>
                         </label>
                         <input type="text" 
-                               id="tel" 
                                name="tel" 
-                               value="{{ old('tel', $fournisseur->tel) }}"
+                               id="tel" 
+                               value="{{ old('tel', $livreur->tel) }}" 
+                               required 
                                style="
                                    width: 100%;
                                    padding: 12px 16px;
@@ -251,10 +193,9 @@
                                "
                                onfocus="this.style.borderColor='#2d5a27'; this.style.background='white'"
                                onblur="this.style.borderColor='{{ $errors->has('tel') ? '#dc3545' : '#e8e0d5' }}'; this.style.background='#faf8f5'"
-                               placeholder="Ex: 0555688480"
-                               required>
+                               placeholder="Ex: 0555688480">
                         <div style="color: #6c757d; font-size: 0.8rem; margin-top: 5px;">
-                            <i class="fas fa-info-circle"></i> Numéro de téléphone du fournisseur
+                            <i class="fas fa-info-circle"></i> Numéro de téléphone du livreur
                         </div>
                         @error('tel')
                             <div style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;">
@@ -263,69 +204,103 @@
                         @enderror
                     </div>
 
-                    <!-- Adresse -->
-                    <div style="margin-bottom: 25px;">
-                        <label for="adress" style="display: block; font-weight: 600; color: #2d5a27; margin-bottom: 8px; font-size: 0.95rem;">
-                            <i class="fas fa-map-marker-alt" style="color: #2d5a27; margin-right: 5px;"></i>
-                            Adresse <span style="color: #dc3545;">*</span>
-                        </label>
-                        <textarea id="adress" 
-                                  name="adress" 
-                                  rows="3"
-                                  style="
-                                      width: 100%;
-                                      padding: 12px 16px;
-                                      border: 2px solid {{ $errors->has('adress') ? '#dc3545' : '#e8e0d5' }};
-                                      border-radius: 8px;
-                                      font-size: 1rem;
-                                      transition: border-color 0.3s;
-                                      outline: none;
-                                      background: #faf8f5;
-                                      resize: vertical;
-                                      font-family: inherit;
-                                  "
-                                  onfocus="this.style.borderColor='#2d5a27'; this.style.background='white'"
-                                  onblur="this.style.borderColor='{{ $errors->has('adress') ? '#dc3545' : '#e8e0d5' }}'; this.style.background='#faf8f5'"
-                                  placeholder="Ex: 123 Rue de la Paix, Quartier Administratif"
-                                  required>{{ old('adress', $fournisseur->adress) }}</textarea>
-                        <div style="color: #6c757d; font-size: 0.8rem; margin-top: 5px;">
-                            <i class="fas fa-info-circle"></i> Adresse complète du fournisseur
+                    <!-- Ville et Quartier -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 25px;">
+                        <!-- Ville -->
+                        <div>
+                            <label for="ville" style="display: block; font-weight: 600; color: #2d5a27; margin-bottom: 8px; font-size: 0.95rem;">
+                                <i class="fas fa-city" style="color: #2d5a27; margin-right: 5px;"></i>
+                                Ville
+                            </label>
+                            <input type="text" 
+                                   name="ville" 
+                                   id="ville" 
+                                   value="{{ old('ville', $livreur->ville) }}" 
+                                   style="
+                                       width: 100%;
+                                       padding: 12px 16px;
+                                       border: 2px solid {{ $errors->has('ville') ? '#dc3545' : '#e8e0d5' }};
+                                       border-radius: 8px;
+                                       font-size: 1rem;
+                                       transition: border-color 0.3s;
+                                       outline: none;
+                                       background: #faf8f5;
+                                   "
+                                   onfocus="this.style.borderColor='#2d5a27'; this.style.background='white'"
+                                   onblur="this.style.borderColor='{{ $errors->has('ville') ? '#dc3545' : '#e8e0d5' }}'; this.style.background='#faf8f5'"
+                                   placeholder="Ex: Abidjan">
+                            @error('ville')
+                                <div style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;">
+                                    <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                </div>
+                            @enderror
                         </div>
-                        @error('adress')
-                            <div style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;">
-                                <i class="fas fa-exclamation-circle"></i> {{ $message }}
-                            </div>
-                        @enderror
+
+                        <!-- Quartier -->
+                        <div>
+                            <label for="quartier" style="display: block; font-weight: 600; color: #2d5a27; margin-bottom: 8px; font-size: 0.95rem;">
+                                <i class="fas fa-map-marker-alt" style="color: #2d5a27; margin-right: 5px;"></i>
+                                Quartier
+                            </label>
+                            <input type="text" 
+                                   name="quartier" 
+                                   id="quartier" 
+                                   value="{{ old('quartier', $livreur->quartier) }}" 
+                                   style="
+                                       width: 100%;
+                                       padding: 12px 16px;
+                                       border: 2px solid {{ $errors->has('quartier') ? '#dc3545' : '#e8e0d5' }};
+                                       border-radius: 8px;
+                                       font-size: 1rem;
+                                       transition: border-color 0.3s;
+                                       outline: none;
+                                       background: #faf8f5;
+                                   "
+                                   onfocus="this.style.borderColor='#2d5a27'; this.style.background='white'"
+                                   onblur="this.style.borderColor='{{ $errors->has('quartier') ? '#dc3545' : '#e8e0d5' }}'; this.style.background='#faf8f5'"
+                                   placeholder="Ex: Cocody">
+                            @error('quartier')
+                                <div style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;">
+                                    <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                </div>
+                            @enderror
+                        </div>
                     </div>
 
-                    <!-- Ville -->
+                    <!-- Statut -->
                     <div style="margin-bottom: 30px;">
-                        <label for="ville" style="display: block; font-weight: 600; color: #2d5a27; margin-bottom: 8px; font-size: 0.95rem;">
-                            <i class="fas fa-city" style="color: #2d5a27; margin-right: 5px;"></i>
-                            Ville <span style="color: #dc3545;">*</span>
+                        <label for="statut" style="display: block; font-weight: 600; color: #2d5a27; margin-bottom: 8px; font-size: 0.95rem;">
+                            <i class="fas fa-toggle-on" style="color: #2d5a27; margin-right: 5px;"></i>
+                            Statut <span style="color: #dc3545;">*</span>
                         </label>
-                        <input type="text" 
-                               id="ville" 
-                               name="ville" 
-                               value="{{ old('ville', $fournisseur->ville) }}"
-                               style="
-                                   width: 100%;
-                                   padding: 12px 16px;
-                                   border: 2px solid {{ $errors->has('ville') ? '#dc3545' : '#e8e0d5' }};
-                                   border-radius: 8px;
-                                   font-size: 1rem;
-                                   transition: border-color 0.3s;
-                                   outline: none;
-                                   background: #faf8f5;
-                               "
-                               onfocus="this.style.borderColor='#2d5a27'; this.style.background='white'"
-                               onblur="this.style.borderColor='{{ $errors->has('ville') ? '#dc3545' : '#e8e0d5' }}'; this.style.background='#faf8f5'"
-                               placeholder="Ex: Abidjan, Bouaké, Daloa..."
-                               required>
+                        <select name="statut" 
+                                id="statut" 
+                                required
+                                style="
+                                    width: 100%;
+                                    max-width: 400px;
+                                    padding: 12px 16px;
+                                    border: 2px solid {{ $errors->has('statut') ? '#dc3545' : '#e8e0d5' }};
+                                    border-radius: 8px;
+                                    font-size: 1rem;
+                                    transition: border-color 0.3s;
+                                    outline: none;
+                                    background: #faf8f5;
+                                    cursor: pointer;
+                                "
+                                onfocus="this.style.borderColor='#2d5a27'"
+                                onblur="this.style.borderColor='{{ $errors->has('statut') ? '#dc3545' : '#e8e0d5' }}'">
+                            <option value="disponible" {{ old('statut', $livreur->statut) == 'disponible' ? 'selected' : '' }}>
+                                ✅ Disponible
+                            </option>
+                            <option value="indisponible" {{ old('statut', $livreur->statut) == 'indisponible' ? 'selected' : '' }}>
+                                ❌ Indisponible
+                            </option>
+                        </select>
                         <div style="color: #6c757d; font-size: 0.8rem; margin-top: 5px;">
-                            <i class="fas fa-info-circle"></i> Ville de résidence du fournisseur
+                            <i class="fas fa-info-circle"></i> Détermine si le livreur peut être assigné à des livraisons
                         </div>
-                        @error('ville')
+                        @error('statut')
                             <div style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;">
                                 <i class="fas fa-exclamation-circle"></i> {{ $message }}
                             </div>
@@ -334,7 +309,7 @@
 
                     <!-- Boutons -->
                     <div style="display: flex; justify-content: flex-end; gap: 15px; padding-top: 25px; border-top: 1px solid #e8e0d5;">
-                        <a href="{{ route('admin.fournisseurs.index') }}" style="
+                        <a href="{{ route('admin.livreurs.index') }}" style="
                             background: #e8e0d5;
                             color: #2d5a27;
                             padding: 12px 30px;
@@ -403,7 +378,7 @@
             padding: 25px 20px !important;
             margin: 0 !important;
         }
-        .container > div > div:last-child > form > div:first-child {
+        .container > div > div:last-child > form > div:nth-child(3) {
             grid-template-columns: 1fr !important;
             gap: 15px !important;
         }
@@ -414,6 +389,9 @@
         .container > div > div:last-child > form > div:last-child button {
             width: 100%;
             justify-content: center;
+        }
+        select {
+            max-width: 100% !important;
         }
     }
 </style>

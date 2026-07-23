@@ -791,7 +791,7 @@
                             </a>
                             <ul class="dropdown-menu">
                                 <li>
-                                    <a href="{{ Auth::user()->isAdmin() ? route('client.index') : route('client.index') }}">
+                                    <a href="{{ Auth::user()->isAdmin() ? route('client.products.index') : route('client.products.index') }}">
                                         <i class="fas fa-tachometer-alt"></i> Retour au site
                                     </a>
                                 </li>

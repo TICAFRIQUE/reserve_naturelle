@@ -153,8 +153,39 @@
 
 <script>
 function addToCart(productId) {
-    const qte = document.getElementById('qte')?.value || 1;
-    alert('Ajout de ' + qte + ' unité(s) du produit #' + productId + ' - Fonctionnalité à venir');
+    const qteInput = document.getElementById('qte');
+    const qte = qteInput ? parseInt(qteInput.value) : 1;
+    const btn = event.target.closest('button');
+    const originalText = btn.innerHTML;
+
+    btn.disabled = true;
+    btn.innerHTML = 'Ajout en cours...';
+
+    fetch('{{ route('client.cart.store') }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+        },
+        body: JSON.stringify({ product_id: productId, qte: qte })
+    })
+    .then(res => res.json().then(data => ({ status: res.status, body: data })))
+    .then(({ status, body }) => {
+        if (status === 200 && body.success) {
+            btn.innerHTML = '✓ Ajouté !';
+            setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 1500);
+        } else {
+            alert(body.message || 'Erreur lors de l\'ajout au panier.');
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    })
+    .catch(() => {
+        alert('Erreur réseau. Réessayez.');
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    });
 }
 </script>
 

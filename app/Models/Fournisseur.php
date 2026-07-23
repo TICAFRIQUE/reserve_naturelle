@@ -17,8 +17,16 @@ class Fournisseur extends Model
         'ville',
         'date_ajout',
     ];
- 
+
+    //Les relations
+    
     public function achats(){
         return $this->hasMany(Achat::class);
+    }
+     /**
+     * Accesseur pour le nom complet
+     */
+    public function getFullNameAttribute(){
+        return trim($this->prenom . ' ' . $this->nom);
     }
 }

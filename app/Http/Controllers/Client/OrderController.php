@@ -26,6 +26,9 @@ class OrderController extends Controller
         return view('client.orders.show', compact('order'));
     }
 
+    /**
+     * Étape 1 : Créer une commande depuis le panier (statut initial: panier_converti)
+     */
     public function store(Request $request){
         $cart = Cart::where('user_id', auth()->id())->with('items.product')->first();
 
@@ -33,7 +36,6 @@ class OrderController extends Controller
             return back()->with('error', 'Votre panier est vide.');
         }
 
-        // vérif stock global avant transaction
         foreach ($cart->items as $item) {
             if ($item->qte > $item->product->qte_dispo) {
                 return back()->with('error', "Stock insuffisant pour {$item->product->designation}.");
@@ -47,7 +49,7 @@ class OrderController extends Controller
                 'num_order'  => 'CMD-' . strtoupper(Str::random(8)),
                 'date_order' => now(),
                 'mt_total'   => $mtTotal,
-                'statut'     => 'en_attente',
+                'statut'     => 'panier_converti',
                 'user_id'    => auth()->id(),
             ]);
 
@@ -56,13 +58,48 @@ class OrderController extends Controller
                     'product_id' => $item->product_id,
                     'qte'        => $item->qte,
                 ]);
+
                 $item->product->decrement('qte_dispo', $item->qte);
             }
-
             $cart->items()->delete();
             return $order;
         });
 
-        return redirect()->route('client.orders.show', $order)->with('success', 'Commande passée avec succès.');
+        return redirect()->route('client.checkout.show', $order)
+            ->with('success', 'Commande créée avec succès ! Veuillez renseigner vos informations de livraison.');
+    }
+
+    /**
+     * Étape 2 : Afficher le récapitulatif avant validation
+     */
+    public function pay(Order $order){
+        abort_if($order->user_id !== auth()->id(), 403);
+
+        if (!$order->zone_id || !$order->adresse_precise) {
+            return redirect()->route('client.checkout.show', $order)
+                ->with('error', 'Veuillez d\'abord renseigner vos informations de livraison.');
+        }
+
+        abort_if($order->statut !== 'panier_converti', 403, 'Commande déjà traitée.');
+
+        return view('client.orders.payment', compact('order'));
+    }
+
+    /**
+     * Étape 3 : Valider la commande (statut final: en_attente)
+     */
+    public function confirm(Order $order){
+        abort_if($order->user_id !== auth()->id(), 403);
+        abort_if($order->statut !== 'panier_converti', 403, 'Commande déjà traitée.');
+
+        if (!$order->zone_id || !$order->adresse_precise) {
+            return redirect()->route('client.checkout.show', $order)
+                ->with('error', 'Veuillez d\'abord renseigner vos informations de livraison.');
+        }
+
+        $order->update(['statut' => 'en_attente']);
+
+        return redirect()->route('client.orders.index')
+            ->with('success', 'Commande validée avec succès ! Elle est en attente de traitement.');
     }
 }

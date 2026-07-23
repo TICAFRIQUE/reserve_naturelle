@@ -22,6 +22,7 @@
         @php
             $statutLabels = [
                 'en_attente' => ['label' => 'En attente', 'color' => '#e65100', 'bg' => '#fff3e0'],
+                'payee'      => ['label' => 'Payée', 'color' => '#6a1b9a', 'bg' => '#f3e5f5'],
                 'validee'    => ['label' => 'Validée', 'color' => '#1565c0', 'bg' => '#e3f2fd'],
                 'livree'     => ['label' => 'Livrée', 'color' => '#2e7d32', 'bg' => '#e8f5e9'],
                 'annulee'    => ['label' => 'Annulée', 'color' => '#c62828', 'bg' => '#ffebee'],

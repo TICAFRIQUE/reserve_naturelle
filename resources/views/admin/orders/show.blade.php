@@ -15,8 +15,8 @@
                     </h1>
                     <p style="color: #6c757d; margin: 5px 0 0 0;">
                         <i class="fas fa-calendar" style="color: #2d5a27; margin-right: 5px;"></i>
-                        {{ $order->date_order->format('d/m/Y H:i') }} - 
-                        <strong style="color: #2d5a27;">{{ $order->user->name ?? 'Client N/A' }}</strong>
+                        {{ $order->date_order instanceof \Carbon\Carbon ? $order->date_order->format('d/m/Y H:i') : date('d/m/Y H:i', strtotime($order->date_order)) }} - 
+                        <strong style="color: #2d5a27;">{{ $order->user->prenom ?? $order->user->name ?? 'Client N/A' }}</strong>
                     </p>
                 </div>
                 <div style="display: flex; gap: 10px; flex-wrap: wrap;">
@@ -109,11 +109,7 @@
                     <div style="padding: 20px 25px;">
                         <table style="width: 100%; border-collapse: collapse;">
                             <tr>
-                                {{-- <td style="padding: 8px 0; font-weight: 600; color: #2d5a27; width: 40%;">ID</td>
-                                <td style="padding: 8px 0; color: #6c757d;">#{{ $order->id }}</td> --}}
-                            </tr>
-                            <tr>
-                                <td style="padding: 8px 0; font-weight: 600; color: #2d5a27;">Numéro de Commande</td>
+                                <td style="padding: 8px 0; font-weight: 600; color: #2d5a27; width: 40%;">Numéro de Commande</td>
                                 <td style="padding: 8px 0;">
                                     <span style="
                                         background: #e8f5e9;
@@ -131,14 +127,18 @@
                             <tr>
                                 <td style="padding: 8px 0; font-weight: 600; color: #2d5a27;">Date de Commande</td>
                                 <td style="padding: 8px 0; color: #2d5a27; font-weight: 500;">
-                                    {{ $order->date_order->format('d/m/Y H:i') }}
+                                    @if($order->date_order instanceof \Carbon\Carbon)
+                                        {{ $order->date_order->format('d/m/Y H:i') }}
+                                    @else
+                                        {{ date('d/m/Y H:i', strtotime($order->date_order)) }}
+                                    @endif
                                 </td>
                             </tr>
                             <tr>
                                 <td style="padding: 8px 0; font-weight: 600; color: #2d5a27;">Montant Total</td>
                                 <td style="padding: 8px 0;">
                                     <span style="font-size: 1.2rem; font-weight: 700; color: #2d5a27;">
-                                        {{ number_format($order->mt_total, 0, ',', ' ') }} FCFA
+                                        {{ number_format($order->mt_total ?? $order->total ?? 0, 0, ',', ' ') }} FCFA
                                     </span>
                                 </td>
                             </tr>
@@ -148,6 +148,7 @@
                                     @php
                                         $statusConfig = [
                                             'en_attente' => ['bg' => '#fff3cd', 'color' => '#856404', 'icon' => 'fa-clock'],
+                                            'payee' => ['bg' => '#f3e5f5', 'color' => '#6a1b9a', 'icon' => 'fa-money-check-alt'],
                                             'validee' => ['bg' => '#cce5ff', 'color' => '#004085', 'icon' => 'fa-check-circle'],
                                             'livree' => ['bg' => '#d4edda', 'color' => '#155724', 'icon' => 'fa-truck'],
                                             'annulee' => ['bg' => '#f8d7da', 'color' => '#721c24', 'icon' => 'fa-times-circle']
@@ -189,11 +190,23 @@
                             </tr>
                             <tr>
                                 <td style="padding: 8px 0; font-weight: 600; color: #2d5a27;">Créé le</td>
-                                <td style="padding: 8px 0; color: #6c757d;">{{ $order->created_at->format('d/m/Y H:i') }}</td>
+                                <td style="padding: 8px 0; color: #6c757d;">
+                                    @if($order->created_at instanceof \Carbon\Carbon)
+                                        {{ $order->created_at->format('d/m/Y H:i') }}
+                                    @else
+                                        {{ date('d/m/Y H:i', strtotime($order->created_at)) }}
+                                    @endif
+                                </td>
                             </tr>
                             <tr>
                                 <td style="padding: 8px 0; font-weight: 600; color: #2d5a27;">Modifié le</td>
-                                <td style="padding: 8px 0; color: #6c757d;">{{ $order->updated_at->format('d/m/Y H:i') }}</td>
+                                <td style="padding: 8px 0; color: #6c757d;">
+                                    @if($order->updated_at instanceof \Carbon\Carbon)
+                                        {{ $order->updated_at->format('d/m/Y H:i') }}
+                                    @else
+                                        {{ date('d/m/Y H:i', strtotime($order->updated_at)) }}
+                                    @endif
+                                </td>
                             </tr>
                         </table>
                     </div>
@@ -237,8 +250,18 @@
                                 <td style="padding: 8px 0; font-weight: 600; color: #2d5a27; width: 40%;">Client</td>
                                 <td style="padding: 8px 0;">
                                     <span style="font-weight: 500; color: #2d5a27; font-size: 1.05rem;">
-                                        {{ $order->user->prenom ?? 'N/A' }}
+                                        {{ $order->user->prenom ?? $order->user->name ?? 'N/A' }}
                                     </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px 0; font-weight: 600; color: #2d5a27;">
+                                    <i class="fas fa-phone" style="color: #2d5a27; margin-right: 5px;"></i> Téléphone
+                                </td>
+                                <td style="padding: 8px 0;">
+                                    <a href="tel:{{ $order->user->tel ?? '' }}" style="color: #2d5a27; text-decoration: none;">
+                                        {{ $order->user->tel ?? 'N/A' }}
+                                    </a>
                                 </td>
                             </tr>
                             <tr>
@@ -251,18 +274,20 @@
                                     </a>
                                 </td>
                             </tr>
-                            {{-- <tr>
-                                <td style="padding: 8px 0; font-weight: 600; color: #2d5a27;">
-                                    <i class="fas fa-hashtag" style="color: #2d5a27; margin-right: 5px;"></i> ID Client
-                                </td>
-                                <td style="padding: 8px 0; color: #6c757d;">#{{ $order->user->id ?? 'N/A' }}</td>
-                            </tr> --}}
                             <tr>
                                 <td style="padding: 8px 0; font-weight: 600; color: #2d5a27;">
                                     <i class="fas fa-calendar-plus" style="color: #2d5a27; margin-right: 5px;"></i> Inscrit le
                                 </td>
                                 <td style="padding: 8px 0; color: #6c757d;">
-                                    {{ $order->user->created_at->format('d/m/Y') ?? 'N/A' }}
+                                    @if($order->user && $order->user->created_at)
+                                        @if($order->user->created_at instanceof \Carbon\Carbon)
+                                            {{ $order->user->created_at->format('d/m/Y') }}
+                                        @else
+                                            {{ date('d/m/Y', strtotime($order->user->created_at)) }}
+                                        @endif
+                                    @else
+                                        N/A
+                                    @endif
                                 </td>
                             </tr>
                             <tr>
@@ -278,7 +303,7 @@
                                         font-size: 0.85rem;
                                         display: inline-block;
                                     ">
-                                        {{ $order->user->orders->count() ?? 0 }} commande(s)
+                                        {{ $order->user ? $order->user->orders->count() : 0 }} commande(s)
                                     </span>
                                 </td>
                             </tr>
@@ -363,7 +388,7 @@
                                                         background: #f8f5f0;
                                                     ">
                                                         <img src="{{ asset('storage/' . $item->product->image_path) }}" 
-                                                             alt="{{ $item->product->designation ?? '' }}"
+                                                             alt="{{ $item->product->designation ?? $item->product->name ?? '' }}"
                                                              style="width: 100%; height: 100%; object-fit: cover;">
                                                     </div>
                                                 @else
@@ -382,7 +407,7 @@
                                                 @endif
                                                 <div>
                                                     <div style="font-weight: 500; color: #2d5a27;">
-                                                        {{ $item->product->designation ?? $item->product->nom ?? 'Produit supprimé' }}
+                                                        {{ $item->product->designation ?? $item->product->name ?? $item->product->nom ?? 'Produit supprimé' }}
                                                     </div>
                                                     @if(!$item->product)
                                                         <span style="
@@ -413,14 +438,14 @@
                                                 font-weight: 600;
                                                 display: inline-block;
                                             ">
-                                                {{ $item->qte }}
+                                                {{ $item->qte ?? $item->quantity }}
                                             </span>
                                         </td>
                                         <td style="padding: 12px 20px; text-align: right; color: #6c757d;">
-                                            {{ number_format($item->product->prix_vente, 0, ',', ' ') }} FCFA
+                                            {{ number_format($item->product->prix_vente ?? $item->price ?? 0, 0, ',', ' ') }} FCFA
                                         </td>
                                         <td style="padding: 12px 20px; text-align: right; font-weight: 700; color: #2d5a27;">
-                                            {{ number_format($item->qte * ($item->product->prix_vente ?? 0), 0, ',', ' ') }} FCFA
+                                            {{ number_format(($item->qte ?? $item->quantity) * ($item->product->prix_vente ?? $item->price ?? 0), 0, ',', ' ') }} FCFA
                                         </td>
                                     </tr>
                                 @endforeach
@@ -431,7 +456,7 @@
                                         Total Général
                                     </td>
                                     <td style="padding: 15px 20px; text-align: right; font-size: 1.2rem; font-weight: 700; color: #2d5a27;">
-                                        {{ number_format($order->mt_total, 0, ',', ' ') }} FCFA
+                                        {{ number_format($order->mt_total ?? $order->total ?? 0, 0, ',', ' ') }} FCFA
                                     </td>
                                 </tr>
                             </tfoot>
@@ -500,6 +525,9 @@
                             " onfocus="this.style.borderColor='#2d5a27'" onblur="this.style.borderColor='#e8e0d5'">
                                 <option value="en_attente" {{ $order->statut == 'en_attente' ? 'selected' : '' }}>
                                     ⏳ En Attente
+                                </option>
+                                <option value="payee" {{ $order->statut == 'payee' ? 'selected' : '' }}>
+                                    💳 Payée
                                 </option>
                                 <option value="validee" {{ $order->statut == 'validee' ? 'selected' : '' }}>
                                     ✅ Validée

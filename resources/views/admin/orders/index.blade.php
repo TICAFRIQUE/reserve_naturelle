@@ -92,6 +92,7 @@
                         " onfocus="this.style.borderColor='#2d5a27'" onblur="this.style.borderColor='#e8e0d5'">
                             <option value="">Tous les statuts</option>
                             <option value="en_attente" {{ request('statut') == 'en_attente' ? 'selected' : '' }}>⏳ En Attente</option>
+                            <option value="payee" {{ request('statut') == 'payee' ? 'selected' : '' }}>💳 Payée</option>
                             <option value="validee" {{ request('statut') == 'validee' ? 'selected' : '' }}>✅ Validée</option>
                             <option value="livree" {{ request('statut') == 'livree' ? 'selected' : '' }}>🚚 Livrée</option>
                             <option value="annulee" {{ request('statut') == 'annulee' ? 'selected' : '' }}>❌ Annulée</option>
@@ -195,13 +196,14 @@
                             border-bottom: 2px solid #e8e0d5;
                         ">
                             <tr>
-                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 5%;">#</th>
-                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 15%;">N° Commande</th>
-                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 20%;">Client</th>
-                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 13%;">Date</th>
-                                <th style="padding: 15px 20px; text-align: right; font-weight: 600; color: #2d5a27; width: 15%;">Montant</th>
-                                <th style="padding: 15px 20px; text-align: center; font-weight: 600; color: #2d5a27; width: 12%;">Statut</th>
-                                <th style="padding: 15px 20px; text-align: center; font-weight: 600; color: #2d5a27; width: 10%;">Articles</th>
+                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 4%;">#</th>
+                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 12%;">N° Commande</th>
+                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 15%;">Client</th>
+                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 16%;">Livraison</th>
+                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 11%;">Date</th>
+                                <th style="padding: 15px 20px; text-align: right; font-weight: 600; color: #2d5a27; width: 12%;">Montant</th>
+                                <th style="padding: 15px 20px; text-align: center; font-weight: 600; color: #2d5a27; width: 11%;">Statut</th>
+                                <th style="padding: 15px 20px; text-align: center; font-weight: 600; color: #2d5a27; width: 9%;">Articles</th>
                                 <th style="padding: 15px 20px; text-align: center; font-weight: 600; color: #2d5a27; width: 10%;">Actions</th>
                             </tr>
                         </thead>
@@ -224,25 +226,54 @@
                                         </span>
                                     </td>
                                     <td style="padding: 15px 20px;">
-                                        <div style="font-weight: 500; color: #2d5a27;">{{ $order->user->nom ?? 'N/A' }}</div>
+                                        <div style="font-weight: 500; color: #2d5a27;">{{ $order->user->prenom ?? $order->user->name ?? 'N/A' }}</div>
                                         <div style="color: #6c757d; font-size: 0.8rem;">
                                             <i class="fas fa-envelope" style="color: #2d5a27; font-size: 10px;"></i>
                                             {{ $order->user->email ?? '' }}
                                         </div>
                                     </td>
                                     <td style="padding: 15px 20px;">
-                                        <div style="color: #2d5a27; font-weight: 500;">{{ $order->date_order->format('d/m/Y') }}</div>
-                                        <div style="color: #6c757d; font-size: 0.75rem;">{{ $order->created_at->diffForHumans() }}</div>
+                                        @if($order->adresse_precise)
+                                            <div style="color: #2d5a27; font-size: 0.85rem;">
+                                                <i class="fas fa-map-marker-alt" style="color: #b8860b; font-size: 10px;"></i>
+                                                {{ Str::limit($order->adresse_precise, 40) }}
+                                            </div>
+                                            @if($order->zone)
+                                                <div style="color: #6c757d; font-size: 0.75rem; margin-top: 2px;">
+                                                    {{ $order->zone->nom }}
+                                                    @if($order->ville_expedition) — {{ $order->ville_expedition }} @endif
+                                                </div>
+                                            @endif
+                                        @else
+                                            <span style="color: #adb5bd; font-size: 0.8rem;">Non renseignée</span>
+                                        @endif
+                                    </td>
+                                    <td style="padding: 15px 20px;">
+                                        <div style="color: #2d5a27; font-weight: 500;">
+                                            @if($order->date_order instanceof \Carbon\Carbon)
+                                                {{ $order->date_order->format('d/m/Y') }}
+                                            @else
+                                                {{ date('d/m/Y', strtotime($order->date_order)) }}
+                                            @endif
+                                        </div>
+                                        <div style="color: #6c757d; font-size: 0.75rem;">
+                                            @if($order->created_at instanceof \Carbon\Carbon)
+                                                {{ $order->created_at->diffForHumans() }}
+                                            @else
+                                                {{ date('d/m/Y', strtotime($order->created_at)) }}
+                                            @endif
+                                        </div>
                                     </td>
                                     <td style="padding: 15px 20px; text-align: right;">
                                         <span style="font-weight: 700; color: #2d5a27; font-size: 1.05rem;">
-                                            {{ number_format($order->mt_total, 0, ',', ' ') }} FCFA
+                                            {{ number_format($order->mt_total ?? $order->total ?? 0, 0, ',', ' ') }} FCFA
                                         </span>
                                     </td>
                                     <td style="padding: 15px 20px; text-align: center;">
                                         @php
                                             $statusConfig = [
                                                 'en_attente' => ['bg' => '#fff3cd', 'color' => '#856404', 'icon' => 'fa-clock'],
+                                                'payee' => ['bg' => '#f3e5f5', 'color' => '#6a1b9a', 'icon' => 'fa-money-check-alt'],
                                                 'validee' => ['bg' => '#cce5ff', 'color' => '#004085', 'icon' => 'fa-check-circle'],
                                                 'livree' => ['bg' => '#d4edda', 'color' => '#155724', 'icon' => 'fa-truck'],
                                                 'annulee' => ['bg' => '#f8d7da', 'color' => '#721c24', 'icon' => 'fa-times-circle']
@@ -275,7 +306,7 @@
                                             {{ $order->items->count() }}
                                         </span>
                                     </td>
-                                    <td style="padding: 15px 20px; text-align: center;">
+                                    <td style="padding: 15px 20px; text-align: center; white-space: nowrap;">
                                         <a href="{{ route('admin.orders.show', $order) }}" style="
                                             background: #f0ebe5;
                                             color: #2d5a27;
@@ -290,11 +321,34 @@
                                         " onmouseover="this.style.background='#e0d6c8'" onmouseout="this.style.background='#f0ebe5'">
                                             <i class="fas fa-eye"></i> Détails
                                         </a>
+
+                                        @if($order->statut === 'en_attente')
+                                            <form action="{{ route('admin.orders.destroy', $order) }}" method="POST" style="display:inline-block; margin-left:6px;"
+                                                  onsubmit="return confirm('Supprimer définitivement la commande {{ $order->num_order }} ?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" style="
+                                                    background: #f8d7da;
+                                                    color: #721c24;
+                                                    padding: 8px 14px;
+                                                    border-radius: 20px;
+                                                    border: none;
+                                                    font-size: 0.85rem;
+                                                    cursor: pointer;
+                                                    transition: all 0.2s;
+                                                    display: inline-flex;
+                                                    align-items: center;
+                                                    gap: 6px;
+                                                " onmouseover="this.style.background='#f1b0b7'" onmouseout="this.style.background='#f8d7da'">
+                                                    <i class="fas fa-trash"></i> Supprimer
+                                                </button>
+                                            </form>
+                                        @endif
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="8" style="padding: 60px 20px; text-align: center; color: #6c757d;">
+                                    <td colspan="9" style="padding: 60px 20px; text-align: center; color: #6c757d;">
                                         <i class="fas fa-inbox" style="font-size: 48px; display: block; margin-bottom: 15px; color: #d4c9bb;"></i>
                                         <p style="font-size: 1.1rem; margin: 0;">Aucune commande trouvée</p>
                                         <p style="margin-top: 5px;">Aucune commande ne correspond à vos critères de recherche</p>

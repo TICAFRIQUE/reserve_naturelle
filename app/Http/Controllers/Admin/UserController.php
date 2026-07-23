@@ -97,7 +97,7 @@ class UserController extends Controller
             'nom' => 'required|string|max:255',
             'prenom' => 'required|string|max:255',
             'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'password' => 'nullable|string|min:8|confirmed',
+            'password' => 'nullable|string|min:6|confirmed',
             'tel' => 'nullable|string|max:20',
             'role' => ['required', Rule::in(['admin', 'fournisseur', 'user'])],
         ]);
@@ -134,40 +134,4 @@ class UserController extends Controller
         return redirect()->route('admin.users.index')
             ->with('success', 'Utilisateur supprimé avec succès.');
     }
-
-    /**
-     * Changer le rôle d'un utilisateur
-     */
-    // public function changeRole(Request $request, string $id){
-    //     $user = User::findOrFail($id);
-
-    //     $request->validate([
-    //         'role' => ['required', Rule::in(['admin', 'fournisseur', 'user'])]
-    //     ]);
-
-    //     $user->update(['role' => $request->role]);
-
-    //     return redirect()->route('admin.users.index')
-    //         ->with('success', 'Rôle de l\'utilisateur mis à jour.');
-    // }
-
-    /**
-     * Récupérer les utilisateurs par rôle (API)
-     */
-    // public function getByRole(string $role)
-    // {
-    //     if (!in_array($role, ['admin', 'fournisseur', 'user'])) {
-    //         return response()->json([
-    //             'status' => 'error',
-    //             'message' => 'Rôle invalide'
-    //         ], 400);
-    //     }
-
-    //     $users = User::where('role', $role)->get();
-
-    //     return response()->json([
-    //         'status' => 'success',
-    //         'data' => $users
-    //     ], 200);
-    // }
 }

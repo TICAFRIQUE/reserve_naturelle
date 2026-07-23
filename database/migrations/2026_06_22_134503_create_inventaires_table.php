@@ -9,12 +9,13 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
+    public function up(): void{
         Schema::create('inventaires', function (Blueprint $table) {
             $table->id();
-            $table->integer('qte');
-            $table->enum('type_mvt', ['entree', 'sortie'])->default('entree');
+            $table->date('date_debut');
+            $table->date('date_fin')->nullable();
+            $table->enum('statut', ['en_cours', 'valide'])->default('en_cours');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

@@ -45,7 +45,7 @@ class User extends Authenticatable
 
     // Accesseur pour le nom complet
     public function getFullNameAttribute(){
-        return $this->prenom . ' ' . $this->nom;
+        return $this->nom . ' ' .$this->prenom;
     }
 
     public function carts(){

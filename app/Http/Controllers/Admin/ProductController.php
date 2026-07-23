@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
@@ -76,7 +77,6 @@ class ProductController extends Controller
      */
     public function store(Request $request){
         $data = $request->validate([
-            'reference_prod' => 'required|string|max:50|unique:products,reference_prod',
             'designation' => 'required|string|max:255',
             'description' => 'nullable|string',
             'prix_vente' => 'required|numeric|min:0|regex:/^\d+(\.\d{1,2})?$/',
@@ -86,7 +86,8 @@ class ProductController extends Controller
             'status' => 'sometimes|in:draft,published,out_of_stock',
         ]);
 
-        // Gestion de l'image
+        $data['reference_prod'] = $this->generateUniqueReference();
+
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('products', 'public');
             $data['image_path'] = $imagePath;
@@ -98,6 +99,13 @@ class ProductController extends Controller
             ->with('success', 'Produit créé avec succès.');
     }
 
+    private function generateUniqueReference(): string{
+        do{
+            $reference = 'REF-' . strtoupper(Str::random(8));
+        } while (Product::where('reference_prod', $reference)->exists());
+
+        return $reference;
+    }
     /**
      * Display the specified product.
      */

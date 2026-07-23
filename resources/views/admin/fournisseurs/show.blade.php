@@ -50,24 +50,6 @@
                 </div>
             </div>
 
-            <!-- Message si fournisseur supprimé -->
-            @if($fournisseur->trashed())
-                <div style="
-                    background: #fff3cd;
-                    color: #856404;
-                    padding: 12px 20px;
-                    border-radius: 8px;
-                    border-left: 4px solid #ffc107;
-                    margin-bottom: 20px;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                ">
-                    <i class="fas fa-exclamation-triangle" style="font-size: 20px;"></i>
-                    Ce fournisseur a été supprimé le {{ $fournisseur->deleted_at->format('d/m/Y à H:i') }}
-                </div>
-            @endif
-
             <!-- Messages flash -->
             @if(session('success'))
                 <div style="
@@ -83,6 +65,23 @@
                 ">
                     <i class="fas fa-check-circle" style="font-size: 20px;"></i>
                     {{ session('success') }}
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div style="
+                    background: #f8d7da;
+                    color: #721c24;
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    border-left: 4px solid #dc3545;
+                    margin-bottom: 20px;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                ">
+                    <i class="fas fa-exclamation-circle" style="font-size: 20px;"></i>
+                    {{ session('error') }}
                 </div>
             @endif
 
@@ -168,19 +167,37 @@
                                 <td style="padding: 8px 0; font-weight: 600; color: #2d5a27;">
                                     <i class="fas fa-calendar-plus" style="color: #2d5a27; margin-right: 5px;"></i> Date d'ajout
                                 </td>
-                                <td style="padding: 8px 0; color: #6c757d;">{{ $fournisseur->date_ajout->format('d/m/Y') }}</td>
+                                <td style="padding: 8px 0; color: #6c757d;">
+                                    @if($fournisseur->date_ajout instanceof \Carbon\Carbon)
+                                        {{ $fournisseur->date_ajout->format('d/m/Y') }}
+                                    @else
+                                        {{ date('d/m/Y', strtotime($fournisseur->date_ajout)) }}
+                                    @endif
+                                </td>
                             </tr>
                             <tr>
                                 <td style="padding: 8px 0; font-weight: 600; color: #2d5a27;">
                                     <i class="fas fa-clock" style="color: #2d5a27; margin-right: 5px;"></i> Créé le
                                 </td>
-                                <td style="padding: 8px 0; color: #6c757d;">{{ $fournisseur->created_at->format('d/m/Y à H:i') }}</td>
+                                <td style="padding: 8px 0; color: #6c757d;">
+                                    @if($fournisseur->created_at instanceof \Carbon\Carbon)
+                                        {{ $fournisseur->created_at->format('d/m/Y à H:i') }}
+                                    @else
+                                        {{ date('d/m/Y à H:i', strtotime($fournisseur->created_at)) }}
+                                    @endif
+                                </td>
                             </tr>
                             <tr>
                                 <td style="padding: 8px 0; font-weight: 600; color: #2d5a27;">
                                     <i class="fas fa-edit" style="color: #2d5a27; margin-right: 5px;"></i> Modifié le
                                 </td>
-                                <td style="padding: 8px 0; color: #6c757d;">{{ $fournisseur->updated_at->format('d/m/Y à H:i') }}</td>
+                                <td style="padding: 8px 0; color: #6c757d;">
+                                    @if($fournisseur->updated_at instanceof \Carbon\Carbon)
+                                        {{ $fournisseur->updated_at->format('d/m/Y à H:i') }}
+                                    @else
+                                        {{ date('d/m/Y à H:i', strtotime($fournisseur->updated_at)) }}
+                                    @endif
+                                </td>
                             </tr>
                         </table>
                     </div>
@@ -232,7 +249,13 @@
                                     @foreach($fournisseur->achats as $achat)
                                         <tr style="border-bottom: 1px solid #f0ebe5;">
                                             <td style="padding: 12px 20px; color: #6c757d;">#{{ $achat->id }}</td>
-                                            <td style="padding: 12px 20px; color: #2d5a27;">{{ $achat->created_at->format('d/m/Y') }}</td>
+                                            <td style="padding: 12px 20px; color: #2d5a27;">
+                                                @if($achat->created_at instanceof \Carbon\Carbon)
+                                                    {{ $achat->created_at->format('d/m/Y') }}
+                                                @else
+                                                    {{ date('d/m/Y', strtotime($achat->created_at)) }}
+                                                @endif
+                                            </td>
                                             <td style="padding: 12px 20px; text-align: right; font-weight: 600; color: #2d5a27;">
                                                 {{ number_format($achat->montant ?? 0, 0, ',', ' ') }} FCFA
                                             </td>
@@ -265,59 +288,57 @@
             </div>
 
             <!-- Zone de danger (suppression) -->
-            @if(!$fournisseur->trashed())
+            <div style="
+                background: white;
+                border-radius: 12px;
+                border: 1px solid #f8d7da;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+                overflow: hidden;
+            ">
                 <div style="
-                    background: white;
-                    border-radius: 12px;
-                    border: 1px solid #f8d7da;
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-                    overflow: hidden;
+                    padding: 20px 25px;
+                    background: #fce4ec;
+                    border-bottom: 1px solid #f8d7da;
                 ">
-                    <div style="
-                        padding: 20px 25px;
-                        background: #fce4ec;
-                        border-bottom: 1px solid #f8d7da;
-                    ">
-                        <h5 style="color: #c62828; margin: 0; font-size: 1.1rem;">
-                            <i class="fas fa-exclamation-triangle"></i> Zone de danger
-                        </h5>
-                    </div>
-                    <div style="padding: 20px 25px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-                        <div>
-                            <p style="color: #721c24; margin: 0; font-weight: 500;">
-                                <i class="fas fa-trash-alt" style="color: #dc3545;"></i>
-                                Supprimer ce fournisseur
-                            </p>
-                            <small style="color: #6c757d;">La suppression est irréversible et supprime tous les achats associés</small>
-                        </div>
-                        <form action="{{ route('admin.fournisseurs.destroy', $fournisseur->id) }}" 
-                              method="POST" 
-                              style="display:inline-block;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" 
-                                    style="
-                                        background: #dc3545;
-                                        color: white;
-                                        padding: 10px 30px;
-                                        border-radius: 30px;
-                                        border: none;
-                                        font-weight: 500;
-                                        cursor: pointer;
-                                        transition: all 0.3s ease;
-                                        display: inline-flex;
-                                        align-items: center;
-                                        gap: 8px;
-                                    "
-                                    onmouseover="this.style.background='#c82333'"
-                                    onmouseout="this.style.background='#dc3545'"
-                                    onclick="return confirm('Êtes-vous sûr de vouloir supprimer définitivement ce fournisseur ? Cette action est irréversible.');">
-                                <i class="fas fa-trash-alt"></i> Supprimer ce fournisseur
-                            </button>
-                        </form>
-                    </div>
+                    <h5 style="color: #c62828; margin: 0; font-size: 1.1rem;">
+                        <i class="fas fa-exclamation-triangle"></i> Zone de danger
+                    </h5>
                 </div>
-            @endif
+                <div style="padding: 20px 25px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                    <div>
+                        <p style="color: #721c24; margin: 0; font-weight: 500;">
+                            <i class="fas fa-trash-alt" style="color: #dc3545;"></i>
+                            Supprimer ce fournisseur
+                        </p>
+                        <small style="color: #6c757d;">La suppression est irréversible et supprime tous les achats associés</small>
+                    </div>
+                    <form action="{{ route('admin.fournisseurs.destroy', $fournisseur->id) }}" 
+                          method="POST" 
+                          style="display:inline-block;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" 
+                                style="
+                                    background: #dc3545;
+                                    color: white;
+                                    padding: 10px 30px;
+                                    border-radius: 30px;
+                                    border: none;
+                                    font-weight: 500;
+                                    cursor: pointer;
+                                    transition: all 0.3s ease;
+                                    display: inline-flex;
+                                    align-items: center;
+                                    gap: 8px;
+                                "
+                                onmouseover="this.style.background='#c82333'"
+                                onmouseout="this.style.background='#dc3545'"
+                                onclick="return confirm('Êtes-vous sûr de vouloir supprimer définitivement ce fournisseur ? Cette action est irréversible.');">
+                            <i class="fas fa-trash-alt"></i> Supprimer ce fournisseur
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -341,7 +362,7 @@
             width: 100%;
             justify-content: center;
         }
-        .container > div > div:nth-child(4) {
+        .container > div > div:nth-child(3) {
             grid-template-columns: 1fr !important;
         }
         .container > div > div:last-child > div:last-child {
@@ -361,7 +382,7 @@
         th, td {
             padding: 8px 12px !important;
         }
-        .container > div > div:nth-child(4) > div:first-child > div:last-child table td {
+        .container > div > div:nth-child(3) > div:first-child > div:last-child table td {
             padding: 6px 0 !important;
         }
     }
