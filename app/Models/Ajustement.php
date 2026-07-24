@@ -1,15 +1,16 @@
 <?php
- 
+
 namespace App\Models;
- 
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
- 
+
 class Ajustement extends Model
 {
     use HasFactory;
- 
+
     protected $fillable = [
+        'product_id',
         'qte_corriger',
         'qte_apres',
         'qte_avant',
@@ -21,16 +22,20 @@ class Ajustement extends Model
         'user_id',
         'achat_id',
     ];
- 
+
     protected $casts = [
         'date_ajust' => 'date',
         'h_ajust' => 'datetime',
     ];
- 
+
+    public function product(){
+        return $this->belongsTo(Product::class);
+    }
+
     public function user(){
         return $this->belongsTo(User::class);
     }
- 
+
     public function achat(){
         return $this->belongsTo(Achat::class);
     }

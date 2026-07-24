@@ -10,13 +10,11 @@ class Inventaire extends Model
     use HasFactory;
  
     protected $fillable = [
-        'reference_prod',
-        'designation',
-        'description',
-        'prix_vente',
-        'qte_dispo',
-        'category_id',
-        'image_path',
+        'date_debut',
+        'date_fin',
+        'statut',
+        'user_id',
+        
     ];
  
     public function category(){

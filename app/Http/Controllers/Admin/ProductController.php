@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\SousCategory;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
@@ -69,7 +70,8 @@ class ProductController extends Controller
      */
     public function create(){
         $categories = Category::orderBy('nom')->get();
-        return view('admin.produits.create', compact('categories'));
+        $sous_categories = SousCategory::orderBy('nom')->get();
+        return view('admin.produits.create', compact('categories','sous_categories'));
     }
 
     /**
