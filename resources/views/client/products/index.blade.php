@@ -220,35 +220,11 @@
                                 </div>
                             </div>
 
-                            @auth
-                                <a href="{{ route('client.products.show', $product) }}" style="
-                                    display: block;
-                                    text-align: center;
-                                    background: var(--green);
-                                    color: white;
-                                    padding: 10px 15px;
-                                    border-radius: 30px;
-                                    text-decoration: none;
-                                    font-weight: 600;
-                                    font-size: 14px;
-                                    transition: all 0.3s ease;
-                                    margin-top: 10px;
-                                " onmouseover="this.style.background='var(--green-dark)'" onmouseout="this.style.background='var(--green)'">
-                                    <i class="fas fa-eye"></i> Voir détail
-                                </a>
+                           @if($product->qte_dispo > 0)
+                                <x-add-to-cart-button :product-id="$product->id" />
                             @else
-                                <div style="
-                                    text-align: center;
-                                    background: #f5f5f5;
-                                    color: var(--muted);
-                                    padding: 10px 15px;
-                                    border-radius: 30px;
-                                    font-size: 13px;
-                                    margin-top: 10px;
-                                ">
-                                    <i class="fas fa-lock"></i> Connectez-vous
-                                </div>
-                            @endauth
+                                <span style="color: var(--muted); font-size: 13px;">Indisponible</span>
+                            @endif
                         </div>
                     </div>
                 @endforeach

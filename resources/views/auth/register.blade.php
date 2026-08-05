@@ -68,6 +68,9 @@
         <button type="submit" style="width: 100%; padding: 12px; background: #4CAF50; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer;">
             S'inscrire
         </button>
+        <a href="{{ route('login') }}" style="display: block; text-align: center; margin-top: 15px; color: #4CAF50; text-decoration: none; font-weight: bold;">
+           Se connecter
+        </a>
     </form>
 </div>
 

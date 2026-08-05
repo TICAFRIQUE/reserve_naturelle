@@ -43,6 +43,10 @@
         <button type="submit" style="width: 100%; padding: 12px; background: #4CAF50; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer;">
             Se connecter
         </button>
+        <a href="{{ route('register') }}" style="display: block; text-align: center; margin-top: 15px; color: #4CAF50; text-decoration: none; font-weight: bold;">
+            S'inscrire
+        </a>
+
     </form>
 </div>
 @endsection

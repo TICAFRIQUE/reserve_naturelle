@@ -110,18 +110,48 @@
                             Livraison
                         </h2>
 
-                        <div style="margin-bottom: 15px;">
-                            <label for="zone_id" style="display: block; font-weight: 600; color: #2d5a27; font-size: 0.9rem; margin-bottom: 5px;">
+                        <!-- Choix du mode de livraison -->
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; font-weight: 600; color: #2d5a27; font-size: 0.9rem; margin-bottom: 8px;">
                                 Mode de livraison <span style="color: #dc3545;">*</span>
                             </label>
-                            <select name="zone_id" id="zone_id" required style="
+                            <div style="display: flex; gap: 15px;">
+                                <label style="
+                                    flex: 1; display: flex; align-items: center; gap: 10px; padding: 12px 15px;
+                                    border: 2px solid #e8e0d5; border-radius: 8px; cursor: pointer;
+                                ">
+                                    <input type="radio" name="mode_livraison" value="domicile" class="mode-livraison-radio"
+                                           {{ old('mode_livraison', 'domicile') == 'domicile' ? 'checked' : '' }} required
+                                           style="width: 18px; height: 18px; accent-color: #2d5a27;">
+                                    <span style="font-size: 0.9rem; color: #2d5a27; font-weight: 500;">
+                                        <i class="fas fa-home"></i> Livraison à domicile
+                                    </span>
+                                </label>
+                                <label style="
+                                    flex: 1; display: flex; align-items: center; gap: 10px; padding: 12px 15px;
+                                    border: 2px solid #e8e0d5; border-radius: 8px; cursor: pointer;
+                                ">
+                                    <input type="radio" name="mode_livraison" value="expedition" class="mode-livraison-radio"
+                                           {{ old('mode_livraison') == 'expedition' ? 'checked' : '' }} required
+                                           style="width: 18px; height: 18px; accent-color: #2d5a27;">
+                                    <span style="font-size: 0.9rem; color: #2d5a27; font-weight: 500;">
+                                        <i class="fas fa-shipping-fast"></i> Expédition
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div id="zone-wrapper" style="margin-bottom: 15px;">
+                            <label for="zone_id" style="display: block; font-weight: 600; color: #2d5a27; font-size: 0.9rem; margin-bottom: 5px;">
+                                Zone <span style="color: #dc3545;">*</span>
+                            </label>
+                            <select name="zone_id" id="zone_id" style="
                                 width: 100%; padding: 10px 15px; border: 1px solid #e8e0d5; border-radius: 8px;
                                 font-size: 0.95rem; background: white; outline: none; cursor: pointer;
                             " onfocus="this.style.borderColor='#2d5a27'" onblur="this.style.borderColor='#e8e0d5'">
                                 <option value="">-- Sélectionnez --</option>
                                 @foreach($zones as $zone)
                                     <option value="{{ $zone->id }}"
-                                            data-expedition="{{ $zone->est_expedition ? '1' : '0' }}"
                                             data-tarif="{{ $zone->tarif }}"
                                             {{ old('zone_id') == $zone->id ? 'selected' : '' }}>
                                         {{ $zone->nom }} — {{ number_format($zone->tarif, 0, ',', ' ') }} FCFA
@@ -244,20 +274,46 @@
         const villeWrapper = document.getElementById('ville-expedition-wrapper');
         const villeInput = document.getElementById('ville_expedition');
         const tarifDisplay = document.getElementById('tarif-display');
+        const modeLivraisonRadios = document.querySelectorAll('.mode-livraison-radio');
 
-        zoneSelect.addEventListener('change', function() {
-            const selected = this.options[this.selectedIndex];
-            const isExpedition = selected.dataset.expedition === '1';
-            const tarif = parseInt(selected.dataset.tarif) || 0;
+        const zoneWrapper = document.getElementById('zone-wrapper');
 
+        function updateFieldsVisibility() {
+            const selectedMode = document.querySelector('.mode-livraison-radio:checked')?.value;
+            const isExpedition = selectedMode === 'expedition';
+
+            // Zone : visible/requise uniquement en mode domicile
+            zoneWrapper.style.display = isExpedition ? 'none' : 'block';
+            zoneSelect.required = !isExpedition;
+            if (isExpedition) {
+                zoneSelect.value = '';
+                tarifDisplay.textContent = '—';
+            }
+
+            // Ville expédition : visible/requise uniquement en mode expédition
             villeWrapper.style.display = isExpedition ? 'block' : 'none';
             villeInput.required = isExpedition;
             if (!isExpedition) villeInput.value = '';
+        }
+
+        function updateTarifDisplay() {
+            const selected = zoneSelect.options[zoneSelect.selectedIndex];
+            const tarif = parseInt(selected?.dataset.tarif) || 0;
 
             tarifDisplay.textContent = tarif > 0
                 ? new Intl.NumberFormat('fr-FR').format(tarif) + ' FCFA'
                 : '—';
+        }
+
+        modeLivraisonRadios.forEach(radio => {
+            radio.addEventListener('change', updateFieldsVisibility);
         });
+
+        zoneSelect.addEventListener('change', updateTarifDisplay);
+
+        // État initial (utile si old() a pré-rempli le formulaire après une erreur de validation)
+        updateFieldsVisibility();
+        updateTarifDisplay();
     });
 </script>
 

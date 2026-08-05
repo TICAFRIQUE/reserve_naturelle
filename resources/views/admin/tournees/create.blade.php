@@ -92,20 +92,20 @@
                         </div>
                     </div>
 
-                  <!-- Remplace le bloc "Liste des commandes" -->
-                        <div style="margin-bottom: 25px;">
-                            <label for="order_ids" style="display: block; font-weight: 600; color: #2d5a27; margin-bottom: 8px; font-size: 0.95rem;">
-                                <i class="fas fa-box" style="color: #2d5a27; margin-right: 5px;"></i>
-                                Commandes validées de la zone <span style="color: #dc3545;">*</span>
-                            </label>
-                            <select name="order_ids[]" id="order_ids" multiple required size="8" style="
-                                width: 100%; padding: 10px; border: 2px solid #e8e0d5; border-radius: 8px;
-                                font-size: 1rem; background: #faf8f5; outline: none;
-                            ">
-                                <option disabled>Sélectionnez d'abord une zone</option>
-                            </select>
-                            <small style="color: #6c757d;">Ctrl/Cmd + clic pour sélectionner plusieurs commandes.</small>
-                        </div>
+                    <!-- Liste des commandes (chargée en AJAX) -->
+                    <div style="margin-bottom: 25px;">
+                        <label for="order_ids" style="display: block; font-weight: 600; color: #2d5a27; margin-bottom: 8px; font-size: 0.95rem;">
+                            <i class="fas fa-box" style="color: #2d5a27; margin-right: 5px;"></i>
+                            Commandes validées de la zone <span style="color: #dc3545;">*</span>
+                        </label>
+                        <select name="order_ids[]" id="order_ids" multiple required size="8" style="
+                            width: 100%; padding: 10px; border: 2px solid #e8e0d5; border-radius: 8px;
+                            font-size: 1rem; background: #faf8f5; outline: none;
+                        ">
+                            <option disabled>Sélectionnez d'abord une zone</option>
+                        </select>
+                        <small style="color: #6c757d;">Ctrl/Cmd + clic pour sélectionner plusieurs commandes.</small>
+                    </div>
 
                     <div style="display: flex; justify-content: flex-end; gap: 15px; padding-top: 25px; border-top: 1px solid #e8e0d5;">
                         <a href="{{ route('admin.tournees.index') }}" style="
@@ -130,11 +130,10 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const zoneSelect = document.getElementById('zone_id');
-    const ordersList = document.getElementById('orders-list');
+    const orderSelect = document.getElementById('order_ids');
 
-        zoneSelect.addEventListener('change', function() {
+    zoneSelect.addEventListener('change', function() {
         const zoneId = this.value;
-        const orderSelect = document.getElementById('order_ids');
 
         if (!zoneId) {
             orderSelect.innerHTML = '<option disabled>Sélectionnez d\'abord une zone</option>';
@@ -150,16 +149,21 @@ document.addEventListener('DOMContentLoaded', function() {
                     orderSelect.innerHTML = '<option disabled>Aucune commande validée dans cette zone</option>';
                     return;
                 }
-                orderSelect.innerHTML = orders.map(order => `
-                    <option value="${order.id}">
-                        ${order.num_order} — ${order.user?.name ?? order.user?.prenom ?? 'Client'} — ${Number(order.mt_total).toLocaleString('fr-FR')} FCFA
-                    </option>
-                `).join('');
+
+                orderSelect.innerHTML = orders.map(order => {
+                    const client = order.user?.name ?? order.user?.prenom ?? 'Client';
+                    const montant = Number(order.mt_total).toLocaleString('fr-FR');
+                    const suffixe = order.mode_livraison === 'expedition' && order.ville_expedition
+                        ? ` — 📦 Expédition vers ${order.ville_expedition}`
+                        : ' — 🏠 Domicile';
+
+                    return `<option value="${order.id}">${order.num_order} — ${client} — ${montant} FCFA${suffixe}</option>`;
+                }).join('');
             })
             .catch(() => {
                 orderSelect.innerHTML = '<option disabled>Erreur de chargement</option>';
             });
-    });;
+    });
 });
 </script>
 @endsection

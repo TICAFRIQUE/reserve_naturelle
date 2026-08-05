@@ -80,31 +80,24 @@
                 </p>
             </div>
 
-            @auth
-                @if($product->qte_dispo > 0)
-                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <label for="qte" style="font-weight: 600;">Quantité :</label>
-                            <input type="number" id="qte" value="1" min="1" max="{{ $product->qte_dispo }}"
-                                   style="width: 70px; padding: 8px; border: 2px solid var(--green-light); border-radius: 8px; text-align: center;">
-                        </div>
-                        <button onclick="addToCart({{ $product->id }})"
-                                style="background: var(--green); color: white; padding: 12px 40px; border: none; border-radius: 50px; font-weight: 600; cursor: pointer; font-size: 16px;">
-                            🛒 Ajouter au panier
-                        </button>
+            @if($product->qte_dispo > 0)
+                <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <label for="qte" style="font-weight: 600;">Quantité :</label>
+                        <input type="number" id="qte" value="1" min="1" max="{{ $product->qte_dispo }}"
+                            style="width: 70px; padding: 8px; border: 2px solid var(--green-light); border-radius: 8px; text-align: center;">
                     </div>
-                @else
-                    <div style="background: #fde8e8; padding: 15px; border-radius: 8px; text-align: center;">
-                        <p style="color: #e74c3c; font-weight: 600; margin: 0;">Ce produit est actuellement en rupture de stock</p>
-                    </div>
-                @endif
-            @else
-                <div style="background: #e8f5e9; padding: 20px; border-radius: 8px; text-align: center;">
-                    <p style="color: var(--text); margin-bottom: 10px;">🔒 Connectez-vous pour acheter ce produit</p>
-                    <a href="{{ route('login') }}" style="background: var(--green); color: white; padding: 10px 30px; border-radius: 50px; text-decoration: none; display: inline-block;">Se connecter</a>
-                    <a href="{{ route('register') }}" style="color: var(--green); padding: 10px 30px; border-radius: 50px; text-decoration: none; display: inline-block;">Créer un compte</a>
+                    <x-add-to-cart-button
+                        :product-id="$product->id"
+                        qte-input-id="qte"
+                        label="🛒 Ajouter au panier"
+                        style="padding: 12px 40px; border-radius: 50px; font-size: 16px;" />
                 </div>
-            @endauth
+            @else
+                <div style="background: #fde8e8; padding: 15px; border-radius: 8px; text-align: center;">
+                    <p style="color: #e74c3c; font-weight: 600; margin: 0;">Ce produit est actuellement en rupture de stock</p>
+                </div>
+            @endif
         </div>
     </div>
 

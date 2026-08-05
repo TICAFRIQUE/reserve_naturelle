@@ -5,13 +5,13 @@ namespace App\Http\Controllers\Client;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Product;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class CartController extends Controller
 {
-    public function index()
-    {
+    public function index(){
         $cart = $this->getOrCreateCart();
         $cart->load('items.product');
 
@@ -23,12 +23,11 @@ class CartController extends Controller
             }
             return $item->qte > $product->qte_dispo;
         });
-
         return view('client.cart.index', compact('cart', 'total', 'hasIssues'));
+        
     }
 
-    public function store(Request $request)
-    {
+    public function store(Request $request){
         $validated = $request->validate([
             'product_id' => ['required', 'exists:products,id'],
             'qte' => ['required', 'integer', 'min:1'],
@@ -95,13 +94,28 @@ class CartController extends Controller
     }
 
     private function getOrCreateCart(): Cart{
+        if (auth()->check()) {
+            return Cart::firstOrCreate(
+                ['user_id' => auth()->id()],
+                ['date_creation' => now()]
+            );
+        }
+
+        if (!session()->has('cart_session_id')) {
+            session()->put('cart_session_id', (string) Str::uuid());
+        }
+
         return Cart::firstOrCreate(
-            ['user_id' => auth()->id()],
+            ['session_id' => session('cart_session_id'), 'user_id' => null],
             ['date_creation' => now()]
         );
     }
 
     private function authorizeItem(CartItem $item): void{
-        abort_unless($item->cart->user_id === auth()->id(), 403);
+        if (auth()->check()) {
+            abort_unless($item->cart->user_id === auth()->id(), 403);
+            return;
+        }
+        abort_unless($item->cart->session_id === session('cart_session_id'), 403);
     }
 }

@@ -30,7 +30,10 @@ class TourneeController extends Controller
      * Retourne les commandes validées d'une zone (AJAX, utilisé par le formulaire de création)
      */
     public function ordersByZone(Zone $zone){
-        $orders = Order::where('zone_id', $zone->id)->where('statut', 'validee')->with('user')->get();
+        $orders = Order::where('zone_id', $zone->id)
+            ->where('statut', 'validee')
+            ->with('user')
+            ->get(['id', 'num_order', 'mt_total', 'user_id', 'mode_livraison', 'ville_expedition']);
         return response()->json($orders);
     }
 

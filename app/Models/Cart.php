@@ -12,6 +12,7 @@ class Cart extends Model
 
     protected $fillable = [
         'date_creation',
+        'session_id',
         'user_id',
     ];
 

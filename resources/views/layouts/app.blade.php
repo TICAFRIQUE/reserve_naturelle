@@ -136,11 +136,11 @@
             </a>
             <ul class="dropdown-menu">
               <li>
-                <a href="{{ Auth::user()->isAdmin() ? route('client.orders.index') : route('client.orders.index') }}">
-                  <i class="fas fa-tachometer-alt"></i> Mes commandes
+                <a href="{{ Auth::user()->isAdmin() ? route('admin.dashboard') : route('admin.dashboard') }}">
+                  <i class="fas fa-tachometer-alt"></i> Tableau de bord
                 </a>
               </li>
-              <li><a href="#"><i class="fas fa-key"></i> Changer mot de passe</a></li>
+              <li><a href="{{ route('password.edit') }}"><i class="fas fa-key"></i> Changer mot de passe</a></li>
               <li><hr class="dropdown-divider"></li>
               <li>
                 <form action="{{ route('logout') }}" method="POST" style="margin: 0;">
@@ -290,6 +290,57 @@
       dropdowns.forEach(dropdown => dropdown.classList.remove('active'));
     }
   });
+        //Pour le composant add-to-cart-btn(ajout au panier)
+      document.addEventListener('click', async function(e) {
+          const btn = e.target.closest('.add-to-cart-btn');
+          if (!btn) return;
+
+          e.preventDefault();
+
+          const productId = btn.dataset.productId;
+          const qteInputId = btn.dataset.qteInput;
+          const qte = qteInputId ? (parseInt(document.getElementById(qteInputId)?.value) || 1) : 1;
+
+          const originalText = btn.innerHTML;
+          btn.disabled = true;
+          btn.innerHTML = '...';
+
+          try {
+              const response = await fetch('{{ route("client.cart.store") }}', {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json',
+                      'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                      'Accept': 'application/json',
+                  },
+                  body: JSON.stringify({ product_id: productId, qte }),
+              });
+
+              const data = await response.json();
+
+              if (!response.ok) {
+                  alert(data.message || 'Erreur lors de l\'ajout au panier.');
+                  btn.disabled = false;
+                  btn.innerHTML = originalText;
+                  return;
+              }
+
+              document.querySelectorAll('.cart-badge').forEach(badge => {
+                  badge.textContent = data.cart_count;
+              });
+
+              btn.innerHTML = '✓ Ajouté';
+              setTimeout(() => {
+                  btn.innerHTML = originalText;
+                  btn.disabled = false;
+              }, 1200);
+
+          } catch (err) {
+              alert('Erreur réseau.');
+              btn.innerHTML = originalText;
+              btn.disabled = false;
+          }
+      });
 </script>
  
 @stack('scripts')

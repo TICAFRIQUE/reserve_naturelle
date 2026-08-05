@@ -202,21 +202,11 @@
                                 <span style="font-size: 18px; font-weight: 700; color: var(--green-dark);">
                                     {{ number_format($product->prix_vente, 0, ',', ' ') }} FCFA
                                 </span>
-                                @auth
-                                    @if($product->qte_dispo > 0)
-                                        <button type="button" onclick="addToCart(event, {{ $product->id }})"
-                                                data-product-id="{{ $product->id }}"
-                                                style="background: var(--green); color: white; padding: 6px 15px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px;">
-                                            🛒 Ajouter
-                                        </button>
-                                    @else
-                                        <span style="color: var(--muted); font-size: 13px;">Indisponible</span>
-                                    @endif
+                                @if($product->qte_dispo > 0)
+                                    <x-add-to-cart-button :product-id="$product->id" />
                                 @else
-                                    <a href="{{ route('login') }}" style="background: var(--muted); color: white; padding: 6px 15px; border-radius: 6px; text-decoration: none; font-size: 13px;">
-                                        🔒 Connexion
-                                    </a>
-                                @endauth
+                                    <span style="color: var(--muted); font-size: 13px;">Indisponible</span>
+                                @endif
                             </div>
                         </article>
                     @endforeach
@@ -254,54 +244,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
-
-async function addToCart(event, productId, qte = 1) {
-    event.preventDefault();
-    event.stopPropagation();
-
-    const button = event.currentTarget;
-    const originalText = button.innerHTML;
-    button.disabled = true;
-    button.innerHTML = '...';
-
-    try {
-        const response = await fetch('{{ route("client.cart.store") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify({ product_id: productId, qte }),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            alert(data.message || 'Erreur lors de l\'ajout au panier.');
-            button.disabled = false;
-            button.innerHTML = originalText;
-            return;
-        }
-
-        // ✅ Met à jour TOUS les badges du panier dans la page
-        const badges = document.querySelectorAll('.cart-badge');
-        badges.forEach(badge => {
-            badge.textContent = data.cart_count;
-        });
-
-        button.innerHTML = '✓ Ajouté';
-        setTimeout(() => {
-            button.innerHTML = originalText;
-            button.disabled = false;
-        }, 1200);
-
-    } catch (e) {
-        alert('Erreur réseau.');
-        button.innerHTML = originalText;
-        button.disabled = false;
-    }
-}
 </script>
 
 <style>

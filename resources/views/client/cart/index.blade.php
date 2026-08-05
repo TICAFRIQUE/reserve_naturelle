@@ -18,6 +18,12 @@
         </div>
     @endif
 
+    @guest
+        <div style="background: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            ℹ️ Vous naviguez en tant qu'invité. <a href="{{ route('login') }}" style="color: #856404; font-weight: 600;">Connectez-vous</a> pour valider votre commande.
+        </div>
+    @endguest
+
     @if($cart->items->count() > 0)
         <div style="background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); overflow: hidden;">
             <table style="width: 100%; border-collapse: collapse;">
@@ -87,12 +93,20 @@
                             🗑️ Vider
                         </button>
                         </form>
-                    <form action="{{ route('client.orders.store') }}" method="POST" onsubmit="return confirm('Confirmer la commande ?');">
-                        @csrf
-                        <button type="submit" style="background: #2e7d32; color: white; padding: 10px 30px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
-                            📦 Passer commande
-                        </button>
-                    </form>
+
+                    @auth
+                        <form action="{{ route('client.orders.store') }}" method="POST" onsubmit="return confirm('Confirmer la commande ?');">
+                            @csrf
+                            <button type="submit" style="background: #2e7d32; color: white; padding: 10px 30px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                                📦 Passer commande
+                            </button>
+                        </form>
+                    @else
+                        <a href="{{ route('login', ['redirect' => url()->current()]) }}"
+                           style="background: #2e7d32; color: white; padding: 10px 30px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center;">
+                            🔒 Se connecter pour commander
+                        </a>
+                    @endauth
                 </div>
             </div>
         </div>

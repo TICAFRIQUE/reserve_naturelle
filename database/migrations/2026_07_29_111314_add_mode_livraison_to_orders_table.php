@@ -6,15 +6,17 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-        public function up(): void{
+    public function up(): void{
         Schema::table('orders', function (Blueprint $table) {
-            $table->decimal('montant_ttc', 10, 2)->after('tarif_livraison');
+            $table->enum('mode_livraison', ['domicile', 'expedition'])
+                ->default('domicile')
+                ->after('zone_id');
         });
     }
 
     public function down(): void{
         Schema::table('orders', function (Blueprint $table) {
-            $table->dropColumn('montant_ttc');
+            $table->dropColumn('mode_livraison');
         });
     }
 };

@@ -2,6 +2,7 @@
 
     use App\Http\Controllers\Auth\AuthController;
     use App\Http\Controllers\Auth\RegisterController;
+    use App\Http\Controllers\Auth\PasswordController;
     use App\Http\Controllers\Admin\CategoryController;
     use App\Http\Controllers\Admin\FournisseurController;
     use App\Http\Controllers\Admin\SousCategoryController;
@@ -18,25 +19,18 @@
     use Illuminate\Support\Facades\Route;
 
     // Accueil = catalogue produit (public)
-        Route::get('/', [ClientProductController::class, 'index'])->name('home');
+    Route::get('/', [ClientProductController::class, 'index'])->name('home');
 
-
-    // Alias public du catalogue
+    // Public (invité + connecté)
     Route::prefix('client')->name('client.')->group(function () {
         Route::get('/produits', [ClientProductController::class, 'index'])->name('products.index');
-        // Catalogue complet (tous les produits)
         Route::get('/catalogue', [ClientProductController::class, 'catalogue'])->name('products.catalogue');
-    });
-
-        // Fiche produit + recherche AJAX : réservées aux utilisateurs connectés
-    Route::prefix('client')->name('client.')->middleware(['auth'])->group(function () {
 
         Route::prefix('produits')->name('products.')->group(function () {
             Route::get('/recherche', [ClientProductController::class, 'search'])->name('search');
             Route::get('/{product}', [ClientProductController::class, 'show'])->name('show');
         });
-        
-        // Les routes paniers : réservés aux utilisateurs connectés
+
         Route::prefix('panier')->name('cart.')->group(function(){
             Route::get('/', [CartController::class, 'index'])->name('index');
             Route::post('/', [CartController::class, 'store'])->name('store');
@@ -44,18 +38,22 @@
             Route::post('/items/{item}', [CartController::class, 'destroy'])->name('destroy');
             Route::delete('/clear', [CartController::class, 'clear'])->name('clear');
         });
-        
+    });
+
+    // Protégé : commandes + checkout (réservés aux utilisateurs connectés)
+    Route::prefix('client')->name('client.')->middleware(['auth'])->group(function () {
+
         // Les routes commandes
         Route::prefix('commandes')->name('orders.')->group(function(){
             Route::get('/', [ClientOrderController::class, 'index'])->name('index');
             Route::get('/{order}', [ClientOrderController::class, 'show'])->name('show');
             Route::post('/', [ClientOrderController::class, 'store'])->name('store');
-            
+
             // Routes paiement (déplacées ici pour cohérence)
             Route::get('/{order}/pay', [ClientOrderController::class, 'pay'])->name('pay');
             Route::post('/{order}/confirm', [ClientOrderController::class, 'confirm'])->name('confirm');
         });
-        
+
         // Routes checkout (avec l'ID de la commande en paramètre)
         Route::prefix('checkout')->name('checkout.')->group(function(){
             // Affiche le formulaire de validation pour une commande spécifique
@@ -78,6 +76,11 @@
     Route::post('/register', [RegisterController::class, 'store']);
     Route::post('/check-email', [RegisterController::class, 'checkEmail'])->name('check.email');
 
+    Route::middleware(['auth'])->group(function () {
+        //Changer de password
+        Route::get('/mot-de-passe', [PasswordController::class, 'edit'])->name('password.edit');
+        Route::put('/mot-de-passe', [PasswordController::class, 'update'])->name('password.update');
+    });
     //-------------------------------------------------
     // LES ROUTES ADMIN
     //-------------------------------------------------
@@ -116,5 +119,5 @@
                 Route::post('/{tournee}/close', [TourneeController::class, 'close'])->name('close');
             });
         });
-        
+
     });

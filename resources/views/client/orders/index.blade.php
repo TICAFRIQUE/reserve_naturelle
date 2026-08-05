@@ -59,11 +59,17 @@
                                 {{ number_format($order->mt_total, 0, ',', ' ') }} FCFA
                             </td>
                             <td style="padding: 15px; text-align: center;">
-                                <a href="{{ route('client.orders.show', $order) }}"
-                                   style="background: #2e7d32; color: white; padding: 6px 18px; border-radius: 6px; text-decoration: none; font-size: 13px;">
-                                    Voir détails
-                                </a>
-                            </td>
+                    @if($order->statut === 'panier_converti')
+                        <a href="{{ route('client.checkout.show', $order) }}"
+                        style="background: #d4a017; color: white; padding: 6px 18px; border-radius: 6px; text-decoration: none; font-size: 13px; margin-right: 5px;">
+                            Finaliser
+                        </a>
+                    @endif
+                    <a href="{{ route('client.orders.show', $order) }}"
+                    style="background: #2e7d32; color: white; padding: 6px 18px; border-radius: 6px; text-decoration: none; font-size: 13px;">
+                        Voir détails
+                    </a>
+                </td>
                         </tr>
                     @endforeach
                 </tbody>
