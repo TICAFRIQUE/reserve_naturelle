@@ -527,7 +527,7 @@
         </div>
 
         <!-- Navigation -->
-        <nav class="sidebar-nav">
+            <nav class="sidebar-nav">
 
             <div class="nav-section">Navigation</div>
 
@@ -535,74 +535,76 @@
                 <i class="fas fa-th-large"></i> Dashboard
             </a>
 
-            <div class="nav-section">Catalogue</div>
+            <div class="nav-section">Stock</div>
 
-            <!-- PRODUITS -->
-            <a href="{{ route('admin.produits.index') }}" class="nav-item {{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
-                <i class="fas fa-boxes"></i> Produits
-                <span class="nav-badge">{{ \App\Models\Product::count() }}</span>
+            <a href="{{ route('admin.stock.index') }}" class="nav-item {{ request()->routeIs('admin.stock.*') ? 'active' : '' }}">
+                <i class="fas fa-warehouse"></i> Stock
+            </a>
+            <a href="{{ route('admin.inventaires.index') }}" class="nav-item {{ request()->routeIs('admin.inventaires.*') ? 'active' : '' }}">
+                <i class="fas fa-clipboard-list"></i> Inventaire
             </a>
 
-            <!-- CATÉGORIES -->
-            <a href="{{ route('admin.categories.index') }}" class="nav-item {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
-                <i class="fas fa-tags"></i> Catégories
-                <span class="nav-badge">{{ \App\Models\Category::count() }}</span>
-            </a>
-
-            <!-- SOUS-CATÉGORIES -->
-            <a href="{{ route('admin.sous-categories.index') }}" class="nav-item {{ request()->routeIs('admin.sous-categories.*') ? 'active' : '' }}">
-                <i class="fas fa-sitemap"></i> Sous-catégories
-                <span class="nav-badge">{{ \App\Models\SousCategory::count() }}</span>
-            </a>
-
-            <!-- STOCKS -->
-            <a href="#" class="nav-item">
-                <i class="fas fa-warehouse"></i> Stocks
-            </a>
-
-            <div class="nav-section">Ventes</div>
-
-            <!-- COMMANDES -->
-            <a href="{{ route('admin.orders.index') }}" class="nav-item {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
-                <i class="fas fa-shopping-cart"></i> Commandes
-                <span class="nav-badge">{{ \App\Models\Order::count() }}</span>
-            </a>
-
-            <!-- FOURNISSEURS -->
             <a href="{{ route('admin.fournisseurs.index') }}" class="nav-item {{ request()->routeIs('admin.fournisseurs.*') ? 'active' : '' }}">
                 <i class="fas fa-truck"></i> Fournisseurs
                 <span class="nav-badge">{{ \App\Models\Fournisseur::count() }}</span>
             </a>
 
-            <!-- LIVREURS -->
-            <a href="{{ route('admin.livreurs.index') }}" class="nav-item {{ request()->routeIs('admin.livreurs.*') ? 'active' : '' }}">
-                <i class="fas fa-motorcycle"></i> Livreurs
-                <span class="nav-badge">{{ \App\Models\Livreur::count() }}</span>
+            <a href="{{ route('admin.achats.index') }}" class="nav-item {{ request()->routeIs('admin.achats.*') ? 'active' : '' }}">
+                <i class="fas fa-shopping-basket"></i> Achats
+                <span class="nav-badge">{{ \App\Models\Achat::count() }}</span>
+            </a>
+            <a href="{{ route('admin.stock-mouvements.index') }}" class="nav-item {{ request()->routeIs('admin.stock-mouvements.*') ? 'active' : '' }}">
+                <i class="fas fa-exchange-alt"></i> Mouvements de stock
+            </a>
+
+            <div class="nav-section">Catalogue</div>
+
+            <a href="{{ route('admin.categories.index') }}" class="nav-item {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
+                <i class="fas fa-tags"></i> Catégories
+                <span class="nav-badge">{{ \App\Models\Category::count() }}</span>
+            </a>
+
+            <a href="{{ route('admin.sous-categories.index') }}" class="nav-item {{ request()->routeIs('admin.sous-categories.*') ? 'active' : '' }}">
+                <i class="fas fa-sitemap"></i> Sous-catégories
+                <span class="nav-badge">{{ \App\Models\SousCategory::count() }}</span>
+            </a>
+
+            <a href="{{ route('admin.produits.index') }}" class="nav-item {{ request()->routeIs('admin.produits.*') ? 'active' : '' }}">
+                <i class="fas fa-boxes"></i> Produits
+                <span class="nav-badge">{{ \App\Models\Product::count() }}</span>
+            </a>
+
+            <div class="nav-section">Ventes</div>
+
+            <a href="{{ route('admin.orders.index') }}" class="nav-item {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
+                <i class="fas fa-shopping-cart"></i> Commandes
+                <span class="nav-badge">{{ \App\Models\Order::count() }}</span>
             </a>
 
             <div class="nav-section">Utilisateurs</div>
 
-            <!-- UTILISATEURS -->
             <a href="{{ route('admin.users.index') }}" class="nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                 <i class="fas fa-users"></i> Utilisateurs
                 <span class="nav-badge">{{ \App\Models\User::count() }}</span>
             </a>
 
-            <div class="nav-section">Finance</div>
+            <a href="{{ route('admin.livreurs.index') }}" class="nav-item {{ request()->routeIs('admin.livreurs.*') ? 'active' : '' }}">
+                <i class="fas fa-motorcycle"></i> Livreurs
+                <span class="nav-badge">{{ \App\Models\Livreur::count() }}</span>
+            </a>
 
-            <!-- RAPPORTS -->
+            <div class="nav-section">Rapports</div>
+
             <a href="#" class="nav-item">
                 <i class="fas fa-chart-line"></i> Rapports
             </a>
 
-            <!-- DÉPENSES -->
             <a href="#" class="nav-item">
                 <i class="fas fa-wallet"></i> Dépenses
             </a>
 
             <div class="sidebar-divider"></div>
 
-            <!-- Déconnexion -->
             <form action="{{ route('logout') }}" method="POST">
                 @csrf
                 <button type="submit" class="nav-item logout-btn">
@@ -698,11 +700,11 @@
                     <div>
                         <h4>Catalogue</h4>
                         <ul>
-                            <li><a href="#">Céréales</a></li>
-                            <li><a href="#">Huiles</a></li>
-                            <li><a href="#">Légumineuses</a></li>
-                            <li><a href="#">Farines & épices</a></li>
-                            <li><a href="#">Fruits secs</a></li>
+                            <li><a href="https://www.projetecolo.com/types-de-cereales-1495.html">Céréales</a></li>
+                            <li><a href="https://www.conseil-bienetre.net/liste-des-huiles-vegetales-et-de-leurs-bienfaits/">Huiles</a></li>
+                            <li><a href="https://www.rustica.fr/potager/liste-legumes-tous-legumes-connaitre-z,20839.html">Légumineuses</a></li>
+                            <li><a href="https://www.santeplus.ma/nutrition/la-selection-de-farines-et-epices/">Farines & épices</a></li>
+                            <li><a href="https://blog.degustabox.com/fr/liste-fruits-secs-bienfaits-et-utilisations">Fruits secs</a></li>
                         </ul>
                     </div>
 

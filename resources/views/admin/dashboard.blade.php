@@ -606,7 +606,8 @@
                                             @php
                                                 $stock = $product->qte_dispo ?? $product->stock ?? 0;
                                             @endphp
-                                            @if($stock > 20)
+                                           @if($stock > 0 && $stock > $product->stock_minimum)
+                                                {{-- badge "Disponible" inchangé --}}
                                                 <span style="
                                                     background: #d4edda;
                                                     color: #155724;
@@ -619,7 +620,8 @@
                                                     <i class="fas fa-circle" style="font-size: 8px; margin-right: 5px; color: #28a745;"></i>
                                                     Disponible
                                                 </span>
-                                            @elseif($stock > 0)
+                                            @elseif($stock > 0 && $stock <= $product->stock_minimum)
+                                                {{-- badge "Faible" inchangé --}}
                                                 <span style="
                                                     background: #fff3cd;
                                                     color: #856404;
@@ -633,6 +635,7 @@
                                                     Faible
                                                 </span>
                                             @else
+                                                {{-- badge "Rupture" inchangé --}}
                                                 <span style="
                                                     background: #f8d7da;
                                                     color: #721c24;
@@ -666,7 +669,54 @@
                     </div>
                 </div>
             </div>
-
+                @if(($alertesStock ?? collect())->isNotEmpty())
+                    <div style="margin-bottom: 40px;">
+                        <div style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #f5c6cb; overflow: hidden;">
+                            <div style="padding: 20px 25px; border-bottom: 1px solid #f5c6cb; background: #fff8f8; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                                <h2 style="font-family: 'Playfair Display', serif; color: #c62828; font-size: 1.3rem; margin: 0;">
+                                    <i class="fas fa-triangle-exclamation" style="margin-right: 10px;"></i>
+                                    Alertes stock ({{ $alertesStock->count() }})
+                                </h2>
+                                <a href="{{ route('admin.produits.index') }}" style="color: #c62828; text-decoration: none; font-weight: 500; font-size: 0.9rem; padding: 6px 16px; border-radius: 20px; background: #fce4ec;">
+                                    Voir tous les produits <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                            <div style="overflow-x: auto;">
+                                <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
+                                    <thead style="background: #f8f5f0; border-bottom: 2px solid #e8e0d5;">
+                                        <tr>
+                                            <th style="padding: 12px 20px; text-align: left; font-weight: 600; color: #2d5a27;">Produit</th>
+                                            <th style="padding: 12px 20px; text-align: center; font-weight: 600; color: #2d5a27;">Stock actuel</th>
+                                            <th style="padding: 12px 20px; text-align: center; font-weight: 600; color: #2d5a27;">Seuil minimum</th>
+                                            <th style="padding: 12px 20px; text-align: right; font-weight: 600; color: #2d5a27;"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($alertesStock as $produit)
+                                            <tr style="border-bottom: 1px solid #f0ebe5;">
+                                                <td style="padding: 12px 20px; font-weight: 500; color: #2d5a27;">
+                                                    {{ $produit->designation }}
+                                                    <div style="font-size: 0.8rem; color: #6c757d;">{{ $produit->reference_prod }}</div>
+                                                </td>
+                                                <td style="padding: 12px 20px; text-align: center; font-weight: 700; color: {{ $produit->qte_dispo <= 0 ? '#dc3545' : '#856404' }};">
+                                                    {{ $produit->qte_dispo }}
+                                                </td>
+                                                <td style="padding: 12px 20px; text-align: center; color: #6c757d;">
+                                                    {{ $produit->stock_minimum }}
+                                                </td>
+                                                <td style="padding: 12px 20px; text-align: right;">
+                                                    <a href="{{ route('admin.achats.create') }}" style="color: #2d5a27; font-weight: 600; text-decoration: none; font-size: 0.85rem;">
+                                                        <i class="fas fa-cart-plus"></i> Commander
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                @endif
             <!-- ================================= -->
             <!-- COMMANDES RÉCENTES -->
             <!-- ================================= -->
@@ -724,19 +774,19 @@
                                     <th style="padding: 12px 20px; text-align: center; font-weight: 600; color: #2d5a27;">Statut</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody> 
                                 @forelse($recent_orders ?? [] as $order)
                                     <tr style="border-bottom: 1px solid #f0ebe5; transition: background 0.2s;" onmouseover="this.style.background='#faf8f5'" onmouseout="this.style.background='transparent'">
                                         <td style="padding: 12px 20px; font-weight: 600; color: #2d5a27;">
                                             <i class="fas fa-hashtag" style="color: #b8860b; margin-right: 5px;"></i>
-                                            #{{ $order->reference }}
+                                            #{{ $order->num_order }}
                                         </td>
                                         <td style="padding: 12px 20px; color: #2d5a27;">
                                             <i class="fas fa-user" style="color: #b8860b; margin-right: 8px;"></i>
-                                            {{ $order->client->full_name ?? 'N/A' }}
+                                            {{ $order->user->full_name ?? 'N/A' }}
                                         </td>
                                         <td style="padding: 12px 20px; text-align: right; font-weight: 600; color: #2d5a27;">
-                                            {{ number_format($order->total, 0, ',', ' ') }} FCFA
+                                            {{ number_format($order->montant_ttc, 0, ',', ' ') }} FCFA
                                         </td>
                                         <td style="padding: 12px 20px; text-align: center; color: #6c757d;">
                                             {{ $order->created_at->format('d/m/Y') }}

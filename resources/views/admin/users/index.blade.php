@@ -174,7 +174,7 @@
                             border-bottom: 2px solid #e8e0d5;
                         ">
                             <tr>
-                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 5%;">#</th>
+                                {{-- <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 5%;">#</th> --}}
                                 <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 20%;">Nom complet</th>
                                 <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 25%;">Email</th>
                                 <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 15%;">Téléphone</th>
@@ -186,7 +186,7 @@
                         <tbody>
                             @forelse($users as $user)
                                 <tr style="border-bottom: 1px solid #f0ebe5; transition: background 0.2s;" onmouseover="this.style.background='#faf8f5'" onmouseout="this.style.background='transparent'">
-                                    <td style="padding: 15px 20px; color: #6c757d; font-weight: 500;">{{ $user->id }}</td>
+                                    {{-- <td style="padding: 15px 20px; color: #6c757d; font-weight: 500;">{{ $user->id }}</td> --}}
                                     <td style="padding: 15px 20px; font-weight: 500; color: #2d5a27;">
                                         <div style="display: flex; align-items: center; gap: 10px;">
                                             <div style="
@@ -338,10 +338,6 @@
 
             <!-- Pagination -->
             <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-                <div style="color: #6c757d; font-size: 0.9rem;">
-                    <i class="fas fa-info-circle" style="color: #b8860b;"></i>
-                    Affichage de {{ $users->firstItem() ?? 0 }} à {{ $users->lastItem() ?? 0 }} sur {{ $users->total() }} utilisateurs
-                </div>
                 <div style="display: flex; justify-content: center;">
                     {{ $users->links() }}
                 </div>

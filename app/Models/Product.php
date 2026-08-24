@@ -7,8 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Product extends Model
 {
-    //
-    use hasFactory;
+    use HasFactory;
 
     protected $fillable = [
         'reference_prod',
@@ -16,15 +15,16 @@ class Product extends Model
         'designation',
         'description',
         'qte_dispo',
+        'stock_minimum',
+        'cmp',
         'image_path',
         'category_id',
     ];
 
-    //Les relations
-    
     public function category(){
         return $this->belongsTo(Category::class);
     }
+
     public function cartItems(){
         return $this->hasMany(CartItem::class);
     }
@@ -37,11 +37,25 @@ class Product extends Model
         return $this->belongsToMany(Order::class, 'order_items');
     }
 
-    public function achats(){
-        return $this->belongsToMany(Achat::class, 'achat_product')->withPivot('qte','prix_unitaire');
+    public function achatProducts(){
+        return $this->hasMany(AchatProduct::class);
     }
 
-    public function inventaires(){
-        return $this->belongsToMany(Inventaire::class, 'inventaire_product')->withPivot('qte', 'type_mvt', 'date_mvt', 'h_mvt');
+    public function inventaireProducts(){
+        return $this->hasMany(InventaireProduct::class);
     }
+
+    public function stockMouvements(){
+        return $this->hasMany(StockMouvement::class);
+    }
+
+    public function getSousSeuilAttribute(): bool{
+        return $this->qte_dispo <= $this->stock_minimum;
+    }
+    public function scopeSearch($query, string $term){
+    
+    return $query->where(function ($q) use ($term) {
+        $q->where('designation', 'like', "%{$term}%")->orWhere('reference_prod', 'like', "%{$term}%");
+    });
+}
 }

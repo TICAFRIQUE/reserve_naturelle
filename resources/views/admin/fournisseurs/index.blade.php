@@ -199,20 +199,18 @@
                             border-bottom: 2px solid #e8e0d5;
                         ">
                             <tr>
-                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 5%;">#</th>
-                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 18%;">Nom complet</th>
+                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 20%;">Nom complet</th>
                                 <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 15%;">Téléphone</th>
-                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 20%;">Adresse</th>
-                                <th style="padding: 15px 20px; text-align: center; font-weight: 600; color: #2d5a27; width: 12%;">Ville</th>
-                                <th style="padding: 15px 20px; text-align: center; font-weight: 600; color: #2d5a27; width: 12%;">Date d'ajout</th>
+                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 22%;">Adresse</th>
+                                <th style="padding: 15px 20px; text-align: center; font-weight: 600; color: #2d5a27; width: 13%;">Ville</th>
+                                <th style="padding: 15px 20px; text-align: center; font-weight: 600; color: #2d5a27; width: 13%;">Date d'ajout</th>
                                 <th style="padding: 15px 20px; text-align: center; font-weight: 600; color: #2d5a27; width: 10%;">Achats</th>
                                 <th style="padding: 15px 20px; text-align: center; font-weight: 600; color: #2d5a27; width: 13%;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($fournisseurs as $fournisseur)
-                                <tr style="border-bottom: 1px solid #f0ebe5; transition: background 0.2s;">
-                                    <td style="padding: 15px 20px; color: #6c757d; font-weight: 500;">{{ $fournisseur->id }}</td>
+                                <tr style="border-bottom: 1px solid #f0ebe5; transition: background 0.2s;" onmouseover="this.style.background='#faf8f5'" onmouseout="this.style.background='transparent'">
                                     <td style="padding: 15px 20px; font-weight: 500; color: #2d5a27;">
                                         <div style="display: flex; align-items: center; gap: 10px;">
                                             <!-- Avatar avec initiales -->
@@ -239,13 +237,13 @@
                                     </td>
                                     <td style="padding: 15px 20px; color: #2d5a27;">
                                         <a href="tel:{{ $fournisseur->tel }}" style="color: #2d5a27; text-decoration: none;">
-                                            <i class="fas fa-phone" style="color: #2d5a27; margin-right: 5px; width: 16px;"></i>
+                                            <i class="fas fa-phone" style="color: #2d5a27; margin-right: 5px;"></i>
                                             {{ $fournisseur->tel }}
                                         </a>
                                     </td>
                                     <td style="padding: 15px 20px; color: #6c757d;">
                                         <i class="fas fa-map-pin" style="color: #2d5a27; margin-right: 5px;"></i>
-                                        {{ Str::limit($fournisseur->adress, 35) }}
+                                        {{ Str::limit($fournisseur->adress, 40) }}
                                     </td>
                                     <td style="padding: 15px 20px; text-align: center;">
                                         <span style="
@@ -337,7 +335,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="8" style="padding: 60px 20px; text-align: center; color: #6c757d;">
+                                    <td colspan="7" style="padding: 60px 20px; text-align: center; color: #6c757d;">
                                         <i class="fas fa-truck" style="font-size: 48px; display: block; margin-bottom: 15px; color: #d4c9bb;"></i>
                                         <p style="font-size: 1.1rem; margin: 0;">Aucun fournisseur trouvé</p>
                                         <p style="margin-top: 5px;">Cliquez sur "Nouveau fournisseur" pour en ajouter un</p>
@@ -347,18 +345,88 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </div> <br>
+            <br>
+            <br>
 
             <!-- Pagination -->
-            <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-                <div style="color: #6c757d; font-size: 0.9rem;">
-                    <i class="fas fa-info-circle" style="color: #2d5a27;"></i>
-                    Affichage de {{ $fournisseurs->firstItem() ?? 0 }} à {{ $fournisseurs->lastItem() ?? 0 }} sur {{ $fournisseurs->total() }} fournisseurs
-                </div>
-                <div style="display: flex; justify-content: center;">
-                    {{ $fournisseurs->appends(request()->query())->links() }}
-                </div>
-            </div>
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mt-4">
+
+    <!-- Informations -->
+    <div class="text-muted small">
+        <i class="fas fa-info-circle text-success"></i>
+
+        @if ($fournisseurs->total() > 0)
+            Affichage de
+            <strong>{{ $fournisseurs->firstItem() }}</strong>
+            à
+            <strong>{{ $fournisseurs->lastItem() }}</strong>
+            sur
+            <strong>{{ $fournisseurs->total() }}</strong>
+            fournisseurs
+        @else
+            Aucun fournisseur trouvé
+        @endif
+    </div>
+
+    <!-- Pagination Bootstrap 5 -->
+    @if ($fournisseurs->hasPages())
+        <nav aria-label="Pagination des fournisseurs">
+            <ul class="pagination mb-0">
+
+                {{-- Précédent --}}
+                @if ($fournisseurs->onFirstPage())
+                    <li class="page-item disabled">
+                        <span class="page-link">
+                            <i class="fas fa-chevron-left"></i>
+                        </span>
+                    </li>
+                @else
+                    <li class="page-item">
+                        <a class="page-link"
+                           href="{{ $fournisseurs->previousPageUrl() }}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                @endif
+
+                {{-- Pages --}}
+                @foreach ($fournisseurs->getUrlRange(1, $fournisseurs->lastPage()) as $page => $url)
+                    @if ($page == $fournisseurs->currentPage())
+                        <li class="page-item active">
+                            <span class="page-link">{{ $page }}</span>
+                        </li>
+                    @else
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="{{ $url }}">
+                                {{ $page }}
+                            </a>
+                        </li>
+                    @endif
+                @endforeach <br><br>
+
+                {{-- Suivant --}}
+                @if ($fournisseurs->hasMorePages())
+                    <li class="page-item">
+                        <a class="page-link"
+                           href="{{ $fournisseurs->nextPageUrl() }}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                @else
+                    <li class="page-item disabled">
+                        <span class="page-link">
+                            <i class="fas fa-chevron-right"></i>
+                        </span>
+                    </li>
+                @endif
+
+            </ul>
+        </nav>
+    @endif
+
+</div>
         </div>
     </div>
 </div>
@@ -446,7 +514,11 @@
             padding: 10px 12px !important;
         }
         .container > div > div:last-child {
-            padding: 15px !important;
+            flex-direction: column !important;
+            align-items: center !important;
+        }
+        .container > div > div:last-child > div:first-child {
+            text-align: center;
         }
     }
 </style>

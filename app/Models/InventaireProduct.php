@@ -1,33 +1,31 @@
 <?php
- 
+
 namespace App\Models;
- 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 use Illuminate\Database\Eloquent\Model;
- 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 class InventaireProduct extends Model
 {
     use HasFactory;
- 
+
+    protected $table = 'inventaire_produits';
+
     protected $fillable = [
         'inventaire_id',
         'product_id',
-        'qte',
-        'type_mvt',
-        'date_mvt',
-        'h_mvt',
+        'qte_theorique',
+        'qte_reelle',
+        'ecart',
     ];
- 
-    protected $casts = [
-        'date_mvt' => 'date',
-        'h_mvt' => 'datetime',
-    ];
- 
-    public function inventaire(){
+
+    public function inventaire()
+    {
         return $this->belongsTo(Inventaire::class);
     }
- 
-    public function product(){
+
+    public function product()
+    {
         return $this->belongsTo(Product::class);
     }
 }

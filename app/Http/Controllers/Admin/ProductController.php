@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
-use App\Models\SousCategory;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
@@ -56,12 +55,10 @@ class ProductController extends Controller
         $sortField = $request->get('sort', 'created_at');
         $sortDirection = $request->get('direction', 'desc');
         $query->orderBy($sortField, $sortDirection);
-        
         $products = $query->paginate(15)->withQueryString();
         
         // Pour les filtres
         $categories = Category::orderBy('nom')->pluck('nom', 'id');
-        
         return view('admin.produits.index', compact('products', 'categories'));
     }
 
@@ -70,8 +67,7 @@ class ProductController extends Controller
      */
     public function create(){
         $categories = Category::orderBy('nom')->get();
-        $sous_categories = SousCategory::orderBy('nom')->get();
-        return view('admin.produits.create', compact('categories','sous_categories'));
+        return view('admin.produits.create', compact('categories'));
     }
 
     /**
@@ -87,7 +83,6 @@ class ProductController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'status' => 'sometimes|in:draft,published,out_of_stock',
         ]);
-
         $data['reference_prod'] = $this->generateUniqueReference();
 
         if ($request->hasFile('image')) {
@@ -96,9 +91,7 @@ class ProductController extends Controller
         }
 
         Product::create($data);
-
-        return redirect()->route('admin.produits.index')
-            ->with('success', 'Produit créé avec succès.');
+        return redirect()->route('admin.produits.index')->with('success', 'Produit créé avec succès.');
     }
 
     private function generateUniqueReference(): string{
@@ -112,12 +105,11 @@ class ProductController extends Controller
      * Display the specified product.
      */
     public function show(string $id){
-        $product = Product::with(['category', 'orderItems', 'achats'])->findOrFail($id);
+        $product = Product::with(['category', 'orderItems', 'achatProducts'])->findOrFail($id);
         
         // Statistiques supplémentaires
         $totalVendu = $product->orderItems->sum('quantity');
         $stockAlerte = $product->qte_dispo <= 5 ? true : false;
-        
         return view('admin.produits.show', compact('product', 'totalVendu', 'stockAlerte'));
     }
 
@@ -127,7 +119,6 @@ class ProductController extends Controller
     public function edit(string $id){
         $product = Product::findOrFail($id);
         $categories = Category::orderBy('nom')->get();
-        
         return view('admin.produits.edit', compact('product', 'categories'));
     }
 
@@ -143,6 +134,7 @@ class ProductController extends Controller
             'description' => 'nullable|string',
             'prix_vente' => 'required|numeric|min:0|regex:/^\d+(\.\d{1,2})?$/',
             'qte_dispo' => 'required|integer|min:0',
+            'stock_minimum' => 'nullable|integer|min:0',
             'category_id' => 'required|exists:categories,id',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'status' => 'sometimes|in:draft,published,out_of_stock',
@@ -159,9 +151,7 @@ class ProductController extends Controller
         }
 
         $product->update($data);
-
-        return redirect()->route('admin.produits.index')
-            ->with('success', 'Produit mis à jour avec succès.');
+        return redirect()->route('admin.produits.index')->with('success', 'Produit mis à jour avec succès.');
     }
 
     /**
@@ -182,9 +172,7 @@ class ProductController extends Controller
         }
         
         $product->delete();
-
-        return redirect()->route('admin.produits.index')
-            ->with('success', 'Produit supprimé avec succès.');
+        return redirect()->route('admin.produits.index')->with('success', 'Produit supprimé avec succès.');
     }
     
     /**
@@ -201,16 +189,16 @@ class ProductController extends Controller
     /**
      * Update stock of a product.
      */
-    public function updateStock(Request $request, string $id){
-        $product = Product::findOrFail($id);
+    // public function updateStock(Request $request, string $id){
+    //     $product = Product::findOrFail($id);
         
-        $data = $request->validate([
-            'qte_dispo' => 'required|integer|min:0',
-        ]);
+    //     $data = $request->validate([
+    //         'qte_dispo' => 'required|integer|min:0',
+    //     ]);
         
-        $product->update($data);
+    //     $product->update($data);
         
-        return redirect()->route('admin.produits.show', $product)
-            ->with('success', 'Stock mis à jour avec succès.');
-    }
+    //     return redirect()->route('admin.produits.show', $product)
+    //         ->with('success', 'Stock mis à jour avec succès.');
+    // }
 }

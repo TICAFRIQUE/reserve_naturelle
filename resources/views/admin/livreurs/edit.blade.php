@@ -87,6 +87,7 @@
                     </div>
                     <div>
                         <div style="font-weight: 600; color: #2d5a27; font-size: 1.05rem;">{{ $livreur->nom }}</div>
+                        <div style="font-weight: 600; color: #2d5a27; font-size: 1.05rem;">{{ $livreur->prenom }}</div>
                         <div style="color: #6c757d; font-size: 0.85rem;">
                             <i class="fas fa-phone" style="color: #2d5a27;"></i> {{ $livreur->tel }}
                         </div>
@@ -143,7 +144,7 @@
                     <div style="margin-bottom: 25px;">
                         <label for="nom" style="display: block; font-weight: 600; color: #2d5a27; margin-bottom: 8px; font-size: 0.95rem;">
                             <i class="fas fa-user" style="color: #2d5a27; margin-right: 5px;"></i>
-                            Nom complet <span style="color: #dc3545;">*</span>
+                            Nom <span style="color: #dc3545;">*</span>
                         </label>
                         <input type="text" 
                                name="nom" 
@@ -162,6 +163,36 @@
                                "
                                onfocus="this.style.borderColor='#2d5a27'; this.style.background='white'"
                                onblur="this.style.borderColor='{{ $errors->has('nom') ? '#dc3545' : '#e8e0d5' }}'; this.style.background='#faf8f5'"
+                               placeholder="Ex: Jean Kouadio">
+                        @error('nom')
+                            <div style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;">
+                                <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+                    <!-- prenom -->
+                    <div style="margin-bottom: 25px;">
+                        <label for="nom" style="display: block; font-weight: 600; color: #2d5a27; margin-bottom: 8px; font-size: 0.95rem;">
+                            <i class="fas fa-user" style="color: #2d5a27; margin-right: 5px;"></i>
+                            Prenom <span style="color: #dc3545;">*</span>
+                        </label>
+                        <input type="text" 
+                               name="prenom" 
+                               id="prenom" 
+                               value="{{ old('prenom', $livreur->prenom) }}" 
+                               required 
+                               style="
+                                   width: 100%;
+                                   padding: 12px 16px;
+                                   border: 2px solid {{ $errors->has('prenom') ? '#dc3545' : '#e8e0d5' }};
+                                   border-radius: 8px;
+                                   font-size: 1rem;
+                                   transition: border-color 0.3s;
+                                   outline: none;
+                                   background: #faf8f5;
+                               "
+                               onfocus="this.style.borderColor='#2d5a27'; this.style.background='white'"
+                               onblur="this.style.borderColor='{{ $errors->has('prenom') ? '#dc3545' : '#e8e0d5' }}'; this.style.background='#faf8f5'"
                                placeholder="Ex: Jean Kouadio">
                         @error('nom')
                             <div style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;">

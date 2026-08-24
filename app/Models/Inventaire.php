@@ -1,43 +1,35 @@
 <?php
- 
+
 namespace App\Models;
- 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 use Illuminate\Database\Eloquent\Model;
- 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 class Inventaire extends Model
 {
     use HasFactory;
- 
+
     protected $fillable = [
-        'date_debut',
-        'date_fin',
-        'statut',
+        'reference',
         'user_id',
-        
+        'statut',
+        'date_inventaire',
+        'notes',
     ];
- 
-    public function category(){
-        return $this->belongsTo(Category::class);
+
+    protected $casts = [
+        'date_inventaire' => 'date',
+    ];
+
+    public function user(){
+        return $this->belongsTo(User::class);
     }
- 
-    public function cartItems(){
-        return $this->hasMany(CartItem::class);
+
+    public function produits(){
+        return $this->hasMany(InventaireProduct::class, 'inventaire_id');
     }
- 
-    public function orderItems(){
-        return $this->hasMany(OrderItem::class);
-    }
- 
-    // public function orders(){
-    //     return $this->belongsToMany(Order::class, 'order_items');
-    // }
- 
-    public function achats(){
-        return $this->belongsToMany(Achat::class, 'achat_product')->withPivot('qte', 'prix_unitaire');
-    }
- 
-    public function inventaires(){
-        return $this->belongsToMany(Inventaire::class, 'inventaire_product')->withPivot('qte', 'type_mvt', 'date_mvt', 'h_mvt');
+
+    public function stockMouvements(){
+        return $this->morphMany(StockMouvement::class, 'source');
     }
 }

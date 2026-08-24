@@ -257,7 +257,7 @@
                                                 @endif
                                             </td>
                                             <td style="padding: 12px 20px; text-align: right; font-weight: 600; color: #2d5a27;">
-                                                {{ number_format($achat->montant ?? 0, 0, ',', ' ') }} FCFA
+                                                {{ number_format($achat->mt_paye ?? 0, 0, ',', ' ') }} FCFA
                                             </td>
                                             <td style="padding: 12px 20px; text-align: center;">
                                                 <span style="

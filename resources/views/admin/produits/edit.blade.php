@@ -330,6 +330,39 @@
                             </div>
                         @enderror
                     </div>
+                    <!-- Seuil de stock minimum -->
+                    <div style="margin-bottom: 25px;">
+                        <label for="stock_minimum" style="display: block; font-weight: 600; color: #2d5a27; margin-bottom: 8px; font-size: 0.95rem;">
+                            <i class="fas fa-triangle-exclamation" style="color: #2d5a27; margin-right: 5px;"></i>
+                            Seuil de stock minimum
+                        </label>
+                        <input type="number"
+                            id="stock_minimum"
+                            name="stock_minimum"
+                            value="{{ old('stock_minimum', 0) }}"
+                            min="0"
+                            style="
+                                width: 100%;
+                                max-width: 300px;
+                                padding: 12px 16px;
+                                border: 2px solid {{ $errors->has('stock_minimum') ? '#dc3545' : '#e8e0d5' }};
+                                border-radius: 8px;
+                                font-size: 1rem;
+                                transition: border-color 0.3s;
+                                outline: none;
+                                background: #faf8f5;
+                            "
+                            onfocus="this.style.borderColor='#2d5a27'; this.style.background='white'"
+                            onblur="this.style.borderColor='{{ $errors->has('stock_minimum') ? '#dc3545' : '#e8e0d5' }}'; this.style.background='#faf8f5'">
+                        <div style="color: #6c757d; font-size: 0.8rem; margin-top: 5px;">
+                            <i class="fas fa-info-circle"></i> Une alerte apparaît sur le dashboard sous ce seuil
+                        </div>
+                        @error('stock_minimum')
+                            <div style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;">
+                                <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
 
                     <!-- Description -->
                     <div style="margin-bottom: 25px;">

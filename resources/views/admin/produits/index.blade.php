@@ -244,11 +244,11 @@
                             border-bottom: 2px solid #e8e0d5;
                         ">
                             <tr>
-                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 5%;">#</th>
-                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 12%;">Référence</th>
-                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 20%;">Désignation</th>
+                                {{-- <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 8%;">N°</th> --}}
+                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 13%;">Référence</th>
+                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 22%;">Désignation</th>
                                 <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 15%;">Catégorie</th>
-                                <th style="padding: 15px 20px; text-align: right; font-weight: 600; color: #2d5a27; width: 12%;">Prix</th>
+                                <th style="padding: 15px 20px; text-align: right; font-weight: 600; color: #2d5a27; width: 13%;">Prix</th>
                                 <th style="padding: 15px 20px; text-align: center; font-weight: 600; color: #2d5a27; width: 10%;">Stock</th>
                                 <th style="padding: 15px 20px; text-align: center; font-weight: 600; color: #2d5a27; width: 16%;">Actions</th>
                             </tr>
@@ -256,9 +256,9 @@
                         <tbody>
                             @forelse($products as $product)
                                 <tr style="border-bottom: 1px solid #f0ebe5; transition: background 0.2s;" onmouseover="this.style.background='#faf8f5'" onmouseout="this.style.background='transparent'">
-                                    <td style="padding: 15px 20px; color: #6c757d; font-weight: 500;">
+                                    {{-- <td style="padding: 15px 20px; color: #6c757d; font-weight: 500; text-align: center;">
                                         {{ $loop->iteration + ($products->currentPage() - 1) * $products->perPage() }}
-                                    </td>
+                                    </td> --}}
                                     <td style="padding: 15px 20px;">
                                         <span style="
                                             background: #e8f5e9;
@@ -290,14 +290,14 @@
                                                          alt="{{ $product->designation }}" 
                                                          style="width: 100%; height: 100%; object-fit: cover;">
                                                 @else
-                                                    <i class="fas fa-box" style="color: #b8860b;"></i>
+                                                    <i class="fas fa-box" style="color: #b8860b; font-size: 18px;"></i>
                                                 @endif
                                             </div>
                                             <div>
                                                 <div style="font-weight: 500; color: #2d5a27;">{{ $product->designation }}</div>
                                                 @if($product->description)
-                                                    <div style="color: #6c757d; font-size: 0.8rem;">
-                                                        {{ Str::limit($product->description, 40) }}
+                                                    <div style="color: #6c757d; font-size: 0.8rem; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                                        {{ Str::limit($product->description, 35) }}
                                                     </div>
                                                 @endif
                                             </div>
@@ -312,16 +312,22 @@
                                             font-size: 0.8rem;
                                             display: inline-block;
                                         ">
-                                            <i class="fas fa-folder"></i>
-                                            {{ $product->category->nom ?? 'N/A' }}
+                                            <i class="fas fa-folder" style="color: #b8860b;"></i>
+                                            {{ $product->category->nom ?? $product->sousCategory->category->nom ?? 'N/A' }}
                                         </span>
+                                        @if($product->sousCategory)
+                                            <div style="font-size: 0.7rem; color: #6c757d; margin-top: 2px;">
+                                                <i class="fas fa-sitemap"></i> {{ $product->sousCategory->nom }}
+                                            </div>
+                                        @endif
                                     </td>
                                     <td style="padding: 15px 20px; text-align: right; font-weight: 600; color: #2d5a27;">
                                         {{ number_format($product->prix_vente, 0, ',', ' ') }} FCFA
                                     </td>
                                     <td style="padding: 15px 20px; text-align: center;">
                                         @php
-                                            $stockClass = $product->qte_dispo > 10 ? '#28a745' : ($product->qte_dispo > 0 ? '#ffc107' : '#dc3545');
+                                            $stock = $product->qte_dispo ?? 0;
+                                            $stockClass = $stock > $product->stock_minimum ? '#28a745' : ($stock > 0 ? '#ffc107' : '#dc3545');
                                         @endphp
                                         <span style="
                                             background: {{ $stockClass }};
@@ -331,11 +337,12 @@
                                             font-size: 0.85rem;
                                             font-weight: 500;
                                             display: inline-block;
+                                            min-width: 30px;
                                         ">
-                                            {{ $product->qte_dispo }}
+                                            {{ $stock }}
                                         </span>
-                                        @if($product->qte_dispo <= 5 && $product->qte_dispo > 0)
-                                            <div style="color: #ffc107; font-size: 0.7rem; margin-top: 2px;">
+                                        @if($stock <= $product->stock_minimum && $stock > 0)
+                                            <div style="color: #ffc107; font-size: 0.65rem; margin-top: 2px;">
                                                 <i class="fas fa-exclamation-triangle"></i> Stock faible
                                             </div>
                                         @endif
@@ -354,7 +361,7 @@
                                                 align-items: center;
                                                 gap: 4px;
                                             " onmouseover="this.style.background='#e0d6c8'" onmouseout="this.style.background='#f0ebe5'">
-                                                <i class="fas fa-eye"></i> Voir
+                                                <i class="fas fa-eye"></i>
                                             </a>
                                             
                                             <a href="{{ route('admin.produits.edit', $product) }}" style="
@@ -369,7 +376,7 @@
                                                 align-items: center;
                                                 gap: 4px;
                                             " onmouseover="this.style.background='#e0d6c8'" onmouseout="this.style.background='#f0ebe5'">
-                                                <i class="fas fa-edit"></i> Modifier
+                                                <i class="fas fa-edit"></i>
                                             </a>
                                             
                                             <form action="{{ route('admin.produits.destroy', $product) }}" method="POST" style="display: inline-block;" onsubmit="return confirm('⚠️ Supprimer définitivement ce produit ?\n\nCette action est irréversible !');">
@@ -388,7 +395,7 @@
                                                     align-items: center;
                                                     gap: 4px;
                                                 " onmouseover="this.style.background='#f5c6cb'" onmouseout="this.style.background='#f8d7da'">
-                                                    <i class="fas fa-trash-alt"></i> Supprimer
+                                                    <i class="fas fa-trash-alt"></i>
                                                 </button>
                                             </form>
                                         </div>
@@ -410,10 +417,6 @@
 
             <!-- Pagination -->
             <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-                <div style="color: #6c757d; font-size: 0.9rem;">
-                    <i class="fas fa-info-circle" style="color: #2d5a27;"></i>
-                    Affichage de {{ $products->firstItem() ?? 0 }} à {{ $products->lastItem() ?? 0 }} sur {{ $products->total() }} produits
-                </div>
                 <div style="display: flex; justify-content: center;">
                     {{ $products->appends(request()->query())->links() }}
                 </div>
@@ -503,6 +506,13 @@
         }
         th, td {
             padding: 10px 12px !important;
+        }
+        .container > div > div:last-child {
+            flex-direction: column !important;
+            align-items: center !important;
+        }
+        .container > div > div:last-child > div:first-child {
+            text-align: center;
         }
     }
 </style>

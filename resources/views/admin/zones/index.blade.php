@@ -159,7 +159,7 @@
                     <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
                         <thead style="background: #f8f5f0; border-bottom: 2px solid #e8e0d5;">
                             <tr>
-                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 5%;">#</th>
+                                {{-- <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 5%;">#</th> --}}
                                 <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 30%;">Nom de la zone</th>
                                 <th style="padding: 15px 20px; text-align: right; font-weight: 600; color: #2d5a27; width: 20%;">Tarif</th>
                                 <th style="padding: 15px 20px; text-align: center; font-weight: 600; color: #2d5a27; width: 20%;">Type</th>
@@ -169,7 +169,7 @@
                         <tbody>
                             @forelse($zones as $zone)
                                 <tr style="border-bottom: 1px solid #f0ebe5; transition: background 0.2s;" onmouseover="this.style.background='#faf8f5'" onmouseout="this.style.background='transparent'">
-                                    <td style="padding: 15px 20px; color: #6c757d; font-weight: 500;">{{ $zone->id }}</td>
+                                    {{-- <td style="padding: 15px 20px; color: #6c757d; font-weight: 500;">{{ $zone->id }}</td> --}}
                                     <td style="padding: 15px 20px; font-weight: 500; color: #2d5a27;">
                                         <div style="display: flex; align-items: center; gap: 10px;">
                                             <div style="
@@ -233,7 +233,7 @@
                                                 align-items: center;
                                                 gap: 4px;
                                             " onmouseover="this.style.background='#e0d6c8'" onmouseout="this.style.background='#f0ebe5'">
-                                                <i class="fas fa-edit"></i> Modifier
+                                                <i class="fas fa-edit"></i>
                                             </a>
                                             
                                             <form action="{{ route('admin.zones.destroy', $zone->id) }}" method="POST" style="display: inline-block;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette zone ?');">
@@ -252,7 +252,7 @@
                                                     align-items: center;
                                                     gap: 4px;
                                                 " onmouseover="this.style.background='#f5c6cb'" onmouseout="this.style.background='#f8d7da'">
-                                                    <i class="fas fa-trash-alt"></i> Supprimer
+                                                    <i class="fas fa-trash-alt"></i>
                                                 </button>
                                             </form>
                                         </div>
@@ -274,10 +274,6 @@
 
             <!-- Pagination -->
             <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-                <div style="color: #6c757d; font-size: 0.9rem;">
-                    <i class="fas fa-info-circle" style="color: #2d5a27;"></i>
-                    Affichage de {{ $zones->firstItem() ?? 0 }} à {{ $zones->lastItem() ?? 0 }} sur {{ $zones->total() }} zones
-                </div>
                 <div style="display: flex; justify-content: center;">
                     {{ $zones->appends(request()->query())->links() }}
                 </div>

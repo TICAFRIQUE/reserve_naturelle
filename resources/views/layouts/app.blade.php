@@ -136,9 +136,6 @@
             </a>
             <ul class="dropdown-menu">
               <li>
-                <a href="{{ Auth::user()->isAdmin() ? route('admin.dashboard') : route('admin.dashboard') }}">
-                  <i class="fas fa-tachometer-alt"></i> Tableau de bord
-                </a>
               </li>
               <li><a href="{{ route('password.edit') }}"><i class="fas fa-key"></i> Changer mot de passe</a></li>
               <li><hr class="dropdown-divider"></li>

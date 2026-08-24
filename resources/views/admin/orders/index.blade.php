@@ -196,7 +196,7 @@
                             border-bottom: 2px solid #e8e0d5;
                         ">
                             <tr>
-                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 4%;">#</th>
+                                {{-- <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 4%;">#</th> --}}
                                 <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 12%;">N° Commande</th>
                                 <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 15%;">Client</th>
                                 <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 16%;">Livraison</th>
@@ -210,7 +210,7 @@
                         <tbody>
                             @forelse($orders as $order)
                                 <tr style="border-bottom: 1px solid #f0ebe5; transition: background 0.2s;" onmouseover="this.style.background='#faf8f5'" onmouseout="this.style.background='transparent'">
-                                    <td style="padding: 15px 20px; color: #6c757d; font-weight: 500;">{{ $order->id }}</td>
+                                    {{-- <td style="padding: 15px 20px; color: #6c757d; font-weight: 500;">{{ $order->id }}</td> --}}
                                     <td style="padding: 15px 20px;">
                                         <span style="
                                             background: #e8f5e9;
@@ -362,10 +362,6 @@
 
             <!-- Pagination -->
             <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-                <div style="color: #6c757d; font-size: 0.9rem;">
-                    <i class="fas fa-info-circle" style="color: #2d5a27;"></i>
-                    Affichage de {{ $orders->firstItem() ?? 0 }} à {{ $orders->lastItem() ?? 0 }} sur {{ $orders->total() }} commandes
-                </div>
                 <div style="display: flex; justify-content: center;">
                     {{ $orders->appends(request()->query())->links() }}
                 </div>

@@ -51,7 +51,7 @@
                 <table style="width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 0.95rem;">
                     <thead style="background: #f8f5f0; border-bottom: 2px solid #e8e0d5;">
                         <tr>
-                            <th style="padding: 12px 10px; text-align: left; font-weight: 600; color: #2d5a27; width: 5%;">#</th>
+                            {{-- <th style="padding: 12px 10px; text-align: left; font-weight: 600; color: #2d5a27; width: 5%;">#</th> --}}
                             <th style="padding: 12px 10px; text-align: left; font-weight: 600; color: #2d5a27; width: 20%;">Livreur</th>
                             <th style="padding: 12px 10px; text-align: left; font-weight: 600; color: #2d5a27; width: 15%;">Zone</th>
                             <th style="padding: 12px 10px; text-align: left; font-weight: 600; color: #2d5a27; width: 13%;">Date</th>
@@ -63,7 +63,7 @@
                     <tbody>
                         @forelse($tournees as $tournee)
                             <tr style="border-bottom: 1px solid #f0ebe5;">
-                                <td style="padding: 12px 10px; color: #6c757d;">{{ $tournee->id }}</td>
+                                {{-- <td style="padding: 12px 10px; color: #6c757d;">{{ $tournee->id }}</td> --}}
                                 <td style="padding: 12px 10px; color: #2d5a27; font-weight: 500;">
                                     {{ $tournee->livreur->full_name ?? 'N/A' }}
                                 </td>

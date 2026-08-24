@@ -199,22 +199,34 @@
                             border-bottom: 2px solid #e8e0d5;
                         ">
                             <tr>
-                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 5%;">#</th>
-                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 20%;">Nom</th>
+                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 22%;">Nom</th>
                                 <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 18%;">Catégorie parente</th>
                                 <th style="padding: 15px 20px; text-align: center; font-weight: 600; color: #2d5a27; width: 12%;">Statut</th>
                                 <th style="padding: 15px 20px; text-align: center; font-weight: 600; color: #2d5a27; width: 8%;">Ordre</th>
-                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 22%;">Description</th>
-                                <th style="padding: 15px 20px; text-align: center; font-weight: 600; color: #2d5a27; width: 15%;">Actions</th>
+                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 28%;">Description</th>
+                                <th style="padding: 15px 20px; text-align: center; font-weight: 600; color: #2d5a27; width: 12%;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($sousCategories as $sousCategory)
                                 <tr style="border-bottom: 1px solid #f0ebe5; transition: background 0.2s;" onmouseover="this.style.background='#faf8f5'" onmouseout="this.style.background='transparent'">
-                                    <td style="padding: 15px 20px; color: #6c757d; font-weight: 500;">{{ $sousCategory->id }}</td>
                                     <td style="padding: 15px 20px; font-weight: 500; color: #2d5a27;">
-                                        <i class="fas fa-folder-open" style="color: #b8860b; margin-right: 8px;"></i>
-                                        {{ $sousCategory->nom }}
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <!-- Icône de sous-catégorie -->
+                                            <div style="
+                                                width: 36px;
+                                                height: 36px;
+                                                border-radius: 8px;
+                                                background: #fef9e7;
+                                                display: flex;
+                                                align-items: center;
+                                                justify-content: center;
+                                                flex-shrink: 0;
+                                            ">
+                                                <i class="fas fa-folder-open" style="color: #b8860b; font-size: 16px;"></i>
+                                            </div>
+                                            <span>{{ $sousCategory->nom }}</span>
+                                        </div>
                                     </td>
                                     <td style="padding: 15px 20px;">
                                         <span style="
@@ -226,7 +238,7 @@
                                             font-weight: 500;
                                             display: inline-block;
                                         ">
-                                            <i class="fas fa-folder" style="margin-right: 4px;"></i>
+                                            <i class="fas fa-folder" style="margin-right: 4px; color: #b8860b;"></i>
                                             {{ $sousCategory->category->nom ?? 'N/A' }}
                                         </span>
                                     </td>
@@ -262,8 +274,10 @@
                                     <td style="padding: 15px 20px; text-align: center; font-weight: 600; color: #2d5a27;">
                                         {{ $sousCategory->ordre ?? 0 }}
                                     </td>
-                                    <td style="padding: 15px 20px; color: #6c757d; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                        {{ $sousCategory->description ? Str::limit($sousCategory->description, 60) : '—' }}
+                                    <td style="padding: 15px 20px; color: #6c757d; max-width: 300px;">
+                                        <div style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                            {{ $sousCategory->description ?: '—' }}
+                                        </div>
                                     </td>
                                     <td style="padding: 15px 20px; text-align: center;">
                                         <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
@@ -321,7 +335,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" style="padding: 60px 20px; text-align: center; color: #6c757d;">
+                                    <td colspan="6" style="padding: 60px 20px; text-align: center; color: #6c757d;">
                                         <i class="fas fa-folder-open" style="font-size: 48px; display: block; margin-bottom: 15px; color: #d4c9bb;"></i>
                                         <p style="font-size: 1.1rem; margin: 0;">Aucune sous-catégorie trouvée</p>
                                         <p style="margin-top: 5px;">Cliquez sur "Nouvelle sous-catégorie" pour en créer une</p>
@@ -335,10 +349,6 @@
 
             <!-- Pagination -->
             <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-                <div style="color: #6c757d; font-size: 0.9rem;">
-                    <i class="fas fa-info-circle" style="color: #b8860b;"></i>
-                    Affichage de {{ $sousCategories->firstItem() ?? 0 }} à {{ $sousCategories->lastItem() ?? 0 }} sur {{ $sousCategories->total() }} sous-catégories
-                </div>
                 <div style="display: flex; justify-content: center;">
                     {{ $sousCategories->appends(request()->query())->links() }}
                 </div>
@@ -428,6 +438,13 @@
         }
         th, td {
             padding: 10px 12px !important;
+        }
+        .container > div > div:last-child {
+            flex-direction: column !important;
+            align-items: center !important;
+        }
+        .container > div > div:last-child > div:first-child {
+            text-align: center;
         }
     }
 </style>

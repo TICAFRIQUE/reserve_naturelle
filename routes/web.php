@@ -1,4 +1,4 @@
-    <?php
+<?php
 
     use App\Http\Controllers\Auth\AuthController;
     use App\Http\Controllers\Auth\RegisterController;
@@ -7,9 +7,15 @@
     use App\Http\Controllers\Admin\FournisseurController;
     use App\Http\Controllers\Admin\SousCategoryController;
     use App\Http\Controllers\Admin\UserController;
+    use App\Http\Controllers\Admin\InventaireController;
     use App\Http\Controllers\Admin\LivreurController;
     use App\Http\Controllers\Admin\TourneeController;
     use App\Http\Controllers\Admin\ZoneController;
+    use App\Http\Controllers\Admin\AchatController;
+    use App\Http\Controllers\Admin\StockController;
+    use App\Http\Controllers\Admin\DashboardController;
+    use App\Http\Controllers\Admin\StockMouvementController;
+    use \App\Http\Controllers\Admin\StockAjustementController;
     use App\Http\Controllers\Admin\OrderController as AdminOrderController;
     use App\Http\Controllers\Admin\ProductController as AdminProductController;
     use App\Http\Controllers\Client\ProductController as ClientProductController;
@@ -27,7 +33,7 @@
         Route::get('/catalogue', [ClientProductController::class, 'catalogue'])->name('products.catalogue');
 
         Route::prefix('produits')->name('products.')->group(function () {
-            Route::get('/recherche', [ClientProductController::class, 'search'])->name('search');
+            // Route::get('/recherche', [ClientProductController::class, 'search'])->name('search');
             Route::get('/{product}', [ClientProductController::class, 'show'])->name('show');
         });
 
@@ -87,7 +93,7 @@
     // Back-office : auth + middleware admin
     Route::middleware(['auth'])->group(function () {
         Route::prefix('admin')->middleware(['admin'])->name('admin.')->group(function () {
-            Route::get('/dashboard', fn () => view('admin.dashboard'))->name('dashboard');
+            Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
             //Routes CRUD categories,sous-categories,users,zones, produits,livreur et fournisseurs admin
             Route::resource('categories', CategoryController::class);
@@ -118,6 +124,35 @@
                 Route::post('/{tournee}/orders/{order}/deliver', [TourneeController::class, 'markOrderDelivered'])->name('deliver-order');
                 Route::post('/{tournee}/close', [TourneeController::class, 'close'])->name('close');
             });
-        });
+            //Routes pour les achats PARTIE GESTION DE STOCK
+            Route::prefix('achat')->name('achats.')->group(function (){
+                Route::get('/', [AchatController::class, 'index'])->name('index');
+                Route::get('/create', [AchatController::class,'create'])->name('create');
+                Route::post('/', [AchatController::class, 'store'])->name('store');
+                Route::get('/{achat}', [AchatController::class, 'show'])->name('show');
+                Route::post('/{achat}/confirmer',    [AchatController::class, 'confirmer'])->name('confirmer');
+                Route::get('/{achat}/reception',     [AchatController::class, 'receptionForm'])->name('reception');
+                Route::post('/{achat}/receptionner', [AchatController::class, 'receptionner'])->name('receptionner');
+                Route::post('/{achat}/annuler',      [AchatController::class, 'annuler'])->name('annuler');
+            });
+            //ROUTES INVENTAIRES PARTIE GESTION DE STOCK
+        Route::prefix('inventaires')->name('inventaires.')->group(function () {
+            Route::get('/', [InventaireController::class, 'index'])->name('index');
+                Route::get('/create', [InventaireController::class, 'create'])->name('create');
+                Route::post('/', [InventaireController::class, 'store'])->name('store');
+                Route::get('/{inventaire}', [InventaireController::class, 'show'])->name('show');
+                Route::patch('/{inventaire}', [InventaireController::class, 'update'])->name('update');
+                Route::post('/{inventaire}/valider', [InventaireController::class, 'valider'])->name('valider');
+                Route::post('/{inventaire}/annuler', [InventaireController::class, 'annuler'])->name('annuler');
+                Route::delete('/{inventaire}', [InventaireController::class, 'destroy'])->name('destroy');
+            });
 
+            //Route Stock mouvement pour garder l'historique des mouvements
+            Route::get('/stock', [StockController::class, 'index'])->name('stock.index');
+            Route::get('/stock-mouvements', [StockMouvementController::class, 'index'])->name('stock-mouvements.index');
+            
+            //ROUTES AJUSTEMENTS POUR LES CORRECTIONS 
+            Route::get('/stock-ajustements/create', [StockAjustementController::class, 'create'])->name('stock-ajustements.create');
+            Route::post('/stock-ajustements', [StockAjustementController::class, 'store'])->name('stock-ajustements.store');
+        });
     });
