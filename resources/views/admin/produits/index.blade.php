@@ -1,3 +1,4 @@
+{{-- resources/views/admin/produits/index.blade.php --}}
 @extends('layouts.admin')
 
 @section('title', 'Gestion des Produits - La Réserve Naturelle')
@@ -6,7 +7,7 @@
 <div class="container" style="padding: 40px 0;">
     <div class="row">
         <div class="col-12">
-            <!-- Entête avec titre et bouton ajout -->
+            <!-- Entête -->
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px;">
                 <div>
                     <h1 style="font-family: 'Playfair Display', serif; color: #2d5a27; font-size: 2rem; margin: 0;">
@@ -33,42 +34,7 @@
                 </a>
             </div>
 
-            <!-- Messages flash -->
-            @if(session('success'))
-                <div style="
-                    background: #d4edda;
-                    color: #155724;
-                    padding: 12px 20px;
-                    border-radius: 8px;
-                    border-left: 4px solid #28a745;
-                    margin-bottom: 20px;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                ">
-                    <i class="fas fa-check-circle" style="font-size: 20px;"></i>
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            @if(session('error'))
-                <div style="
-                    background: #f8d7da;
-                    color: #721c24;
-                    padding: 12px 20px;
-                    border-radius: 8px;
-                    border-left: 4px solid #dc3545;
-                    margin-bottom: 20px;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                ">
-                    <i class="fas fa-exclamation-circle" style="font-size: 20px;"></i>
-                    {{ session('error') }}
-                </div>
-            @endif
-
-            <!-- Formulaire de filtre -->
+            <!-- Filtre -->
             <div style="
                 background: #f8f5f0;
                 padding: 20px;
@@ -100,7 +66,7 @@
                                value="{{ request('search') }}">
                     </div>
                     
-                    <div style="flex: 0 0 180px; min-width: 140px;">
+                    <div style="flex: 0 0 200px; min-width: 160px;">
                         <label for="category_id" style="display: block; font-weight: 600; color: #2d5a27; font-size: 0.9rem; margin-bottom: 5px;">
                             <i class="fas fa-folder" style="color: #2d5a27; margin-right: 5px;"></i> Catégorie
                         </label>
@@ -116,10 +82,15 @@
                             cursor: pointer;
                         " onfocus="this.style.borderColor='#2d5a27'" onblur="this.style.borderColor='#e8e0d5'">
                             <option value="">Toutes les catégories</option>
-                            @foreach($categories as $id => $name)
-                                <option value="{{ $id }}" {{ request('category_id') == $id ? 'selected' : '' }}>
-                                    {{ $name }}
+                            @foreach($categories as $category)
+                                <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
+                                    ⚡ {{ $category->nom }}
                                 </option>
+                                @foreach($category->sousCategories as $sousCategory)
+                                    <option value="{{ $sousCategory->id }}" {{ request('category_id') == $sousCategory->id ? 'selected' : '' }}>
+                                        &nbsp;&nbsp;&nbsp;└ {{ $sousCategory->nom }}
+                                    </option>
+                                @endforeach
                             @endforeach
                         </select>
                     </div>
@@ -225,7 +196,7 @@
                 </form>
             </div>
 
-            <!-- Tableau des produits -->
+            <!-- Tableau -->
             <div style="
                 background: white;
                 border-radius: 12px;
@@ -244,21 +215,18 @@
                             border-bottom: 2px solid #e8e0d5;
                         ">
                             <tr>
-                                {{-- <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 8%;">N°</th> --}}
-                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 13%;">Référence</th>
-                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 22%;">Désignation</th>
+                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 10%;">Référence</th>
+                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 20%;">Désignation</th>
                                 <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 15%;">Catégorie</th>
-                                <th style="padding: 15px 20px; text-align: right; font-weight: 600; color: #2d5a27; width: 13%;">Prix</th>
+                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 15%;">Sous-catégorie</th>
+                                <th style="padding: 15px 20px; text-align: right; font-weight: 600; color: #2d5a27; width: 12%;">Prix</th>
                                 <th style="padding: 15px 20px; text-align: center; font-weight: 600; color: #2d5a27; width: 10%;">Stock</th>
-                                <th style="padding: 15px 20px; text-align: center; font-weight: 600; color: #2d5a27; width: 16%;">Actions</th>
+                                <th style="padding: 15px 20px; text-align: center; font-weight: 600; color: #2d5a27; width: 18%;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($products as $product)
                                 <tr style="border-bottom: 1px solid #f0ebe5; transition: background 0.2s;" onmouseover="this.style.background='#faf8f5'" onmouseout="this.style.background='transparent'">
-                                    {{-- <td style="padding: 15px 20px; color: #6c757d; font-weight: 500; text-align: center;">
-                                        {{ $loop->iteration + ($products->currentPage() - 1) * $products->perPage() }}
-                                    </td> --}}
                                     <td style="padding: 15px 20px;">
                                         <span style="
                                             background: #e8f5e9;
@@ -313,12 +281,26 @@
                                             display: inline-block;
                                         ">
                                             <i class="fas fa-folder" style="color: #b8860b;"></i>
-                                            {{ $product->category->nom ?? $product->sousCategory->category->nom ?? 'N/A' }}
+                                            {{ $product->category->nom ?? 'N/A' }}
                                         </span>
+                                    </td>
+                                    <td style="padding: 15px 20px;">
                                         @if($product->sousCategory)
-                                            <div style="font-size: 0.7rem; color: #6c757d; margin-top: 2px;">
-                                                <i class="fas fa-sitemap"></i> {{ $product->sousCategory->nom }}
-                                            </div>
+                                            <span style="
+                                                background: #e8f5e9;
+                                                color: #1e6b3a;
+                                                padding: 4px 12px;
+                                                border-radius: 20px;
+                                                font-size: 0.8rem;
+                                                display: inline-block;
+                                            ">
+                                                <i class="fas fa-sitemap" style="color: #b8860b;"></i>
+                                                {{ $product->sousCategory->nom }}
+                                            </span>
+                                        @else
+                                            <span style="color: #adb5bd; font-size: 0.8rem;">
+                                                <i class="fas fa-minus-circle"></i> Aucune
+                                            </span>
                                         @endif
                                     </td>
                                     <td style="padding: 15px 20px; text-align: right; font-weight: 600; color: #2d5a27;">
@@ -327,7 +309,7 @@
                                     <td style="padding: 15px 20px; text-align: center;">
                                         @php
                                             $stock = $product->qte_dispo ?? 0;
-                                            $stockClass = $stock > $product->stock_minimum ? '#28a745' : ($stock > 0 ? '#ffc107' : '#dc3545');
+                                            $stockClass = $stock > ($product->stock_minimum ?? 5) ? '#28a745' : ($stock > 0 ? '#ffc107' : '#dc3545');
                                         @endphp
                                         <span style="
                                             background: {{ $stockClass }};
@@ -341,7 +323,7 @@
                                         ">
                                             {{ $stock }}
                                         </span>
-                                        @if($stock <= $product->stock_minimum && $stock > 0)
+                                        @if($stock <= ($product->stock_minimum ?? 5) && $stock > 0)
                                             <div style="color: #ffc107; font-size: 0.65rem; margin-top: 2px;">
                                                 <i class="fas fa-exclamation-triangle"></i> Stock faible
                                             </div>
@@ -350,7 +332,7 @@
                                     <td style="padding: 15px 20px; text-align: center;">
                                         <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
                                             <a href="{{ route('admin.produits.show', $product) }}" style="
-                                                background: #f0ebe5;
+                                                background: #e8f5e9;
                                                 color: #2d5a27;
                                                 padding: 6px 12px;
                                                 border-radius: 20px;
@@ -360,13 +342,14 @@
                                                 display: inline-flex;
                                                 align-items: center;
                                                 gap: 4px;
-                                            " onmouseover="this.style.background='#e0d6c8'" onmouseout="this.style.background='#f0ebe5'">
+                                                border: 1px solid #c8e6c9;
+                                            " onmouseover="this.style.background='#c8e6c9'" onmouseout="this.style.background='#e8f5e9'">
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                             
                                             <a href="{{ route('admin.produits.edit', $product) }}" style="
-                                                background: #f0ebe5;
-                                                color: #2d5a27;
+                                                background: #fff3cd;
+                                                color: #856404;
                                                 padding: 6px 12px;
                                                 border-radius: 20px;
                                                 text-decoration: none;
@@ -375,26 +358,35 @@
                                                 display: inline-flex;
                                                 align-items: center;
                                                 gap: 4px;
-                                            " onmouseover="this.style.background='#e0d6c8'" onmouseout="this.style.background='#f0ebe5'">
+                                                border: 1px solid #ffeaa7;
+                                            " onmouseover="this.style.background='#ffeaa7'" onmouseout="this.style.background='#fff3cd'">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             
-                                            <form action="{{ route('admin.produits.destroy', $product) }}" method="POST" style="display: inline-block;" onsubmit="return confirm('⚠️ Supprimer définitivement ce produit ?\n\nCette action est irréversible !');">
+                                            <form action="{{ route('admin.produits.destroy', $product) }}" 
+                                                  method="POST" 
+                                                  style="display: inline-block;"
+                                                  id="delete-form-{{ $product->id }}">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" style="
-                                                    background: #f8d7da;
-                                                    color: #721c24;
-                                                    padding: 6px 12px;
-                                                    border-radius: 20px;
-                                                    border: none;
-                                                    font-size: 0.8rem;
-                                                    cursor: pointer;
-                                                    transition: all 0.2s;
-                                                    display: inline-flex;
-                                                    align-items: center;
-                                                    gap: 4px;
-                                                " onmouseover="this.style.background='#f5c6cb'" onmouseout="this.style.background='#f8d7da'">
+                                                <button type="button" 
+                                                        class="btn-supprimer"
+                                                        data-id="{{ $product->id }}"
+                                                        data-nom="{{ $product->designation }}"
+                                                        data-reference="{{ $product->reference_prod }}"
+                                                        style="
+                                                            background: #f8d7da;
+                                                            color: #721c24;
+                                                            padding: 6px 12px;
+                                                            border-radius: 20px;
+                                                            border: 1px solid #f5c6cb;
+                                                            font-size: 0.8rem;
+                                                            cursor: pointer;
+                                                            transition: all 0.2s;
+                                                            display: inline-flex;
+                                                            align-items: center;
+                                                            gap: 4px;
+                                                        " onmouseover="this.style.background='#f5c6cb'" onmouseout="this.style.background='#f8d7da'">
                                                     <i class="fas fa-trash-alt"></i>
                                                 </button>
                                             </form>
@@ -417,6 +409,20 @@
 
             <!-- Pagination -->
             <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <div style="color: #6c757d; font-size: 0.9rem;">
+                    <i class="fas fa-info-circle" style="color: #2d5a27;"></i>
+                    @if ($products->total() > 0)
+                        Affichage de
+                        <strong>{{ $products->firstItem() }}</strong>
+                        à
+                        <strong>{{ $products->lastItem() }}</strong>
+                        sur
+                        <strong>{{ $products->total() }}</strong>
+                        produits
+                    @else
+                        Aucun produit trouvé
+                    @endif
+                </div>
                 <div style="display: flex; justify-content: center;">
                     {{ $products->appends(request()->query())->links() }}
                 </div>
@@ -428,7 +434,6 @@
 
 @push('styles')
 <style>
-    /* Personnalisation de la pagination pour correspondre au thème */
     .pagination {
         display: flex;
         list-style: none;
@@ -466,7 +471,6 @@
         border-color: #e8e0d5;
     }
     
-    /* Responsive */
     @media (max-width: 768px) {
         .container {
             padding: 20px 15px !important;
@@ -516,4 +520,117 @@
         }
     }
 </style>
+@endpush
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.btn-supprimer').forEach(function(button) {
+        button.addEventListener('click', function() {
+            const id = this.dataset.id;
+            const nom = this.dataset.nom;
+            const reference = this.dataset.reference;
+            
+            Swal.fire({
+                title: '🗑️ Supprimer ce produit ?',
+                html: `
+                    <div style="text-align: left;">
+                        <p style="color: #721c24; font-weight: 500;">
+                            <i class="fas fa-exclamation-triangle" style="color: #856404;"></i>
+                            Vous êtes sur le point de supprimer le produit :
+                        </p>
+                        <div style="background: #f8f5f0; padding: 12px; border-radius: 8px; margin: 10px 0;">
+                            <p style="font-weight: 600; color: #2d5a27; margin: 0;">
+                                <i class="fas fa-box" style="color: #b8860b;"></i> 
+                                <strong>${nom}</strong>
+                            </p>
+                            <p style="color: #6c757d; margin: 5px 0 0 0; font-size: 0.9rem;">
+                                <i class="fas fa-tag" style="color: #b8860b;"></i>
+                                Référence : <strong>${reference}</strong>
+                            </p>
+                        </div>
+                        <p style="color: #721c24; font-weight: 500; background: #f8d7da; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                            <i class="fas fa-exclamation-circle"></i>
+                            Cette action est irréversible !
+                        </p>
+                    </div>
+                `,
+                icon: 'error',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '🗑️ Oui, supprimer',
+                cancelButtonText: 'Annuler',
+                reverseButtons: true,
+                width: '550px'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Suppression en cours...',
+                        text: 'Veuillez patienter',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    document.getElementById('delete-form-' + id).submit();
+                }
+            });
+        });
+    });
+
+    @if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Succès !',
+            text: "{{ session('success') }}",
+            timer: 4000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+        });
+    @endif
+
+    @if(session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Erreur !',
+            text: "{{ session('error') }}",
+            timer: 5000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+        });
+    @endif
+
+    @if(session('warning'))
+        Swal.fire({
+            icon: 'warning',
+            title: 'Attention !',
+            text: "{{ session('warning') }}",
+            timer: 4000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+        });
+    @endif
+
+    @if(session('info'))
+        Swal.fire({
+            icon: 'info',
+            title: 'Information',
+            text: "{{ session('info') }}",
+            timer: 4000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+        });
+    @endif
+});
+</script>
 @endpush

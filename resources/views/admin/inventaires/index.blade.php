@@ -34,39 +34,39 @@
                 </a>
             </div>
 
-            <!-- Messages flash -->
+            <!-- Messages flash avec SweetAlert -->
             @if(session('success'))
-                <div style="
-                    background: #d4edda;
-                    color: #155724;
-                    padding: 12px 20px;
-                    border-radius: 8px;
-                    border-left: 4px solid #28a745;
-                    margin-bottom: 20px;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                ">
-                    <i class="fas fa-check-circle" style="font-size: 20px;"></i>
-                    {{ session('success') }}
-                </div>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Succès !',
+                            text: "{{ session('success') }}",
+                            timer: 4000,
+                            timerProgressBar: true,
+                            showConfirmButton: false,
+                            toast: true,
+                            position: 'top-end'
+                        });
+                    });
+                </script>
             @endif
 
             @if(session('error'))
-                <div style="
-                    background: #f8d7da;
-                    color: #721c24;
-                    padding: 12px 20px;
-                    border-radius: 8px;
-                    border-left: 4px solid #dc3545;
-                    margin-bottom: 20px;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                ">
-                    <i class="fas fa-exclamation-circle" style="font-size: 20px;"></i>
-                    {{ session('error') }}
-                </div>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Erreur !',
+                            text: "{{ session('error') }}",
+                            timer: 5000,
+                            timerProgressBar: true,
+                            showConfirmButton: false,
+                            toast: true,
+                            position: 'top-end'
+                        });
+                    });
+                </script>
             @endif
 
             <!-- Formulaire de filtre -->
@@ -352,45 +352,28 @@
                                             " onmouseover="this.style.background='#c8e6c9'" onmouseout="this.style.background='#e8f5e9'">
                                                 <i class="fas fa-eye"></i>Voir
                                             </a>
-                                            
-                                            {{-- <!-- Modifier (seulement si en cours) -->
-                                            @if($inventaire->statut === 'en_cours')
-                                                <a href="{{ route('admin.inventaires.edit', $inventaire) }}" style="
-                                                    background: #fff3cd;
-                                                    color: #856404;
-                                                    padding: 6px 14px;
-                                                    border-radius: 20px;
-                                                    text-decoration: none;
-                                                    font-size: 0.8rem;
-                                                    transition: all 0.2s;
-                                                    display: inline-flex;
-                                                    align-items: center;
-                                                    gap: 4px;
-                                                    border: 1px solid #ffeaa7;
-                                                " onmouseover="this.style.background='#ffeaa7'" onmouseout="this.style.background='#fff3cd'">
-                                                    <i class="fas fa-edit"></i> Modifier
-                                                </a>
-                                            @endif --}}
 
                                             <!-- Valider (seulement si en cours) -->
                                             @if($inventaire->statut === 'en_cours')
                                                 <form method="POST" action="{{ route('admin.inventaires.valider', $inventaire) }}"
                                                       style="display: inline-block;"
-                                                      onsubmit="return confirm('✅ Valider cet inventaire ?\n\nLe stock sera ajusté selon les écarts constatés.\n\nCette action est irréversible !');">
+                                                      id="valider-form-{{ $inventaire->id }}">
                                                     @csrf
-                                                    <button type="submit" style="
-                                                        background: #d4edda;
-                                                        color: #155724;
-                                                        padding: 6px 14px;
-                                                        border-radius: 20px;
-                                                        border: 1px solid #b7d7b3;
-                                                        font-size: 0.8rem;
-                                                        cursor: pointer;
-                                                        transition: all 0.2s;
-                                                        display: inline-flex;
-                                                        align-items: center;
-                                                        gap: 4px;
-                                                    " onmouseover="this.style.background='#b7d7b3'" onmouseout="this.style.background='#d4edda'">
+                                                    <button type="button" 
+                                                            onclick="confirmValidation({{ $inventaire->id }})" 
+                                                            style="
+                                                                background: #d4edda;
+                                                                color: #155724;
+                                                                padding: 6px 14px;
+                                                                border-radius: 20px;
+                                                                border: 1px solid #b7d7b3;
+                                                                font-size: 0.8rem;
+                                                                cursor: pointer;
+                                                                transition: all 0.2s;
+                                                                display: inline-flex;
+                                                                align-items: center;
+                                                                gap: 4px;
+                                                            " onmouseover="this.style.background='#b7d7b3'" onmouseout="this.style.background='#d4edda'">
                                                         <i class="fas fa-check-circle"></i>Valider
                                                     </button>
                                                 </form>
@@ -400,21 +383,23 @@
                                             @if($inventaire->statut === 'en_cours')
                                                 <form method="POST" action="{{ route('admin.inventaires.annuler', $inventaire) }}"
                                                       style="display: inline-block;"
-                                                      onsubmit="return confirm('❌ Annuler cet inventaire ?\n\nToutes les données saisies seront perdues.\n\nCette action est irréversible !');">
+                                                      id="annuler-form-{{ $inventaire->id }}">
                                                     @csrf
-                                                    <button type="submit" style="
-                                                        background: #f8d7da;
-                                                        color: #721c24;
-                                                        padding: 6px 14px;
-                                                        border-radius: 20px;
-                                                        border: 1px solid #f5c6cb;
-                                                        font-size: 0.8rem;
-                                                        cursor: pointer;
-                                                        transition: all 0.2s;
-                                                        display: inline-flex;
-                                                        align-items: center;
-                                                        gap: 4px;
-                                                    " onmouseover="this.style.background='#f5c6cb'" onmouseout="this.style.background='#f8d7da'">
+                                                    <button type="button" 
+                                                            onclick="confirmAnnulation({{ $inventaire->id }})" 
+                                                            style="
+                                                                background: #f8d7da;
+                                                                color: #721c24;
+                                                                padding: 6px 14px;
+                                                                border-radius: 20px;
+                                                                border: 1px solid #f5c6cb;
+                                                                font-size: 0.8rem;
+                                                                cursor: pointer;
+                                                                transition: all 0.2s;
+                                                                display: inline-flex;
+                                                                align-items: center;
+                                                                gap: 4px;
+                                                            " onmouseover="this.style.background='#f5c6cb'" onmouseout="this.style.background='#f8d7da'">
                                                         <i class="fas fa-times-circle"></i> Annuler
                                                     </button>
                                                 </form>
@@ -425,22 +410,24 @@
                                                 <form action="{{ route('admin.inventaires.destroy', $inventaire) }}" 
                                                       method="POST" 
                                                       style="display: inline-block;"
-                                                      onsubmit="return confirm('🗑️ Supprimer définitivement cet inventaire ?\n\nCette action est irréversible !');">
+                                                      id="delete-form-{{ $inventaire->id }}">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" style="
-                                                        background: #f8d7da;
-                                                        color: #721c24;
-                                                        padding: 6px 14px;
-                                                        border-radius: 20px;
-                                                        border: 1px solid #f5c6cb;
-                                                        font-size: 0.8rem;
-                                                        cursor: pointer;
-                                                        transition: all 0.2s;
-                                                        display: inline-flex;
-                                                        align-items: center;
-                                                        gap: 4px;
-                                                    " onmouseover="this.style.background='#f5c6cb'" onmouseout="this.style.background='#f8d7da'">
+                                                    <button type="button" 
+                                                            onclick="confirmDelete({{ $inventaire->id }})" 
+                                                            style="
+                                                                background: #f8d7da;
+                                                                color: #721c24;
+                                                                padding: 6px 14px;
+                                                                border-radius: 20px;
+                                                                border: 1px solid #f5c6cb;
+                                                                font-size: 0.8rem;
+                                                                cursor: pointer;
+                                                                transition: all 0.2s;
+                                                                display: inline-flex;
+                                                                align-items: center;
+                                                                gap: 4px;
+                                                            " onmouseover="this.style.background='#f5c6cb'" onmouseout="this.style.background='#f8d7da'">
                                                         <i class="fas fa-trash-alt"></i>Supprimer
                                                     </button>
                                                 </form>
@@ -588,4 +575,136 @@
         }
     }
 </style>
+@endpush
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Fonction pour la confirmation de validation
+    window.confirmValidation = function(id) {
+        Swal.fire({
+            title: '✅ Valider cet inventaire ?',
+            html: `
+                <div style="text-align: left;">
+                    <p style="color: #155724; font-weight: 500;">
+                        <i class="fas fa-exclamation-triangle" style="color: #856404;"></i>
+                        Le stock sera ajusté selon les écarts constatés.
+                    </p>
+                    <p style="color: #721c24; font-weight: 500; background: #f8d7da; padding: 10px; border-radius: 5px;">
+                        <i class="fas fa-exclamation-circle"></i>
+                        Cette action est irréversible !
+                    </p>
+                </div>
+            `,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: '✅ Oui, valider',
+            cancelButtonText: '❌ Annuler',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Afficher un loader
+                Swal.fire({
+                    title: 'Validation en cours...',
+                    text: 'Veuillez patienter',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
+                // Soumettre le formulaire
+                document.getElementById('valider-form-' + id).submit();
+            }
+        });
+    };
+
+    // Fonction pour la confirmation d'annulation
+    window.confirmAnnulation = function(id) {
+        Swal.fire({
+            title: '❌ Annuler cet inventaire ?',
+            html: `
+                <div style="text-align: left;">
+                    <p style="color: #721c24; font-weight: 500;">
+                        <i class="fas fa-exclamation-triangle" style="color: #856404;"></i>
+                        Toutes les données saisies seront perdues.
+                    </p>
+                    <p style="color: #721c24; font-weight: 500; background: #f8d7da; padding: 10px; border-radius: 5px;">
+                        <i class="fas fa-exclamation-circle"></i>
+                        Cette action est irréversible !
+                    </p>
+                </div>
+            `,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: '❌ Oui, annuler',
+            cancelButtonText: 'Non, garder',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Afficher un loader
+                Swal.fire({
+                    title: 'Annulation en cours...',
+                    text: 'Veuillez patienter',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
+                // Soumettre le formulaire
+                document.getElementById('annuler-form-' + id).submit();
+            }
+        });
+    };
+
+    // Fonction pour la confirmation de suppression
+    window.confirmDelete = function(id) {
+        Swal.fire({
+            title: '🗑️ Supprimer définitivement ?',
+            html: `
+                <div style="text-align: left;">
+                    <p style="color: #721c24; font-weight: 500;">
+                        <i class="fas fa-exclamation-triangle" style="color: #856404;"></i>
+                        Vous êtes sur le point de supprimer cet inventaire.
+                    </p>
+                    <p style="color: #721c24; font-weight: 500; background: #f8d7da; padding: 10px; border-radius: 5px;">
+                        <i class="fas fa-exclamation-circle"></i>
+                        Cette action est irréversible !
+                    </p>
+                </div>
+            `,
+            icon: 'error',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: '🗑️ Oui, supprimer',
+            cancelButtonText: 'Annuler',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Afficher un loader
+                Swal.fire({
+                    title: 'Suppression en cours...',
+                    text: 'Veuillez patienter',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
+                // Soumettre le formulaire
+                document.getElementById('delete-form-' + id).submit();
+            }
+        });
+    };
+});
+</script>
 @endpush

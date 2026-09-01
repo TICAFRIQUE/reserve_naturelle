@@ -116,14 +116,11 @@ class SousCategoryController extends Controller
 
         // Vérifier si la sous-catégorie a des produits ou articles associés
         // Adaptez cette vérification selon vos relations
-        if ($sousCategory->produits()->exists()) {
+        if ($sousCategory->products()->exists()) {
             return redirect()->route('admin.sous-categories.index')
                 ->with('error', 'Impossible de supprimer cette sous-catégorie car elle contient des produits.');
         }
-
         $sousCategory->delete();
-
-        return redirect()->route('admin.sous-categories.index')
-            ->with('success', 'Sous-catégorie supprimée avec succès.');
+        return redirect()->route('admin.sous-categories.index')->with('success', 'Sous-catégorie supprimée avec succès.');
     }
 }

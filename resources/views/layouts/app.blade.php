@@ -135,8 +135,11 @@
               <i class="fas fa-chevron-down" style="font-size: 10px;"></i>
             </a>
             <ul class="dropdown-menu">
-              <li>
-              </li>
+             <li>
+                <a href="{{ route('client.orders.index') }}">
+                    <i class="fas fa-shopping-bag"></i> Mes commandes
+                </a>
+            </li>
               <li><a href="{{ route('password.edit') }}"><i class="fas fa-key"></i> Changer mot de passe</a></li>
               <li><hr class="dropdown-divider"></li>
               <li>

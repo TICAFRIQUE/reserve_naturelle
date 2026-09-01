@@ -88,14 +88,14 @@
                     <form action="{{ route('client.cart.clear') }}" method="POST">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" onclick="return confirm('Vider le panier ?')"
+                        <button type="submit"
                                 style="background: #dc3545; color: white; padding: 10px 25px; border: none; border-radius: 8px; cursor: pointer;">
                             🗑️ Vider
                         </button>
                         </form>
 
                     @auth
-                        <form action="{{ route('client.orders.store') }}" method="POST" onsubmit="return confirm('Confirmer la commande ?');">
+                        <form action="{{ route('client.orders.store') }}" method="POST">
                             @csrf
                             <button type="submit" style="background: #2e7d32; color: white; padding: 10px 30px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
                                 📦 Passer commande

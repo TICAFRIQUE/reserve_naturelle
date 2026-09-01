@@ -1,3 +1,4 @@
+{{-- resources/views/admin/zones/index.blade.php --}}
 @extends('layouts.admin')
 
 @section('title', 'Gestion des Zones - La Réserve Naturelle')
@@ -30,41 +31,6 @@
                     <i class="fas fa-plus-circle"></i> Nouvelle zone
                 </a>
             </div>
-
-            <!-- Messages flash -->
-            @if(session('success'))
-                <div style="
-                    background: #d4edda;
-                    color: #155724;
-                    padding: 12px 20px;
-                    border-radius: 8px;
-                    border-left: 4px solid #28a745;
-                    margin-bottom: 20px;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                ">
-                    <i class="fas fa-check-circle" style="font-size: 20px;"></i>
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            @if(session('error'))
-                <div style="
-                    background: #f8d7da;
-                    color: #721c24;
-                    padding: 12px 20px;
-                    border-radius: 8px;
-                    border-left: 4px solid #dc3545;
-                    margin-bottom: 20px;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                ">
-                    <i class="fas fa-exclamation-circle" style="font-size: 20px;"></i>
-                    {{ session('error') }}
-                </div>
-            @endif
 
             <!-- Formulaire de filtre -->
             <div style="
@@ -159,7 +125,6 @@
                     <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
                         <thead style="background: #f8f5f0; border-bottom: 2px solid #e8e0d5;">
                             <tr>
-                                {{-- <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 5%;">#</th> --}}
                                 <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 30%;">Nom de la zone</th>
                                 <th style="padding: 15px 20px; text-align: right; font-weight: 600; color: #2d5a27; width: 20%;">Tarif</th>
                                 <th style="padding: 15px 20px; text-align: center; font-weight: 600; color: #2d5a27; width: 20%;">Type</th>
@@ -169,7 +134,6 @@
                         <tbody>
                             @forelse($zones as $zone)
                                 <tr style="border-bottom: 1px solid #f0ebe5; transition: background 0.2s;" onmouseover="this.style.background='#faf8f5'" onmouseout="this.style.background='transparent'">
-                                    {{-- <td style="padding: 15px 20px; color: #6c757d; font-weight: 500;">{{ $zone->id }}</td> --}}
                                     <td style="padding: 15px 20px; font-weight: 500; color: #2d5a27;">
                                         <div style="display: flex; align-items: center; gap: 10px;">
                                             <div style="
@@ -221,9 +185,10 @@
                                     </td>
                                     <td style="padding: 15px 20px; text-align: center;">
                                         <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
+                                            <!-- Modifier -->
                                             <a href="{{ route('admin.zones.edit', $zone->id) }}" style="
-                                                background: #f0ebe5;
-                                                color: #2d5a27;
+                                                background: #fff3cd;
+                                                color: #856404;
                                                 padding: 6px 12px;
                                                 border-radius: 20px;
                                                 text-decoration: none;
@@ -232,26 +197,37 @@
                                                 display: inline-flex;
                                                 align-items: center;
                                                 gap: 4px;
-                                            " onmouseover="this.style.background='#e0d6c8'" onmouseout="this.style.background='#f0ebe5'">
+                                                border: 1px solid #ffeaa7;
+                                            " onmouseover="this.style.background='#ffeaa7'" onmouseout="this.style.background='#fff3cd'">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             
-                                            <form action="{{ route('admin.zones.destroy', $zone->id) }}" method="POST" style="display: inline-block;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette zone ?');">
+                                            <!-- Supprimer -->
+                                            <form action="{{ route('admin.zones.destroy', $zone->id) }}" 
+                                                  method="POST" 
+                                                  style="display: inline-block;"
+                                                  id="delete-form-{{ $zone->id }}">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" style="
-                                                    background: #f8d7da;
-                                                    color: #721c24;
-                                                    padding: 6px 12px;
-                                                    border-radius: 20px;
-                                                    border: none;
-                                                    font-size: 0.8rem;
-                                                    cursor: pointer;
-                                                    transition: all 0.2s;
-                                                    display: inline-flex;
-                                                    align-items: center;
-                                                    gap: 4px;
-                                                " onmouseover="this.style.background='#f5c6cb'" onmouseout="this.style.background='#f8d7da'">
+                                                <button type="button" 
+                                                        class="btn-supprimer"
+                                                        data-id="{{ $zone->id }}"
+                                                        data-nom="{{ $zone->nom }}"
+                                                        data-tarif="{{ number_format($zone->tarif ?? $zone->prix ?? 0, 0, ',', ' ') }}"
+                                                        data-type="{{ ($zone->est_expedition ?? $zone->type) == 'expedition' || ($zone->est_expedition ?? false) == true ? 'Expédition' : 'Livraison locale' }}"
+                                                        style="
+                                                            background: #f8d7da;
+                                                            color: #721c24;
+                                                            padding: 6px 12px;
+                                                            border-radius: 20px;
+                                                            border: 1px solid #f5c6cb;
+                                                            font-size: 0.8rem;
+                                                            cursor: pointer;
+                                                            transition: all 0.2s;
+                                                            display: inline-flex;
+                                                            align-items: center;
+                                                            gap: 4px;
+                                                        " onmouseover="this.style.background='#f5c6cb'" onmouseout="this.style.background='#f8d7da'">
                                                     <i class="fas fa-trash-alt"></i>
                                                 </button>
                                             </form>
@@ -260,7 +236,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" style="padding: 60px 20px; text-align: center; color: #6c757d;">
+                                    <td colspan="4" style="padding: 60px 20px; text-align: center; color: #6c757d;">
                                         <i class="fas fa-map-marked-alt" style="font-size: 48px; display: block; margin-bottom: 15px; color: #d4c9bb;"></i>
                                         <p style="font-size: 1.1rem; margin: 0;">Aucune zone enregistrée</p>
                                         <p style="margin-top: 5px;">Cliquez sur "Nouvelle zone" pour en ajouter une</p>
@@ -274,6 +250,20 @@
 
             <!-- Pagination -->
             <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <div style="color: #6c757d; font-size: 0.9rem;">
+                    <i class="fas fa-info-circle" style="color: #2d5a27;"></i>
+                    @if ($zones->total() > 0)
+                        Affichage de
+                        <strong>{{ $zones->firstItem() }}</strong>
+                        à
+                        <strong>{{ $zones->lastItem() }}</strong>
+                        sur
+                        <strong>{{ $zones->total() }}</strong>
+                        zones
+                    @else
+                        Aucune zone trouvée
+                    @endif
+                </div>
                 <div style="display: flex; justify-content: center;">
                     {{ $zones->appends(request()->query())->links() }}
                 </div>
@@ -365,8 +355,142 @@
             padding: 10px 12px !important;
         }
         .container > div > div:last-child {
-            padding: 15px !important;
+            flex-direction: column !important;
+            align-items: center !important;
+        }
+        .container > div > div:last-child > div:first-child {
+            text-align: center;
         }
     }
 </style>
+@endpush
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestionnaire d'événements pour la suppression
+    document.querySelectorAll('.btn-supprimer').forEach(function(button) {
+        button.addEventListener('click', function() {
+            const id = this.dataset.id;
+            const nom = this.dataset.nom;
+            const tarif = this.dataset.tarif;
+            const type = this.dataset.type;
+            
+            // Déterminer l'icône et la couleur selon le type
+            const typeIcon = type === 'Expédition' ? 'fa-shipping-fast' : 'fa-city';
+            const typeColor = type === 'Expédition' ? '#856404' : '#2d5a27';
+            const typeBg = type === 'Expédition' ? '#fff3cd' : '#e8f5e9';
+            
+            Swal.fire({
+                title: '🗑️ Supprimer cette zone ?',
+                html: `
+                    <div style="text-align: left;">
+                        <p style="color: #721c24; font-weight: 500;">
+                            <i class="fas fa-exclamation-triangle" style="color: #856404;"></i>
+                            Vous êtes sur le point de supprimer la zone :
+                        </p>
+                        <div style="background: #f8f5f0; padding: 12px; border-radius: 8px; margin: 10px 0;">
+                            <p style="font-weight: 600; color: #2d5a27; margin: 0; font-size: 1.05rem;">
+                                <i class="fas fa-map-marker-alt" style="color: #b8860b;"></i> 
+                                <strong>${nom}</strong>
+                            </p>
+                            <p style="color: #6c757d; margin: 5px 0 0 0; font-size: 0.9rem;">
+                                <i class="fas fa-money-bill-wave" style="color: #b8860b;"></i>
+                                Tarif : <strong>${tarif} FCFA</strong>
+                            </p>
+                            <p style="margin: 5px 0 0 0; font-size: 0.9rem;">
+                                <span style="background: ${typeBg}; color: ${typeColor}; padding: 4px 12px; border-radius: 12px; display: inline-block;">
+                                    <i class="fas ${typeIcon}" style="margin-right: 5px;"></i>
+                                    ${type}
+                                </span>
+                            </p>
+                        </div>
+                        <p style="color: #721c24; font-weight: 500; background: #f8d7da; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                            <i class="fas fa-exclamation-circle"></i>
+                            Cette action est irréversible !
+                        </p>
+                    </div>
+                `,
+                icon: 'error',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '🗑️ Oui, supprimer',
+                cancelButtonText: 'Annuler',
+                reverseButtons: true,
+                width: '550px'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Afficher un loader
+                    Swal.fire({
+                        title: 'Suppression en cours...',
+                        text: 'Veuillez patienter',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
+                    // Soumettre le formulaire
+                    document.getElementById('delete-form-' + id).submit();
+                }
+            });
+        });
+    });
+
+    // Messages flash avec SweetAlert
+    @if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Succès !',
+            text: "{{ session('success') }}",
+            timer: 4000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+        });
+    @endif
+
+    @if(session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Erreur !',
+            text: "{{ session('error') }}",
+            timer: 5000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+        });
+    @endif
+
+    @if(session('warning'))
+        Swal.fire({
+            icon: 'warning',
+            title: 'Attention !',
+            text: "{{ session('warning') }}",
+            timer: 4000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+        });
+    @endif
+
+    @if(session('info'))
+        Swal.fire({
+            icon: 'info',
+            title: 'Information',
+            text: "{{ session('info') }}",
+            timer: 4000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+        });
+    @endif
+});
+</script>
 @endpush

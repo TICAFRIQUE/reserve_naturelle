@@ -19,10 +19,15 @@ class Product extends Model
         'cmp',
         'image_path',
         'category_id',
+        'sous_category_id', // ← AJOUTE ICI !!!
     ];
 
     public function category(){
         return $this->belongsTo(Category::class);
+    }
+    
+    public function sousCategory(){
+        return $this->belongsTo(SousCategory::class);
     }
 
     public function cartItems(){
@@ -52,10 +57,11 @@ class Product extends Model
     public function getSousSeuilAttribute(): bool{
         return $this->qte_dispo <= $this->stock_minimum;
     }
-    public function scopeSearch($query, string $term){
     
-    return $query->where(function ($q) use ($term) {
-        $q->where('designation', 'like', "%{$term}%")->orWhere('reference_prod', 'like', "%{$term}%");
-    });
-}
+    public function scopeSearch($query, string $term){
+        return $query->where(function ($q) use ($term) {
+            $q->where('designation', 'like', "%{$term}%")
+              ->orWhere('reference_prod', 'like', "%{$term}%");
+        });
+    }
 }

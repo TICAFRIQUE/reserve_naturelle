@@ -221,14 +221,15 @@
                                 <span>Sous-total articles</span>
                                 <span>{{ number_format($sousTotal, 0, ',', ' ') }} FCFA</span>
                             </div>
-                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; color: #6c757d;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; color: #6c757d; margin-bottom: 8px;">
                                 <span>Frais de livraison</span>
                                 <span id="tarif-display">—</span>
                             </div>
 
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding-top: 14px; border-top: 1px solid #e8e0d5;">
-                                <span style="font-weight: 600; color: #2d5a27;">Total articles</span>
-                                <span style="font-family: 'Playfair Display', serif; font-weight: 800; color: #2d5a27; font-size: 1.5rem;">
+                            <!-- Ligne du total général -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding-top: 14px; border-top: 2px solid #2d5a27;">
+                                <span style="font-weight: 700; color: #2d5a27; font-size: 1.1rem;">Total à payer</span>
+                                <span id="total-general" style="font-family: 'Playfair Display', serif; font-weight: 800; color: #2d5a27; font-size: 1.5rem;">
                                     {{ number_format($sousTotal, 0, ',', ' ') }} FCFA
                                 </span>
                             </div>
@@ -250,15 +251,10 @@
 
                         <div style="
                             margin-top: 15px; padding: 15px; background: #f8f5f0; border-radius: 8px;
-                            font-size: 0.85rem; color: #6c757d;
-                        ">
+                            font-size: 0.85rem; color: #6c757d;">
                             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 5px;">
                                 <i class="fas fa-truck" style="color: #b8860b;"></i>
-                                <span>Livraison estimée : 2-3 jours ouvrables</span>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <i class="fas fa-money-bill-wave" style="color: #b8860b;"></i>
-                                <span>Frais de livraison payés en espèces à réception</span>
+                                <span>Livraison estimée : 1-2 jours ouvrables</span>
                             </div>
                         </div>
                     </div>
@@ -270,51 +266,74 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const zoneSelect = document.getElementById('zone_id');
-        const villeWrapper = document.getElementById('ville-expedition-wrapper');
-        const villeInput = document.getElementById('ville_expedition');
-        const tarifDisplay = document.getElementById('tarif-display');
-        const modeLivraisonRadios = document.querySelectorAll('.mode-livraison-radio');
+    const zoneSelect = document.getElementById('zone_id');
+    const villeWrapper = document.getElementById('ville-expedition-wrapper');
+    const villeInput = document.getElementById('ville_expedition');
+    const tarifDisplay = document.getElementById('tarif-display');
+    const totalGeneral = document.getElementById('total-general');
+    const modeLivraisonRadios = document.querySelectorAll('.mode-livraison-radio');
+    const zoneWrapper = document.getElementById('zone-wrapper');
 
-        const zoneWrapper = document.getElementById('zone-wrapper');
+    // Récupérer le sous-total depuis le serveur
+    const sousTotal = {{ $sousTotal }};
+    
+    // Récupérer le tarif d'expédition depuis le serveur
+    const tarifExpedition = {{ $zoneExpedition ? $zoneExpedition->tarif : 0 }};
 
-        function updateFieldsVisibility() {
-            const selectedMode = document.querySelector('.mode-livraison-radio:checked')?.value;
-            const isExpedition = selectedMode === 'expedition';
+    function updateFieldsVisibility() {
+        const selectedMode = document.querySelector('.mode-livraison-radio:checked')?.value;
+        const isExpedition = selectedMode === 'expedition';
 
-            // Zone : visible/requise uniquement en mode domicile
-            zoneWrapper.style.display = isExpedition ? 'none' : 'block';
-            zoneSelect.required = !isExpedition;
-            if (isExpedition) {
-                zoneSelect.value = '';
-                tarifDisplay.textContent = '—';
-            }
-
-            // Ville expédition : visible/requise uniquement en mode expédition
-            villeWrapper.style.display = isExpedition ? 'block' : 'none';
-            villeInput.required = isExpedition;
-            if (!isExpedition) villeInput.value = '';
+        // Zone : visible/requise uniquement en mode domicile
+        zoneWrapper.style.display = isExpedition ? 'none' : 'block';
+        zoneSelect.required = !isExpedition;
+        
+        if (isExpedition) {
+            // En mode expédition, utiliser le tarif d'expédition
+            zoneSelect.value = '';
+            updateTotals(tarifExpedition);
+        } else {
+            // En mode domicile, utiliser le tarif de la zone sélectionnée
+            updateTotalsFromZone();
         }
 
-        function updateTarifDisplay() {
-            const selected = zoneSelect.options[zoneSelect.selectedIndex];
-            const tarif = parseInt(selected?.dataset.tarif) || 0;
+        // Ville expédition : visible/requise uniquement en mode expédition
+        villeWrapper.style.display = isExpedition ? 'block' : 'none';
+        villeInput.required = isExpedition;
+        if (!isExpedition) villeInput.value = '';
+    }
 
-            tarifDisplay.textContent = tarif > 0
-                ? new Intl.NumberFormat('fr-FR').format(tarif) + ' FCFA'
-                : '—';
-        }
+    function updateTotalsFromZone() {
+        const selected = zoneSelect.options[zoneSelect.selectedIndex];
+        const tarif = parseInt(selected?.dataset.tarif) || 0;
+        updateTotals(tarif);
+    }
 
-        modeLivraisonRadios.forEach(radio => {
-            radio.addEventListener('change', updateFieldsVisibility);
-        });
+    function updateTotals(tarif) {
+        // Afficher le tarif de livraison
+        tarifDisplay.textContent = tarif > 0 
+            ? new Intl.NumberFormat('fr-FR').format(tarif) + ' FCFA' 
+            : '—';
 
-        zoneSelect.addEventListener('change', updateTarifDisplay);
+        // Calculer et afficher le total général
+        const total = sousTotal + tarif;
+        totalGeneral.textContent = new Intl.NumberFormat('fr-FR').format(total) + ' FCFA';
+    }
 
-        // État initial (utile si old() a pré-rempli le formulaire après une erreur de validation)
-        updateFieldsVisibility();
-        updateTarifDisplay();
+    modeLivraisonRadios.forEach(radio => {
+        radio.addEventListener('change', updateFieldsVisibility);
     });
+
+    zoneSelect.addEventListener('change', updateTotalsFromZone);
+
+    // État initial
+    updateFieldsVisibility();
+    
+    // Si une zone est déjà sélectionnée (après erreur de validation)
+    if (zoneSelect.value) {
+        updateTotalsFromZone();
+    }
+});
 </script>
 
 <style>

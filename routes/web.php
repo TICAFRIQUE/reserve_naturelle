@@ -96,6 +96,7 @@
             Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
             //Routes CRUD categories,sous-categories,users,zones, produits,livreur et fournisseurs admin
+             Route::get('/categories/{categoryId}/sous-categories', [AdminProductController::class, 'getSousCategories'])->name('sous-categories.get');
             Route::resource('categories', CategoryController::class);
             Route::resource('sous-categories', SousCategoryController::class);
             Route::resource('zones', ZoneController::class)->except(['show']);
@@ -103,10 +104,6 @@
             Route::resource('livreurs', LivreurController::class);
             Route::resource('fournisseurs', FournisseurController::class);
             Route::resource('produits', AdminProductController::class);
-
-            // Actions custom hors CRUD standard du resource produits
-            Route::post('/produits/{id}/stock', [AdminProductController::class, 'updateStock'])->name('produits.update-stock');
-            Route::post('/produits/{id}/restore', [AdminProductController::class, 'restore'])->name('produits.restore');
 
             // Routes commandes
             Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');

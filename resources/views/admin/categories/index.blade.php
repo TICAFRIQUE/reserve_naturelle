@@ -1,3 +1,4 @@
+{{-- resources/views/admin/categories/index.blade.php --}}
 @extends('layouts.admin')
 
 @section('title', 'Gestion des catégories - La Réserve Naturelle')
@@ -32,41 +33,6 @@
                     <i class="fas fa-plus-circle"></i> Nouvelle catégorie
                 </a>
             </div>
-
-            <!-- Messages flash -->
-            @if(session('success'))
-                <div style="
-                    background: #d4edda;
-                    color: #155724;
-                    padding: 12px 20px;
-                    border-radius: 8px;
-                    border-left: 4px solid #28a745;
-                    margin-bottom: 20px;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                ">
-                    <i class="fas fa-check-circle" style="font-size: 20px;"></i>
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            @if(session('error'))
-                <div style="
-                    background: #f8d7da;
-                    color: #721c24;
-                    padding: 12px 20px;
-                    border-radius: 8px;
-                    border-left: 4px solid #dc3545;
-                    margin-bottom: 20px;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                ">
-                    <i class="fas fa-exclamation-circle" style="font-size: 20px;"></i>
-                    {{ session('error') }}
-                </div>
-            @endif
 
             <!-- Formulaire de recherche et filtres -->
             <div style="
@@ -255,9 +221,10 @@
                                     </td>
                                     <td style="padding: 15px 20px; text-align: center;">
                                         <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
+                                            <!-- Modifier -->
                                             <a href="{{ route('admin.categories.edit', $category->id) }}" style="
-                                                background: #f0ebe5;
-                                                color: #2d5a27;
+                                                background: #fff3cd;
+                                                color: #856404;
                                                 padding: 6px 12px;
                                                 border-radius: 20px;
                                                 text-decoration: none;
@@ -266,26 +233,36 @@
                                                 display: inline-flex;
                                                 align-items: center;
                                                 gap: 4px;
-                                            " onmouseover="this.style.background='#e0d6c8'" onmouseout="this.style.background='#f0ebe5'">
+                                                border: 1px solid #ffeaa7;
+                                            " onmouseover="this.style.background='#ffeaa7'" onmouseout="this.style.background='#fff3cd'">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             
-                                            <form action="{{ route('admin.categories.destroy', $category->id) }}" method="POST" style="display: inline-block;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette catégorie ?');">
+                                            <!-- Supprimer -->
+                                            <form action="{{ route('admin.categories.destroy', $category->id) }}" 
+                                                  method="POST" 
+                                                  style="display: inline-block;"
+                                                  id="delete-form-{{ $category->id }}">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" style="
-                                                    background: #f8d7da;
-                                                    color: #721c24;
-                                                    padding: 6px 12px;
-                                                    border-radius: 20px;
-                                                    border: none;
-                                                    font-size: 0.8rem;
-                                                    cursor: pointer;
-                                                    transition: all 0.2s;
-                                                    display: inline-flex;
-                                                    align-items: center;
-                                                    gap: 4px;
-                                                " onmouseover="this.style.background='#f5c6cb'" onmouseout="this.style.background='#f8d7da'">
+                                                <button type="button" 
+                                                        class="btn-supprimer"
+                                                        data-id="{{ $category->id }}"
+                                                        data-nom="{{ $category->nom }}"
+                                                        data-sous-categories="{{ $category->sousCategories->count() }}"
+                                                        style="
+                                                            background: #f8d7da;
+                                                            color: #721c24;
+                                                            padding: 6px 12px;
+                                                            border-radius: 20px;
+                                                            border: 1px solid #f5c6cb;
+                                                            font-size: 0.8rem;
+                                                            cursor: pointer;
+                                                            transition: all 0.2s;
+                                                            display: inline-flex;
+                                                            align-items: center;
+                                                            gap: 4px;
+                                                        " onmouseover="this.style.background='#f5c6cb'" onmouseout="this.style.background='#f8d7da'">
                                                     <i class="fas fa-trash-alt"></i>
                                                 </button>
                                             </form>
@@ -304,17 +281,78 @@
                         </tbody>
                     </table>
                 </div>
-            </div> <br>
+            </div>
+            <br>
             <br>
             <br>
             
             <!-- Pagination -->
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mt-4">
-                <!-- Pagination Bootstrap 5 -->
-                <div>
-                    {{ $categories->links() }}
+                <!-- Informations -->
+                <div class="text-muted small">
+                    <i class="fas fa-info-circle text-success"></i>
+                    @if ($categories->total() > 0)
+                        Affichage de
+                        <strong>{{ $categories->firstItem() }}</strong>
+                        à
+                        <strong>{{ $categories->lastItem() }}</strong>
+                        sur
+                        <strong>{{ $categories->total() }}</strong>
+                        catégories
+                    @else
+                        Aucune catégorie trouvée
+                    @endif
                 </div>
 
+                <!-- Pagination Bootstrap 5 -->
+                @if ($categories->hasPages())
+                    <nav aria-label="Pagination des catégories">
+                        <ul class="pagination mb-0">
+                            {{-- Précédent --}}
+                            @if ($categories->onFirstPage())
+                                <li class="page-item disabled">
+                                    <span class="page-link">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </span>
+                                </li>
+                            @else
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $categories->previousPageUrl() }}">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                </li>
+                            @endif
+
+                            {{-- Pages --}}
+                            @foreach ($categories->getUrlRange(1, $categories->lastPage()) as $page => $url)
+                                @if ($page == $categories->currentPage())
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ $page }}</span>
+                                    </li>
+                                @else
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                                    </li>
+                                @endif
+                            @endforeach
+
+                            {{-- Suivant --}}
+                            @if ($categories->hasMorePages())
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $categories->nextPageUrl() }}">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                            @else
+                                <li class="page-item disabled">
+                                    <span class="page-link">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </span>
+                                </li>
+                            @endif
+                        </ul>
+                    </nav>
+                @endif
             </div>
         </div>
     </div>
@@ -411,4 +449,133 @@
         }
     }
 </style>
+@endpush
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestionnaire d'événements pour la suppression
+    document.querySelectorAll('.btn-supprimer').forEach(function(button) {
+        button.addEventListener('click', function() {
+            const id = this.dataset.id;
+            const nom = this.dataset.nom;
+            const sousCategories = parseInt(this.dataset.sousCategories) || 0;
+            
+            // Construire le message HTML
+            let html = `
+                <div style="text-align: left;">
+                    <p style="color: #721c24; font-weight: 500;">
+                        <i class="fas fa-exclamation-triangle" style="color: #856404;"></i>
+                        Vous êtes sur le point de supprimer la catégorie :
+                    </p>
+                    <p style="font-weight: 600; color: #2d5a27; background: #f8f5f0; padding: 10px; border-radius: 5px; text-align: center;">
+                        <i class="fas fa-tag"></i> <strong>${nom}</strong>
+                    </p>
+            `;
+            
+            // Afficher un avertissement si la catégorie a des sous-catégories
+            if (sousCategories > 0) {
+                html += `
+                    <div style="background: #fff3cd; color: #856404; padding: 10px; border-radius: 5px; margin: 10px 0; border: 1px solid #ffeaa7;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Attention :</strong> Cette catégorie contient 
+                        <strong>${sousCategories}</strong> sous-catégorie(s) 
+                        qui seront également supprimées.
+                    </div>
+                `;
+            }
+            
+            html += `
+                    <p style="color: #721c24; font-weight: 500; background: #f8d7da; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                        <i class="fas fa-exclamation-circle"></i>
+                        Cette action est irréversible !
+                    </p>
+                </div>
+            `;
+            
+            Swal.fire({
+                title: '🗑️ Supprimer cette catégorie ?',
+                html: html,
+                icon: 'error',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '🗑️ Oui, supprimer',
+                cancelButtonText: 'Annuler',
+                reverseButtons: true,
+                width: '550px'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Afficher un loader
+                    Swal.fire({
+                        title: 'Suppression en cours...',
+                        text: 'Veuillez patienter',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
+                    // Soumettre le formulaire
+                    document.getElementById('delete-form-' + id).submit();
+                }
+            });
+        });
+    });
+
+    // Messages flash avec SweetAlert
+    @if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Succès !',
+            text: "{{ session('success') }}",
+            timer: 4000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+        });
+    @endif
+
+    @if(session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Erreur !',
+            text: "{{ session('error') }}",
+            timer: 5000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+        });
+    @endif
+
+    @if(session('warning'))
+        Swal.fire({
+            icon: 'warning',
+            title: 'Attention !',
+            text: "{{ session('warning') }}",
+            timer: 4000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+        });
+    @endif
+
+    @if(session('info'))
+        Swal.fire({
+            icon: 'info',
+            title: 'Information',
+            text: "{{ session('info') }}",
+            timer: 4000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+        });
+    @endif
+});
+</script>
 @endpush

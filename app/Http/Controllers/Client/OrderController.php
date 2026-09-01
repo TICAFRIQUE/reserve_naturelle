@@ -12,17 +12,13 @@ use Illuminate\Support\Str;
 class OrderController extends Controller
 {
     public function index(){
-        $orders = Order::where('user_id', auth()->id())
-            ->latest('date_order')
-            ->paginate(10);
-
+        $orders = Order::where('user_id', auth()->id())->latest('date_order')->paginate(10);
         return view('client.orders.index', compact('orders'));
     }
 
     public function show(Order $order){
         abort_unless($order->user_id === auth()->id(), 403);
         $order->load('items.product');
-
         return view('client.orders.show', compact('order'));
     }
 
@@ -81,7 +77,6 @@ class OrderController extends Controller
         }
 
         abort_if($order->statut !== 'panier_converti', 403, 'Commande déjà traitée.');
-
         return view('client.orders.payment', compact('order'));
     }
 
@@ -98,7 +93,6 @@ class OrderController extends Controller
         }
 
         $order->update(['statut' => 'en_attente']);
-
         return redirect()->route('client.orders.index')
             ->with('success', 'Commande validée avec succès ! Elle est en attente de traitement.');
     }

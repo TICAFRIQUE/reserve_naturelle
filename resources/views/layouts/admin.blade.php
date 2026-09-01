@@ -17,6 +17,8 @@
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+     <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- Styles navbar intégrée -->
     <style>
@@ -661,8 +663,8 @@
                                     </a>
                                     <ul class="dropdown-menu">
                                         <li>
-                                            <a href="{{ route('admin.dashboard') }}">
-                                                <i class="fas fa-th-large"></i> Dashboard
+                                            <a href="{{ route('admin.orders.index') }}">
+                                                <i class="fas fa-shopping-bag"></i> Mes commandes
                                             </a>
                                         </li>
                                         <li>

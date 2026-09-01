@@ -18,18 +18,20 @@ class CheckoutController extends Controller
         }
 
         if ($order->items->isEmpty()) {
-            return redirect()->route('client.cart.index')
-                ->with('error', 'Votre commande est vide.');
+            return redirect()->route('client.cart.index')->with('error', 'Votre commande est vide.');
         }
 
         $sousTotal = $order->items->sum(function($item) {
             return $item->qte * $item->product->prix_vente;
         });
 
-        // Uniquement les zones "domicile" (la zone expédition est gérée automatiquement)
+        // Récupérer les zones de livraison à domicile (est_expedition = false)
         $zones = Zone::where('est_expedition', false)->get();
+        
+        // Récupérer la zone d'expédition (est_expedition = true)
+        $zoneExpedition = Zone::where('est_expedition', true)->first();
 
-        return view('client.checkout.show', compact('order', 'zones', 'sousTotal'));
+        return view('client.checkout.show', compact('order', 'zones', 'sousTotal', 'zoneExpedition'));
     }
 
     /**
@@ -39,12 +41,10 @@ class CheckoutController extends Controller
         if ($order->user_id !== auth()->id()) {
             abort(403, 'Vous n\'êtes pas autorisé à modifier cette commande.');
         }
-
         abort_if($order->statut !== 'panier_converti', 403, 'Commande déjà traitée.');
 
         if ($order->items->isEmpty()) {
-            return redirect()->route('client.cart.index')
-                ->with('error', 'Votre commande est vide.');
+            return redirect()->route('client.cart.index')->with('error', 'Votre commande est vide.');
         }
 
         $validated = $request->validate([
@@ -55,9 +55,15 @@ class CheckoutController extends Controller
         ]);
 
         if ($validated['mode_livraison'] === 'expedition') {
-            $zone = Zone::where('est_expedition', true)->firstOrFail();
+            // Récupérer automatiquement la zone d'expédition
+            $zone = Zone::where('est_expedition', true)->first();
+            
+            if (!$zone) {
+                return back()->with('error', 'La zone d\'expédition n\'est pas configurée.');
+            }
             $villeExpedition = $validated['ville_expedition'];
         } else {
+            // Livraison à domicile
             $zone = Zone::findOrFail($validated['zone_id']);
             $villeExpedition = null;
         }
@@ -75,8 +81,6 @@ class CheckoutController extends Controller
             'montant_ttc' => $montantTtc,
             'mt_total' => $sousTotal,
         ]);
-
-        return redirect()->route('client.orders.pay', $order)
-            ->with('success', 'Informations de livraison enregistrées avec succès !');
+        return redirect()->route('client.orders.pay', $order)->with('success', 'Informations de livraison enregistrées avec succès !');
     }
 }
