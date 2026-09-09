@@ -322,9 +322,27 @@
                                             <i class="fas fa-eye"></i> Détails
                                         </a>
 
+                                        @if($order->ticket_path)
+                                            <a href="{{ route('admin.orders.ticket', $order) }}" style="
+                                                background: #cce5ff;
+                                                color: #004085;
+                                                padding: 8px 14px;
+                                                border-radius: 20px;
+                                                text-decoration: none;
+                                                font-size: 0.85rem;
+                                                margin-left: 6px;
+                                                transition: all 0.2s;
+                                                display: inline-flex;
+                                                align-items: center;
+                                                gap: 6px;
+                                            " onmouseover="this.style.background='#b8d9ff'" onmouseout="this.style.background='#cce5ff'">
+                                                <i class="fas fa-file-pdf"></i> Reçu
+                                            </a>
+                                        @endif
+
                                         @if($order->statut === 'en_attente')
                                             <form action="{{ route('admin.orders.destroy', $order) }}" method="POST" style="display:inline-block; margin-left:6px;"
-                                                  onsubmit="return confirm('Supprimer définitivement la commande {{ $order->num_order }} ?');">
+                                                onsubmit="return confirm('Supprimer définitivement la commande {{ $order->num_order }} ?');">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" style="

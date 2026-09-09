@@ -7,6 +7,9 @@
   <title>@yield('title', 'La Réserve Naturelle - Boutique')</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Dancing+Script:wght@700&family=Lato:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+
+   <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <!-- Font Awesome pour les icônes -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   @stack('styles')
@@ -167,6 +170,12 @@
         Panier <span id="cart-badge" class="cart-badge">{{ auth()->user()?->cart?->items->sum('qte') ?? 0 }}</span>
     </a>
   </div>
+      @if(isset($pendingOrder))
+        <div style="background:#fff3cd;color:#856404;padding:12px 20px;text-align:center;">
+            ⚠️ Vous avez une commande en cours de finalisation —
+            <a href="{{ route('client.checkout.show', $pendingOrder) }}" style="font-weight:600;">Reprendre</a>
+        </div>
+      @endif
 </header>
  
 <main>

@@ -52,7 +52,7 @@ class UserController extends Controller
             'prenom' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'tel' => ['required', 'regex:/^[0-9]+$/'],
+            'tel' => ['required', 'regex:/^[0-9]{8,15}$/'],
             'role' => ['required', Rule::in(['admin', 'fournisseur', 'user'])],
         ]);
 

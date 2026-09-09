@@ -128,7 +128,7 @@
                                 @error('prix_vente')<div class="field-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>@enderror
                             </div>
 
-                            <div>
+                            {{-- <div>
                                 <label for="qte_dispo" class="field-label">
                                     <i class="fas fa-cubes" style="color: #b8860b; margin-right: 5px;"></i>
                                     Quantité disponible <span style="color: #dc3545;">*</span>
@@ -141,7 +141,7 @@
                                     required>
                                 <div class="field-hint"><i class="fas fa-info-circle"></i> Quantité initiale en stock</div>
                                 @error('qte_dispo')<div class="field-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>@enderror
-                            </div>
+                            </div> --}}
                         </div>
 
                         <div>

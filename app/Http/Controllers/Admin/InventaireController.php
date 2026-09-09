@@ -74,9 +74,7 @@ class InventaireController extends Controller
 
             return $inventaire;
         });
-
-        return redirect()->route('admin.inventaires.show', $inventaire)
-               ->with('success', 'Inventaire créé. Saisissez les quantités comptées.');
+        return redirect()->route('admin.inventaires.show', $inventaire)->with('success', 'Inventaire créé. Saisissez les quantités comptées.');
     }
 
     // show() — affichage live sans persister
@@ -88,15 +86,15 @@ class InventaireController extends Controller
             $ligne->qte_theorique_live = $ligne->product->qte_dispo;
             $ligne->ecart_live = $ligne->qte_reelle - $ligne->product->qte_dispo;
         }
-
         return view('admin.inventaires.show', compact('inventaire'));
     }
-    // Saisie des quantités comptées (peut être appelé plusieurs fois avant validation)
-    public function update(Request $request, Inventaire $inventaire){
-        if ($inventaire->statut !== 'en_cours') {
-            return back()->with('error', 'Cet inventaire n\'est plus modifiable.');
-        }
 
+    // Valide l'inventaire : applique les écarts au stock réel via StockService
+    public function valider(Request $request, Inventaire $inventaire){
+        
+        if ($inventaire->statut !== 'en_cours') {
+            return back()->with('error', 'Cet inventaire a déjà été traité.');
+        }
         $request->validate([
             'lignes' => 'required|array',
             'lignes.*.id' => 'required|exists:inventaire_produits,id',
@@ -104,64 +102,48 @@ class InventaireController extends Controller
         ]);
 
         DB::transaction(function () use ($request, $inventaire) {
-            foreach ($request->lignes as $ligne) {
-                $ligneInventaire = InventaireProduct::where('id', $ligne['id'])
-                    ->where('inventaire_id', $inventaire->id)
-                    ->firstOrFail();
-
-                $ligneInventaire->update([
-                    'qte_reelle' => $ligne['qte_reelle'],
-                    'ecart' => $ligne['qte_reelle'] - $ligneInventaire->qte_theorique,
-                ]);
-            }
-        });
-        return back()->with('success', 'Quantités enregistrées.');
-    }
-
-    // Valide l'inventaire : applique les écarts au stock réel via VraiStockService
-    public function valider(Inventaire $inventaire){
-        if ($inventaire->statut !== 'en_cours') {
-            return back()->with('error', 'Cet inventaire a déjà été traité.');
-        }
-
-        DB::transaction(function () use ($inventaire) {
             $inventaire->load('produits.product');
 
-            foreach ($inventaire->produits as $ligne) {
-                $stockActuel = $ligne->product->qte_dispo; // stock live, pas qte_theorique figé
-                $ecartReel   = $ligne->qte_reelle - $stockActuel;
+            foreach ($request->lignes as $ligneData) {
+                $ligne = $inventaire->produits->firstWhere('id', $ligneData['id']);
 
-                // Trace le décalage entre théorique figé et stock live (mouvements concurrents)
-                if ($stockActuel !== $ligne->qte_theorique) {
-                    $ligne->update(['notes' => "Stock modifié depuis la création (théorique: {$ligne->qte_theorique}, live: {$stockActuel})"]);
+                if (!$ligne) {
+                    throw new \Exception("Ligne d'inventaire introuvable.");
                 }
 
+                $qteReelle  = (int) $ligneData['qte_reelle'];
+                $stockActuel = $ligne->product->qte_dispo; // stock live
+                $ecartReel   = $qteReelle - $stockActuel;
+                $notes = ($stockActuel !== $ligne->qte_theorique)
+                    ? "Stock modifié depuis la création (théorique: {$ligne->qte_theorique}, live: {$stockActuel})"
+                    : null;
+
+                $ligne->update([
+                    'qte_reelle' => $qteReelle,
+                    'ecart'      => $ecartReel,
+                    'notes'      => $notes,
+                ]);
                 if ($ecartReel === 0) {
                     continue;
                 }
 
                 $this->stockService->ajustementStock(
                     product: $ligne->product,
-                    qteReelle: $ligne->qte_reelle,
+                    qteReelle: $qteReelle,
                     type: 'inventaire',
                     source: $inventaire,
                     notes: "Inventaire {$inventaire->reference}",
                 );
-                $ligne->update(['ecart' => $ecartReel]);
             }
-
             $inventaire->update(['statut' => 'valide']);
         });
-
-        return redirect()->route('admin.inventaires.show', $inventaire)
-               ->with('success', 'Inventaire validé, stock ajusté.');
+        return redirect()->route('admin.inventaires.show', $inventaire)->with('success', 'Inventaire validé, stock ajusté.');
     }
 
     public function annuler(Inventaire $inventaire){
         if ($inventaire->statut !== 'en_cours') {
             return back()->with('error', 'Seul un inventaire en cours peut être annulé.');
         }
-
         $inventaire->update(['statut' => 'annule']);
         return back()->with('success', 'Inventaire annulé.');
     }
@@ -170,17 +152,13 @@ class InventaireController extends Controller
         if ($inventaire->statut === 'valide') {
             return back()->with('error', 'Impossible de supprimer un inventaire validé.');
         }
-
         $inventaire->delete();
-        return redirect()->route('admin.inventaires.index')
-               ->with('success', 'Inventaire supprimé.');
+        return redirect()->route('admin.inventaires.index')->with('success', 'Inventaire supprimé.');
     }
 
     private function genererReference(): string{
         $prefix = 'INV-' . now()->format('Y-m-d');
-        $dernier = Inventaire::where('reference', 'like', $prefix . '-%')
-                   ->orderByDesc('reference')->value('reference');
-
+        $dernier = Inventaire::where('reference', 'like', $prefix . '-%')->orderByDesc('reference')->value('reference');
         $sequence = $dernier ? (int) substr($dernier, -3) + 1 : 1;
         return $prefix . '-' . str_pad($sequence, 3, '0', STR_PAD_LEFT);
     }

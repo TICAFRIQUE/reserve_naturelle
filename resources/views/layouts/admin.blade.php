@@ -548,12 +548,12 @@
 
             <a href="{{ route('admin.fournisseurs.index') }}" class="nav-item {{ request()->routeIs('admin.fournisseurs.*') ? 'active' : '' }}">
                 <i class="fas fa-truck"></i> Fournisseurs
-                <span class="nav-badge">{{ \App\Models\Fournisseur::count() }}</span>
+                <span class="nav-badge">{{ $sidebarCounts['fournisseurs'] }}</span>
             </a>
 
             <a href="{{ route('admin.achats.index') }}" class="nav-item {{ request()->routeIs('admin.achats.*') ? 'active' : '' }}">
                 <i class="fas fa-shopping-basket"></i> Achats
-                <span class="nav-badge">{{ \App\Models\Achat::count() }}</span>
+                <span class="nav-badge">{{ $sidebarCounts['achats'] }}</span>
             </a>
             <a href="{{ route('admin.stock-mouvements.index') }}" class="nav-item {{ request()->routeIs('admin.stock-mouvements.*') ? 'active' : '' }}">
                 <i class="fas fa-exchange-alt"></i> Mouvements de stock
@@ -563,41 +563,49 @@
 
             <a href="{{ route('admin.categories.index') }}" class="nav-item {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
                 <i class="fas fa-tags"></i> Catégories
-                <span class="nav-badge">{{ \App\Models\Category::count() }}</span>
+                <span class="nav-badge">{{ $sidebarCounts['categories'] }}</span>
             </a>
 
             <a href="{{ route('admin.sous-categories.index') }}" class="nav-item {{ request()->routeIs('admin.sous-categories.*') ? 'active' : '' }}">
                 <i class="fas fa-sitemap"></i> Sous-catégories
-                <span class="nav-badge">{{ \App\Models\SousCategory::count() }}</span>
+                <span class="nav-badge">{{ $sidebarCounts['sousCategories'] }}</span>
             </a>
 
             <a href="{{ route('admin.produits.index') }}" class="nav-item {{ request()->routeIs('admin.produits.*') ? 'active' : '' }}">
                 <i class="fas fa-boxes"></i> Produits
-                <span class="nav-badge">{{ \App\Models\Product::count() }}</span>
+                <span class="nav-badge">{{ $sidebarCounts['produits'] }}</span>
             </a>
 
             <div class="nav-section">Ventes</div>
 
             <a href="{{ route('admin.orders.index') }}" class="nav-item {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
                 <i class="fas fa-shopping-cart"></i> Commandes
-                <span class="nav-badge">{{ \App\Models\Order::count() }}</span>
+                <span class="nav-badge">{{ $sidebarCounts['orders'] }}</span>
             </a>
+            
+            <div class="nav-section">Livraison</div>
 
+            <a href="{{ route('admin.tournees.index') }}" class="nav-item {{ request()->routeIs('admin.tournees.*') ? 'active' : '' }}">
+                <i class="fas fa-route"></i> Tournées
+            </a>
+            <a href="{{ route('admin.zones.index') }}" class="nav-item {{ request()->routeIs('admin.zones.*') ? 'active' : '' }}">
+                <i class="fas fa-map-marked-alt"></i> Zones de livraison
+            </a>
             <div class="nav-section">Utilisateurs</div>
 
             <a href="{{ route('admin.users.index') }}" class="nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                 <i class="fas fa-users"></i> Utilisateurs
-                <span class="nav-badge">{{ \App\Models\User::count() }}</span>
+               <span class="nav-badge">{{ $sidebarCounts['users'] }}</span>
             </a>
 
             <a href="{{ route('admin.livreurs.index') }}" class="nav-item {{ request()->routeIs('admin.livreurs.*') ? 'active' : '' }}">
                 <i class="fas fa-motorcycle"></i> Livreurs
-                <span class="nav-badge">{{ \App\Models\Livreur::count() }}</span>
+                <span class="nav-badge">{{ $sidebarCounts['livreurs'] }}</span>
             </a>
 
             <div class="nav-section">Rapports</div>
 
-            <a href="#" class="nav-item">
+            <a href="{{ route('admin.rapports.index') }}" class="nav-item {{ request()->routeIs('admin.rapports.*') ? 'active' : '' }}">
                 <i class="fas fa-chart-line"></i> Rapports
             </a>
 
@@ -662,11 +670,6 @@
                                         <i class="fas fa-chevron-down" style="font-size: 10px;"></i>
                                     </a>
                                     <ul class="dropdown-menu">
-                                        <li>
-                                            <a href="{{ route('admin.orders.index') }}">
-                                                <i class="fas fa-shopping-bag"></i> Mes commandes
-                                            </a>
-                                        </li>
                                         <li>
                                             <a href="{{ route('home') }}">
                                                 <i class="fas fa-store"></i> Retour boutique

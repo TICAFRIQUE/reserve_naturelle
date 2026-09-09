@@ -59,17 +59,17 @@
                                 {{ number_format($order->mt_total, 0, ',', ' ') }} FCFA
                             </td>
                             <td style="padding: 15px; text-align: center;">
-                    @if($order->statut === 'panier_converti')
-                        <a href="{{ route('client.checkout.show', $order) }}"
-                        style="background: #d4a017; color: white; padding: 6px 18px; border-radius: 6px; text-decoration: none; font-size: 13px; margin-right: 5px;">
-                            Finaliser
-                        </a>
-                    @endif
-                    <a href="{{ route('client.orders.show', $order) }}"
-                    style="background: #2e7d32; color: white; padding: 6px 18px; border-radius: 6px; text-decoration: none; font-size: 13px;">
-                        Voir détails
-                    </a>
-                </td>
+                                <a href="{{ route('client.orders.show', $order) }}"
+                                style="background: #2e7d32; color: white; padding: 6px 18px; border-radius: 6px; text-decoration: none; font-size: 13px;">
+                                    Voir détails
+                                </a>
+                                @if($order->ticket_path)
+                                    <a href="{{ route('client.orders.ticket', $order) }}"
+                                    style="background: #1565c0; color: white; padding: 6px 18px; border-radius: 6px; text-decoration: none; font-size: 13px; margin-left: 5px; display: inline-flex; align-items: center; gap: 5px;">
+                                        <i class="fas fa-file-pdf"></i> Reçu
+                                    </a>
+                                @endif
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>

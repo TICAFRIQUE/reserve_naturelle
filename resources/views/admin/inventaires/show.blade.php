@@ -16,7 +16,7 @@
                     </h1>
                     <p style="color: #6c757d; margin: 5px 0 0 0;">
                         <i class="far fa-calendar-alt" style="color: #b8860b; margin-right: 5px;"></i>
-                        {{ $inventaire->date_inventaire->format('d/m/Y') }} 
+                        {{ $inventaire->date_inventaire->format('d/m/Y') }}
                         <span style="margin: 0 8px;">|</span>
                         <i class="fas fa-user" style="color: #b8860b; margin-right: 5px;"></i>
                         par {{ $inventaire->user->nom ?? 'N/A' }}
@@ -85,41 +85,6 @@
                 </div>
             </div>
 
-            <!-- Messages flash -->
-            @if (session('success'))
-                <div style="
-                    background: #d4edda;
-                    color: #155724;
-                    padding: 12px 20px;
-                    border-radius: 8px;
-                    border-left: 4px solid #28a745;
-                    margin-bottom: 20px;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                ">
-                    <i class="fas fa-check-circle" style="font-size: 20px;"></i>
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            @if (session('error'))
-                <div style="
-                    background: #f8d7da;
-                    color: #721c24;
-                    padding: 12px 20px;
-                    border-radius: 8px;
-                    border-left: 4px solid #dc3545;
-                    margin-bottom: 20px;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                ">
-                    <i class="fas fa-exclamation-circle" style="font-size: 20px;"></i>
-                    {{ session('error') }}
-                </div>
-            @endif
-
             <!-- Notes -->
             @if ($inventaire->notes)
                 <div style="
@@ -147,44 +112,42 @@
                 overflow: hidden;
                 border: 1px solid #e8e0d5;
             ">
-                <form method="POST" action="{{ route('admin.inventaires.update', $inventaire) }}">
-                    @csrf
-                    @method('PATCH')
-
-                    <div style="overflow-x: auto;">
-                        <table style="
-                            width: 100%;
-                            border-collapse: collapse;
-                            font-size: 0.95rem;
+                <div style="overflow-x: auto;">
+                    <table style="
+                        width: 100%;
+                        border-collapse: collapse;
+                        font-size: 0.95rem;
+                    ">
+                        <thead style="
+                            background: #f8f5f0;
+                            border-bottom: 2px solid #e8e0d5;
                         ">
-                            <thead style="
-                                background: #f8f5f0;
-                                border-bottom: 2px solid #e8e0d5;
-                            ">
-                                <tr>
-                                    <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 22%;">
-                                        <i class="fas fa-box" style="color: #b8860b; margin-right: 5px;"></i>
-                                        Produit
-                                    </th>
-                                    <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 15%;">
-                                        <i class="fas fa-tag" style="color: #b8860b; margin-right: 5px;"></i>
-                                        Référence
-                                    </th>
-                                    <th style="padding: 15px 20px; text-align: center; font-weight: 600; color: #2d5a27; width: 15%;">
-                                        <i class="fas fa-cube" style="color: #b8860b; margin-right: 5px;"></i>
-                                        Qté théorique
-                                    </th>
-                                    <th style="padding: 15px 20px; text-align: center; font-weight: 600; color: #2d5a27; width: 20%;">
-                                        <i class="fas fa-pen" style="color: #b8860b; margin-right: 5px;"></i>
-                                        Qté réelle
-                                    </th>
-                                    <th style="padding: 15px 20px; text-align: center; font-weight: 600; color: #2d5a27; width: 13%;">
-                                        <i class="fas fa-arrows-h" style="color: #b8860b; margin-right: 5px;"></i>
-                                        Écart
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
+                            <tr>
+                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 22%;">
+                                    <i class="fas fa-box" style="color: #b8860b; margin-right: 5px;"></i>
+                                    Produit
+                                </th>
+                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 15%;">
+                                    <i class="fas fa-tag" style="color: #b8860b; margin-right: 5px;"></i>
+                                    Référence
+                                </th>
+                                <th style="padding: 15px 20px; text-align: center; font-weight: 600; color: #2d5a27; width: 15%;">
+                                    <i class="fas fa-cube" style="color: #b8860b; margin-right: 5px;"></i>
+                                    Qté théorique
+                                </th>
+                                <th style="padding: 15px 20px; text-align: center; font-weight: 600; color: #2d5a27; width: 20%;">
+                                    <i class="fas fa-pen" style="color: #b8860b; margin-right: 5px;"></i>
+                                    Qté réelle
+                                </th>
+                                <th style="padding: 15px 20px; text-align: center; font-weight: 600; color: #2d5a27; width: 13%;">
+                                    <i class="fas fa-arrows-h" style="color: #b8860b; margin-right: 5px;"></i>
+                                    Écart
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <form id="form-valider" method="POST" action="{{ route('admin.inventaires.valider', $inventaire) }}">
+                                @csrf
                                 @foreach ($inventaire->produits as $ligne)
                                     <tr style="border-bottom: 1px solid #f0ebe5; transition: background 0.2s;" onmouseover="this.style.background='#faf8f5'" onmouseout="this.style.background='transparent'">
                                         <td style="padding: 15px 20px; font-weight: 500; color: #2d5a27;">
@@ -246,8 +209,8 @@
                                             >
                                         </td>
                                         <td class="ecart-cell" style="
-                                            padding: 15px 20px; 
-                                            text-align: center; 
+                                            padding: 15px 20px;
+                                            text-align: center;
                                             font-weight: 700;
                                             font-size: 1.1rem;
                                             color: {{ ($ligne->ecart_live ?? $ligne->ecart ?? 0) == 0 ? '#2d5a27' : (($ligne->ecart_live ?? $ligne->ecart ?? 0) > 0 ? '#28a745' : '#dc3545') }};
@@ -256,79 +219,54 @@
                                         </td>
                                     </tr>
                                 @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Bouton d'enregistrement -->
-                    @if ($inventaire->statut === 'en_cours')
-                        <div style="padding: 20px 25px; border-top: 1px solid #e8e0d5; background: #faf8f5;">
-                            <button type="submit" style="
-                                background: #2d5a27;
-                                color: white;
-                                padding: 12px 30px;
-                                border: none;
-                                border-radius: 30px;
-                                font-size: 0.95rem;
-                                font-weight: 600;
-                                cursor: pointer;
-                                transition: all 0.3s ease;
-                                display: inline-flex;
-                                align-items: center;
-                                gap: 8px;
-                            " onmouseover="this.style.background='#1e3d1a'" onmouseout="this.style.background='#2d5a27'">
-                                <i class="fas fa-save"></i> Enregistrer les quantités
-                            </button>
-                        </div>
-                    @endif
-                </form>
+                            </form>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-            <!-- Actions -->
+            {{-- Actions : boutons Valider et Annuler --}}
             @if ($inventaire->statut === 'en_cours')
                 <div style="margin-top: 25px; display: flex; gap: 15px; flex-wrap: wrap;">
-                    <form method="POST" action="{{ route('admin.inventaires.valider', $inventaire) }}"
-                          onsubmit="return confirm('✅ Valider cet inventaire ?\n\nLe stock sera ajusté selon les écarts constatés.\n\nCette action est irréversible !');">
-                        @csrf
-                        <button type="submit" style="
-                            background: linear-gradient(135deg, #28a745 0%, #2d5a27 100%);
-                            color: white;
-                            padding: 14px 35px;
-                            border: none;
-                            border-radius: 30px;
-                            font-size: 1rem;
-                            font-weight: 600;
-                            cursor: pointer;
-                            transition: all 0.3s ease;
-                            display: inline-flex;
-                            align-items: center;
-                            gap: 10px;
-                            box-shadow: 0 4px 15px rgba(40,167,69,0.3);
-                        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 25px rgba(40,167,69,0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(40,167,69,0.3)'">
-                            <i class="fas fa-check-circle"></i> Valider l'inventaire
-                        </button>
-                    </form>
+                    <button type="button" id="btn-valider" style="
+                        background: linear-gradient(135deg, #28a745 0%, #2d5a27 100%);
+                        color: white;
+                        padding: 14px 35px;
+                        border: none;
+                        border-radius: 30px;
+                        font-size: 1rem;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 10px;
+                        box-shadow: 0 4px 15px rgba(40,167,69,0.3);
+                    " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 25px rgba(40,167,69,0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(40,167,69,0.3)'">
+                        <i class="fas fa-check-circle"></i> Valider l'inventaire
+                    </button>
 
-                    <form method="POST" action="{{ route('admin.inventaires.annuler', $inventaire) }}"
-                          onsubmit="return confirm('❌ Annuler cet inventaire ?\n\nToutes les données saisies seront perdues.\n\nCette action est irréversible !');">
+                    <button type="button" id="btn-annuler" style="
+                        background: #dc3545;
+                        color: white;
+                        padding: 14px 35px;
+                        border: none;
+                        border-radius: 30px;
+                        font-size: 1rem;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 10px;
+                        box-shadow: 0 4px 15px rgba(220,53,69,0.25);
+                    " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 25px rgba(220,53,69,0.35)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(220,53,69,0.25)'">
+                        <i class="fas fa-times-circle"></i> Annuler l'inventaire
+                    </button>
+
+                    <!-- Formulaire d'annulation -->
+                    <form id="form-annuler" method="POST" action="{{ route('admin.inventaires.annuler', $inventaire) }}" style="display: none;">
                         @csrf
-                        <button type="submit" style="
-                            background: #dc3545;
-                            color: white;
-                            padding: 14px 35px;
-                            border: none;
-                            border-radius: 30px;
-                            font-size: 1rem;
-                            font-weight: 600;
-                            cursor: pointer;
-                            transition: all 0.3s ease;
-                            display: inline-flex;
-                            align-items: center;
-                            gap: 10px;
-                            box-shadow: 0 4px 15px rgba(220,53,69,0.25);
-                        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 25px rgba(220,53,69,0.35)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(220,53,69,0.25)'">
-                            <i class="fas fa-times-circle"></i> Annuler l'inventaire
-                        </button>
                     </form>
                 </div>
             @endif
@@ -403,8 +341,9 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Gestionnaire pour le calcul dynamique des écarts
     const inputs = document.querySelectorAll('.qte-reelle');
-    
+
     inputs.forEach(input => {
         input.addEventListener('input', (e) => {
             const theorique = parseInt(e.target.dataset.theorique) || 0;
@@ -412,13 +351,193 @@ document.addEventListener('DOMContentLoaded', function() {
             const ecart = reelle - theorique;
             const row = e.target.closest('tr');
             const cell = row ? row.querySelector('.ecart-cell') : null;
-            
+
             if (cell) {
                 cell.textContent = (ecart > 0 ? '+' : '') + ecart;
                 cell.style.color = ecart === 0 ? '#2d5a27' : (ecart > 0 ? '#28a745' : '#dc3545');
             }
         });
     });
+
+    // Gestionnaire pour le bouton Valider
+    const btnValider = document.getElementById('btn-valider');
+    if (btnValider) {
+        btnValider.addEventListener('click', function() {
+            // Compter les lignes avec des écarts
+            const ecartCells = document.querySelectorAll('.ecart-cell');
+            let ecartsPositifs = 0;
+            let ecartsNegatifs = 0;
+            let ecartsNuls = 0;
+
+            ecartCells.forEach(cell => {
+                const value = parseInt(cell.textContent) || 0;
+                if (value > 0) ecartsPositifs++;
+                else if (value < 0) ecartsNegatifs++;
+                else ecartsNuls++;
+            });
+
+            const totalProduits = ecartCells.length;
+
+            let html = `
+                <div style="text-align: left;">
+                    <p style="color: #155724; font-weight: 500;">
+                        <i class="fas fa-exclamation-triangle" style="color: #856404;"></i>
+                        Vous êtes sur le point de valider cet inventaire.
+                    </p>
+                    <div style="background: #f8f5f0; padding: 12px; border-radius: 8px; margin: 10px 0;">
+                        <p style="margin: 5px 0; font-weight: 600; color: #2d5a27;">
+                            <i class="fas fa-boxes"></i> Total produits : <strong>${totalProduits}</strong>
+                        </p>
+                        <p style="margin: 5px 0; color: #28a745;">
+                            <i class="fas fa-plus-circle"></i> Écarts positifs : <strong>${ecartsPositifs}</strong>
+                        </p>
+                        <p style="margin: 5px 0; color: #dc3545;">
+                            <i class="fas fa-minus-circle"></i> Écarts négatifs : <strong>${ecartsNegatifs}</strong>
+                        </p>
+                        <p style="margin: 5px 0; color: #2d5a27;">
+                            <i class="fas fa-check-circle"></i> Écarts nuls : <strong>${ecartsNuls}</strong>
+                        </p>
+                    </div>
+                    <p style="color: #155724; font-weight: 500; background: #d4edda; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                        <i class="fas fa-info-circle"></i>
+                        Le stock sera ajusté selon les écarts constatés.
+                    </p>
+                    <p style="color: #721c24; font-weight: 500; background: #f8d7da; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                        <i class="fas fa-exclamation-circle"></i>
+                        Cette action est irréversible !
+                    </p>
+                </div>
+            `;
+
+            Swal.fire({
+                title: '✅ Valider cet inventaire ?',
+                html: html,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '✅ Oui, valider',
+                cancelButtonText: 'Annuler',
+                reverseButtons: true,
+                width: '600px'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Afficher un loader
+                    Swal.fire({
+                        title: 'Validation en cours...',
+                        text: 'Veuillez patienter',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
+                    // Soumettre le formulaire
+                    document.getElementById('form-valider').submit();
+                }
+            });
+        });
+    }
+
+    // Gestionnaire pour le bouton Annuler
+    const btnAnnuler = document.getElementById('btn-annuler');
+    if (btnAnnuler) {
+        btnAnnuler.addEventListener('click', function() {
+            Swal.fire({
+                title: '❌ Annuler cet inventaire ?',
+                html: `
+                    <div style="text-align: left;">
+                        <p style="color: #721c24; font-weight: 500;">
+                            <i class="fas fa-exclamation-triangle" style="color: #856404;"></i>
+                            Toutes les données saisies seront perdues.
+                        </p>
+                        <p style="color: #721c24; font-weight: 500; background: #f8d7da; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                            <i class="fas fa-exclamation-circle"></i>
+                            Cette action est irréversible !
+                        </p>
+                    </div>
+                `,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '❌ Oui, annuler',
+                cancelButtonText: 'Non, garder',
+                reverseButtons: true,
+                width: '500px'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Afficher un loader
+                    Swal.fire({
+                        title: 'Annulation en cours...',
+                        text: 'Veuillez patienter',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
+                    // Soumettre le formulaire d'annulation
+                    document.getElementById('form-annuler').submit();
+                }
+            });
+        });
+    }
+
+    // Messages flash avec SweetAlert
+    @if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Succès !',
+            text: "{{ session('success') }}",
+            timer: 4000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+        });
+    @endif
+
+    @if(session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Erreur !',
+            text: "{{ session('error') }}",
+            timer: 5000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+        });
+    @endif
+
+    @if(session('warning'))
+        Swal.fire({
+            icon: 'warning',
+            title: 'Attention !',
+            text: "{{ session('warning') }}",
+            timer: 4000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+        });
+    @endif
+
+    @if(session('info'))
+        Swal.fire({
+            icon: 'info',
+            title: 'Information',
+            text: "{{ session('info') }}",
+            timer: 4000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+        });
+    @endif
 });
 </script>
 @endsection
@@ -433,7 +552,7 @@ document.addEventListener('DOMContentLoaded', function() {
     .container > div > div:first-child {
         animation: fadeIn 0.4s ease;
     }
-    
+
     /* Responsive */
     @media (max-width: 768px) {
         .container {
@@ -451,30 +570,17 @@ document.addEventListener('DOMContentLoaded', function() {
             width: 100%;
             justify-content: center;
         }
-        .container > div > div:last-child {
-            padding: 15px !important;
-        }
         table {
             font-size: 0.85rem !important;
         }
         th, td {
             padding: 10px 12px !important;
         }
-        .container > div > div:last-child input[type="number"] {
+        input[type="number"] {
             width: 70px !important;
         }
-        .container > div > div:last-child > div:last-child {
+        .container > div > div:last-child {
             grid-template-columns: 1fr 1fr !important;
-        }
-        .container > div > div:last-child > div:nth-child(5) {
-            flex-direction: column !important;
-        }
-        .container > div > div:last-child > div:nth-child(5) form {
-            width: 100%;
-        }
-        .container > div > div:last-child > div:nth-child(5) form button {
-            width: 100%;
-            justify-content: center;
         }
     }
 </style>

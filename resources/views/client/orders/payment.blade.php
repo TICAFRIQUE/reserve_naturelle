@@ -169,25 +169,28 @@
                 </div>
             </div>
 
-            <!-- Adresse de livraison -->
-            <div style="
-                background: #e8f5e9;
-                border: 1px solid #c8e6c9;
-                border-radius: 10px;
-                padding: 16px 18px;
-                margin-bottom: 25px;
-                display: flex;
-                align-items: flex-start;
-                gap: 12px;
-            ">
-                <i class="fas fa-map-marker-alt" style="color: #2d5a27; font-size: 18px; margin-top: 2px;"></i>
-                <div style="font-size: 0.9rem; color: #2d5a27;">
-                    <strong>Livraison :</strong> {{ $order->adresse_precise }}
-                    @if($order->ville_expedition)
-                        <br><span style="color: #4a7040;">{{ $order->ville_expedition }}</span>
-                    @endif
-                </div>
+         <!-- Adresse de livraison -->
+        <div style="
+            background: #e8f5e9;
+            border: 1px solid #c8e6c9;
+            border-radius: 10px;
+            padding: 16px 18px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        ">
+            <i class="fas fa-map-marker-alt" style="color: #2d5a27; font-size: 18px; margin-top: 2px;"></i>
+            <div style="font-size: 0.9rem; color: #2d5a27;">
+                @if($order->zone)
+                    <strong>Zone :</strong> {{ $order->zone->nom }}<br>
+                @endif
+                <strong>Livraison :</strong> {{ $order->adresse_precise }}
+                @if($order->ville_expedition)
+                    <br><span style="color: #4a7040;">{{ $order->ville_expedition }}</span>
+                @endif
             </div>
+        </div>
 
             <!-- Formulaire de confirmation -->
             <form method="POST" action="{{ route('client.orders.confirm', $order) }}" id="confirm-form">

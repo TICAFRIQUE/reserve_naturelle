@@ -23,8 +23,7 @@ class CartController extends Controller
             }
             return $item->qte > $product->qte_dispo;
         });
-        return view('client.cart.index', compact('cart', 'total', 'hasIssues'));
-        
+        return view('client.cart.index', compact('cart', 'total', 'hasIssues'));      
     }
 
     public function store(Request $request){
@@ -35,18 +34,18 @@ class CartController extends Controller
 
         $product = Product::findOrFail($validated['product_id']);
         $cart = $this->getOrCreateCart();
-
         $item = $cart->items()->where('product_id', $product->id)->first();
         $newQte = $item ? $item->qte + $validated['qte'] : $validated['qte'];
 
         if ($newQte > $product->qte_dispo) {
+            $message = $product->sous_seuil
+                ? "Stock critique pour {$product->designation} : seulement {$product->qte_dispo} disponible(s) (seuil d'alerte atteint). Quantité demandée : {$newQte}."
+                   : "Stock insuffisant pour {$product->designation}. Maximum disponible : {$product->qte_dispo}.";
+
             if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => "Stock insuffisant. Maximum disponible : {$product->qte_dispo}."
-                ], 422);
+                return response()->json(['success' => false, 'message' => $message], 422);
             }
-            return back()->with('error', "Stock insuffisant. Maximum disponible : {$product->qte_dispo}.");
+            return back()->with('error', $message);
         }
 
         $item
@@ -61,35 +60,34 @@ class CartController extends Controller
                 'cart_total' => $cart->items->sum(fn($item) => $item->qte * $item->product->prix_vente)
             ]);
         }
-
         return back()->with('success', 'Produit ajouté au panier.');
     }
 
     public function update(Request $request, CartItem $item){
         $this->authorizeItem($item);
-
         $validated = $request->validate(['qte' => ['required', 'integer', 'min:1']]);
 
         if ($validated['qte'] > $item->product->qte_dispo) {
-            return back()->with('error', "Stock insuffisant. Maximum disponible : {$item->product->qte_dispo}.");
+            $product = $item->product;
+            $message = $product->sous_seuil
+                ? "Stock critique pour {$product->designation} : seulement {$product->qte_dispo} disponible(s) (seuil d'alerte atteint). Quantité demandée : {$validated['qte']}."
+                : "Stock insuffisant pour {$product->designation}. Maximum disponible : {$product->qte_dispo}.";
+            return back()->with('error', $message);
         }
 
         $item->update(['qte' => $validated['qte']]);
-
         return back()->with('success', 'Panier mis à jour.');
     }
 
     public function destroy(CartItem $item){
         $this->authorizeItem($item);
         $item->delete();
-
         return back()->with('success', 'Produit retiré du panier.');
     }
 
     public function clear(){
         $cart = $this->getOrCreateCart();
         $cart->items()->delete();
-
         return back()->with('success', 'Panier vidé avec succès.');
     }
 

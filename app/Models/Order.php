@@ -21,10 +21,11 @@ class Order extends Model
     'ville_expedition',
     'tarif_livraison',
     'montant_ttc',
+    'ticket_path',
     ];
 
     protected $casts = [
-        'date_order'=>'date',
+        'date_order'=>'datetime',
     ];
 
     public function user(){

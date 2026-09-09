@@ -25,7 +25,6 @@ class AuthController extends Controller
             "email" => ["required", "email"],
             "password" => ["required", "string"],
         ]);
-        
         $remember = $request->boolean("remember");
 
         if (Auth::attempt([
@@ -36,7 +35,6 @@ class AuthController extends Controller
             // Sauvegarder avant de regenerate()
             $pending = $request->session()->get("reservation_pending");
             $intended = $request->session()->get("url.intended");
-
             $request->session()->regenerate();  
 
             // Restaurer après avoir regénéré
@@ -76,7 +74,6 @@ class AuthController extends Controller
             }
             return redirect()->intended(route('client.products.index'));  
         }
-
         return back()->withErrors(["email" => "Identifiants invalides ou compte inactif"])->withInput($request->only("email"));      
     }
 
@@ -84,7 +81,6 @@ class AuthController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-
         return redirect("/");
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\OrderItem;
 use App\Models\SousCategory;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -66,14 +67,14 @@ class ProductController extends Controller
             'designation' => 'required|string|max:255',
             'description' => 'nullable|string',
             'prix_vente' => 'required|numeric|min:0|regex:/^\d+(\.\d{1,2})?$/',
-            'qte_dispo' => 'required|integer|min:0',
+            // 'qte_dispo' => 'required|integer|min:0',
             'stock_minimum' => 'nullable|integer|min:0',
             'category_id' => 'required|exists:categories,id',
             'sous_category_id' => 'nullable|exists:sous_categories,id',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'status' => 'sometimes|in:draft,published,out_of_stock',
         ]);
-
+        $data['qte_dispo'] = 0;
         $data['reference_prod'] = $this->generateUniqueReference();
 
         if ($request->filled('sous_category_id')) {
@@ -103,7 +104,7 @@ class ProductController extends Controller
 
     public function show(string $id){
         $product = Product::with(['category', 'sousCategory', 'orderItems', 'achatProducts'])->findOrFail($id);
-        $totalVendu = $product->orderItems->sum('quantity');
+        $totalVendu = $product->orderItems->sum('qte');
         $stockAlerte = $product->qte_dispo <= 5 ? true : false;
         return view('admin.produits.show', compact('product', 'totalVendu', 'stockAlerte'));
     }
@@ -122,7 +123,7 @@ class ProductController extends Controller
             'designation' => 'required|string|max:255',
             'description' => 'nullable|string',
             'prix_vente' => 'required|numeric|min:0|regex:/^\d+(\.\d{1,2})?$/',
-            'qte_dispo' => 'required|integer|min:0',
+            // 'qte_dispo' => 'required|integer|min:0',
             'stock_minimum' => 'nullable|integer|min:0',
             'category_id' => 'required|exists:categories,id',
             'sous_category_id' => 'nullable|exists:sous_categories,id',

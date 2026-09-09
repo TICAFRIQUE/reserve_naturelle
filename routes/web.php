@@ -16,6 +16,7 @@
     use App\Http\Controllers\Admin\DashboardController;
     use App\Http\Controllers\Admin\StockMouvementController;
     use \App\Http\Controllers\Admin\StockAjustementController;
+    use App\Http\Controllers\Admin\RapportController;
     use App\Http\Controllers\Admin\OrderController as AdminOrderController;
     use App\Http\Controllers\Admin\ProductController as AdminProductController;
     use App\Http\Controllers\Client\ProductController as ClientProductController;
@@ -41,8 +42,8 @@
             Route::get('/', [CartController::class, 'index'])->name('index');
             Route::post('/', [CartController::class, 'store'])->name('store');
             Route::patch('/items/{item}', [CartController::class, 'update'])->name('update');
-            Route::post('/items/{item}', [CartController::class, 'destroy'])->name('destroy');
-            Route::delete('/clear', [CartController::class, 'clear'])->name('clear');
+            Route::delete('/items/{item}', [CartController::class, 'destroy'])->name('destroy');
+            Route::delete('/', [CartController::class, 'clear'])->name('clear');
         });
     });
 
@@ -58,13 +59,14 @@
             // Routes paiement (déplacées ici pour cohérence)
             Route::get('/{order}/pay', [ClientOrderController::class, 'pay'])->name('pay');
             Route::post('/{order}/confirm', [ClientOrderController::class, 'confirm'])->name('confirm');
+            
+            // Téléchargement du reçu
+            Route::get('/{order}/ticket', [ClientOrderController::class, 'downloadTicket'])->name('ticket');
         });
 
         // Routes checkout (avec l'ID de la commande en paramètre)
         Route::prefix('checkout')->name('checkout.')->group(function(){
-            // Affiche le formulaire de validation pour une commande spécifique
             Route::get('/{order}', [CheckoutController::class, 'show'])->name('show');
-            // Met à jour la commande avec les infos de livraison
             Route::post('/{order}', [CheckoutController::class, 'store'])->name('store');
         });
     });
@@ -74,7 +76,7 @@
     Route::get('/contact', fn () => view('client.contact'))->name('contact');
 
     // Authentification
-    Route::get('/login', [AuthController::class, 'create'])->name('login');
+    Route::get('/login', [AuthController::class, 'create'])->name('login')->middleware('throttle:5,1');
     Route::post('/login', [AuthController::class, 'store']);
     Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
 
@@ -110,6 +112,10 @@
             Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
             Route::patch('/orders/{order}/status', [AdminOrderController::class, 'changeStatus'])->name('orders.status');
             Route::delete('orders/{order}', [AdminOrderController::class, 'destroy'])->name('orders.destroy');
+            Route::get('/orders/{order}/ticket', function (\App\Models\Order $order) {
+                abort_unless($order->ticket_path, 404);
+                return \Illuminate\Support\Facades\Storage::disk('local')->download($order->ticket_path);
+            })->name('orders.ticket');
 
             //Routes concernant les tournées(Livraison et expedition)
             Route::prefix('tournees')->name('tournees.')->group(function(){
@@ -120,6 +126,8 @@
                 Route::get('/{tournee}', [TourneeController::class, 'show'])->name('show');
                 Route::post('/{tournee}/orders/{order}/deliver', [TourneeController::class, 'markOrderDelivered'])->name('deliver-order');
                 Route::post('/{tournee}/close', [TourneeController::class, 'close'])->name('close');
+                Route::patch('/{tournee}/close', [TourneeController::class, 'close'])->name('terminer');
+                Route::delete('/{tournee}', [TourneeController::class, 'destroy'])->name('destroy');
             });
             //Routes pour les achats PARTIE GESTION DE STOCK
             Route::prefix('achat')->name('achats.')->group(function (){
@@ -127,7 +135,7 @@
                 Route::get('/create', [AchatController::class,'create'])->name('create');
                 Route::post('/', [AchatController::class, 'store'])->name('store');
                 Route::get('/{achat}', [AchatController::class, 'show'])->name('show');
-                Route::post('/{achat}/confirmer',    [AchatController::class, 'confirmer'])->name('confirmer');
+                // Route::post('/{achat}/confirmer',    [AchatController::class, 'confirmer'])->name('confirmer');
                 Route::get('/{achat}/reception',     [AchatController::class, 'receptionForm'])->name('reception');
                 Route::post('/{achat}/receptionner', [AchatController::class, 'receptionner'])->name('receptionner');
                 Route::post('/{achat}/annuler',      [AchatController::class, 'annuler'])->name('annuler');
@@ -138,7 +146,7 @@
                 Route::get('/create', [InventaireController::class, 'create'])->name('create');
                 Route::post('/', [InventaireController::class, 'store'])->name('store');
                 Route::get('/{inventaire}', [InventaireController::class, 'show'])->name('show');
-                Route::patch('/{inventaire}', [InventaireController::class, 'update'])->name('update');
+                // Route::patch('/{inventaire}', [InventaireController::class, 'update'])->name('update');
                 Route::post('/{inventaire}/valider', [InventaireController::class, 'valider'])->name('valider');
                 Route::post('/{inventaire}/annuler', [InventaireController::class, 'annuler'])->name('annuler');
                 Route::delete('/{inventaire}', [InventaireController::class, 'destroy'])->name('destroy');
@@ -151,5 +159,8 @@
             //ROUTES AJUSTEMENTS POUR LES CORRECTIONS 
             Route::get('/stock-ajustements/create', [StockAjustementController::class, 'create'])->name('stock-ajustements.create');
             Route::post('/stock-ajustements', [StockAjustementController::class, 'store'])->name('stock-ajustements.store');
+
+            //ROUTES POUR LES RAPPORTS
+            Route::get('/rapports', [RapportController::class, 'index'])->name('rapports.index');
         });
     });

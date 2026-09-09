@@ -24,7 +24,10 @@ class RegisterController extends Controller
             'prenom' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:6', 'confirmed'],
-            'tel' => ['nullable', 'string', 'max:20'], 
+            'tel' => ['required', 'string', 'regex:/^[0-9]{8,15}$/'],
+        ],
+        [
+            'tel.regex' => 'Le numéro de téléphone doit contenir uniquement des chiffres (8 à 15 chiffres).'
         ]);
 
         if ($validator->fails()) {

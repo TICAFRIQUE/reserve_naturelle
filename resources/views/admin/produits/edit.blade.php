@@ -176,8 +176,19 @@
                                     required>
                                 @error('prix_vente')<div class="field-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>@enderror
                             </div>
-
                             <div>
+                                <label for="stock_minimum" class="field-label">
+                                    <i class="fas fa-triangle-exclamation" style="color: #2d5a27; margin-right: 5px;"></i>
+                                    Seuil de stock minimum
+                                </label>
+                                <input type="number" id="stock_minimum" name="stock_minimum" value="{{ old('stock_minimum', $product->stock_minimum ?? 0) }}"
+                                    min="0" class="field-input" style="max-width: 300px; border: 2px solid {{ $errors->has('stock_minimum') ? '#dc3545' : '#e8e0d5' }};"
+                                    onfocus="this.style.borderColor='#2d5a27'; this.style.background='white'"
+                                    onblur="this.style.borderColor='{{ $errors->has('stock_minimum') ? '#dc3545' : '#e8e0d5' }}'; this.style.background='#faf8f5'">
+                                <div class="field-hint"><i class="fas fa-info-circle"></i> Une alerte apparaît sur le dashboard sous ce seuil</div>
+                                @error('stock_minimum')<div class="field-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>@enderror
+                            </div>  
+                            {{-- <div>
                                 <label for="qte_dispo" class="field-label">
                                     <i class="fas fa-cubes" style="color: #2d5a27; margin-right: 5px;"></i>
                                     Quantité disponible <span style="color: #dc3545;">*</span>
@@ -189,20 +200,7 @@
                                     onblur="this.style.borderColor='{{ $errors->has('qte_dispo') ? '#dc3545' : '#e8e0d5' }}'; this.style.background='#faf8f5'"
                                     required>
                                 @error('qte_dispo')<div class="field-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>@enderror
-                            </div>
-                        </div>
-
-                        <div>
-                            <label for="stock_minimum" class="field-label">
-                                <i class="fas fa-triangle-exclamation" style="color: #2d5a27; margin-right: 5px;"></i>
-                                Seuil de stock minimum
-                            </label>
-                            <input type="number" id="stock_minimum" name="stock_minimum" value="{{ old('stock_minimum', $product->stock_minimum ?? 0) }}"
-                                min="0" class="field-input" style="max-width: 300px; border: 2px solid {{ $errors->has('stock_minimum') ? '#dc3545' : '#e8e0d5' }};"
-                                onfocus="this.style.borderColor='#2d5a27'; this.style.background='white'"
-                                onblur="this.style.borderColor='{{ $errors->has('stock_minimum') ? '#dc3545' : '#e8e0d5' }}'; this.style.background='#faf8f5'">
-                            <div class="field-hint"><i class="fas fa-info-circle"></i> Une alerte apparaît sur le dashboard sous ce seuil</div>
-                            @error('stock_minimum')<div class="field-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>@enderror
+                            </div> --}}
                         </div>
                     </div>
 

@@ -13,8 +13,8 @@ class AdminMiddleware
         if (Auth::check() && Auth::user()->isAdmin()) {
             return $next($request);
         }
-        
-        // Si pas admin, rediriger vers dashboard normal
-        return redirect()->route('dashboard')->with('error', 'Accès réservé aux administrateurs');
+
+        // Si pas admin, rediriger vers page d'accueil
+        return redirect()->route('client.products.index')->with('Erreur', 'Accès réservé à l\'administrateur');
     }
 }

@@ -30,9 +30,7 @@ class TourneeController extends Controller
      * Retourne les commandes validées d'une zone (AJAX, utilisé par le formulaire de création)
      */
     public function ordersByZone(Zone $zone){
-        $orders = Order::where('zone_id', $zone->id)
-            ->where('statut', 'validee')
-            ->with('user')
+        $orders = Order::where('zone_id', $zone->id)->where('statut', 'validee')->with('user')
             ->get(['id', 'num_order', 'mt_total', 'user_id', 'mode_livraison', 'ville_expedition']);
         return response()->json($orders);
     }
@@ -107,5 +105,26 @@ class TourneeController extends Controller
             $tournee->livreur->update(['statut' => 'disponible']);
         });
         return redirect()->route('admin.tournees.index')->with('success', 'Tournée clôturée avec succès.');
+    }
+   /**
+ * Supprimer une tournée non commencée (statut 'en_cours' sans livraisons effectuées, ou 'terminee' obsolète)
+ */
+    public function destroy(Tournee $tournee){
+        if ($tournee->statut === 'en_cours' && $tournee->orders()->where('statut', 'livree')->exists()) {
+            return back()->with('error', 'Impossible de supprimer : des commandes de cette tournée ont déjà été livrées.');
+        }
+
+        DB::transaction(function () use ($tournee) {
+            // Remettre les commandes non livrées en statut "validee" et détacher
+            $tournee->orders()->where('statut', '!=', 'livree')->update(['statut' => 'validee']);
+            $tournee->orders()->detach();
+
+            // Rendre le livreur disponible si la tournée était en cours
+            if ($tournee->statut === 'en_cours') {
+                $tournee->livreur->update(['statut' => 'disponible']);
+            }
+            $tournee->delete();
+        });
+        return redirect()->route('admin.tournees.index')->with('success', 'Tournée supprimée avec succès.');
     }
 }

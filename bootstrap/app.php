@@ -30,6 +30,7 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \App\Http\Middleware\ShareCartPendingOrder::class,
         ]);
 
         // Middlewares de groupe 'api'
@@ -54,6 +55,7 @@ return Application::configure(basePath: dirname(__DIR__))
             
             //  Vos middlewares personnalisés
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
+            // 'role' => \App\Http\Middleware\CheckRole::class,
             // 'fournisseur' => \App\Http\Middleware\FournisseurMiddleware::class,
         ]);
     })

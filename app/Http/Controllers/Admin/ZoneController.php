@@ -31,7 +31,6 @@ class ZoneController extends Controller
             }
             Zone::create($validated);
         });
-
         return redirect()->route('admin.zones.index')->with('success', 'Zone créée avec succès.');
     }
 
@@ -52,7 +51,6 @@ class ZoneController extends Controller
             }
             $zone->update($validated);
         });
-
         return redirect()->route('admin.zones.index')->with('success', 'Zone mise à jour avec succès.');
     }
 

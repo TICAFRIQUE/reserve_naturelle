@@ -59,13 +59,11 @@ class AchatController extends Controller
         ]);
 
         DB::transaction(function () use ($request) {
-            $statut = $request->action === 'confirmer' ? 'confirme' : 'brouillon';
-
             $achat = Achat::create([
                 'numero'                => $this->genererNumero(),
                 'fournisseur_id'        => $request->fournisseur_id,
                 'user_id'               => Auth::id(),
-                'statut'                => $statut,
+                'statut'                => 'confirme',
                 'date_achat'            => $request->date_achat,
                 'date_reception_prevue' => $request->date_reception_prevue,
                 'mt_total'              => 0,
@@ -99,15 +97,6 @@ class AchatController extends Controller
         return view('admin.achats.show', compact('achat'));
     }
 
-    // Confirmer un brouillon
-    public function confirmer(Achat $achat){
-        if ($achat->statut !== 'brouillon') {
-            return back()->with('error', 'Seul un brouillon peut être confirmé.');
-        }
-        $achat->update(['statut' => 'confirme']);
-        return back()->with('success', 'Achat confirmé.');
-    }
-
     // Formulaire de réception
     public function receptionForm(Achat $achat){
         if (!in_array($achat->statut, ['confirme', 'recu_partiel'])) {
@@ -136,10 +125,7 @@ class AchatController extends Controller
             foreach ($request->lignes as $ligne) {
 
                 // Vérifie que la ligne appartient bien à cet achat
-                $achatProduit = AchatProduct::where('id', $ligne['achat_product_id'])
-                    ->where('achat_id', $achat->id)
-                    ->firstOrFail();
-
+                $achatProduit = AchatProduct::where('id', $ligne['achat_product_id'])->where('achat_id', $achat->id)->firstOrFail();
                 // Calcul du reliquat
                 $reliquat = $achatProduit->qte_commandee - $achatProduit->qte_recue;
 
@@ -174,14 +160,13 @@ class AchatController extends Controller
                     : ($achat->estPartiellementRecu() ? 'recu_partiel' : $achat->statut),
             ]);
         });
-
         return back()->with('success', 'Réception de l’achat enregistrée avec succès.');
     }
 
     // Annuler un achat
     public function annuler(Achat $achat){
-        if (!in_array($achat->statut, ['brouillon', 'confirme'])) {
-            return back()->with('error', 'Seul un achat en brouillon ou confirmé peut être annulé.');
+        if ($achat->statut !== 'confirme') {
+            return back()->with('error', 'Seul un achat confirmé peut être annulé.');
         }
         $achat->update(['statut' => 'annule']);
         return back()->with('success', 'Achat annulé.');
