@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Client;
 use App\Http\Controllers\Controller;
 use App\Models\Cart;
 use App\Models\Order;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -113,20 +114,30 @@ class OrderController extends Controller
 
         DB::transaction(function () use ($order) {
             foreach ($order->items as $item) {
-                $product = Product::lockForUpdate()->find($item->product_id);
-                if ($item->qte > $product->qte_dispo) {
-                    throw new \Exception("Stock insuffisant pour {$product->designation}.");
-                }
-                $product->decrement('qte_dispo', $item->qte);
+                $item->product->decrement('qte_dispo', $item->qte);
             }
-            $order->update(['statut' => 'en_attente']);
+            $order->update(['statut' => 'payee']); 
         });
 
-        session()->forget('panier_converti_order_id'); // clé corrigée
+        session()->forget('panier_converti_order_id');
         OrderValidated::dispatch($order);
 
-        return redirect()->route('client.orders.index')
-            ->with('success', 'Commande validée avec succès ! Elle est en attente de traitement.');
+        return redirect()->route('client.orders.index')->with('success', 'Commande payée et en attente de confirmation.'); 
+    }
+
+        /**
+     * Abandonner le panier converti en cours pour repartir sur un panier vide.
+     */
+    public function abandon(Order $order){
+        abort_if($order->user_id !== auth()->id(), 403);
+        abort_if($order->statut !== 'panier_converti', 403, 'Cette commande ne peut plus être abandonnée.');
+
+        $order->delete(); // cascade sur order_items, aucun stock à restaurer (jamais décrémenté à ce stade)
+
+        session()->forget('panier_converti_order_id');
+
+        return redirect()->route('client.cart.index')
+            ->with('success', 'Panier précédent abandonné. Vous pouvez composer un nouveau panier.');
     }
 
     public function downloadTicket(Order $order){

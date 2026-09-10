@@ -57,6 +57,7 @@
             Route::post('/', [ClientOrderController::class, 'store'])->name('store');
 
             // Routes paiement (déplacées ici pour cohérence)
+            Route::delete('/{order}/abandon', [ClientOrderController::class, 'abandon'])->name('abandon');
             Route::get('/{order}/pay', [ClientOrderController::class, 'pay'])->name('pay');
             Route::post('/{order}/confirm', [ClientOrderController::class, 'confirm'])->name('confirm');
             

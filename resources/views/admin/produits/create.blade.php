@@ -127,6 +127,18 @@
                                 <div class="field-hint"><i class="fas fa-info-circle"></i> Prix de vente en FCFA</div>
                                 @error('prix_vente')<div class="field-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>@enderror
                             </div>
+                             <div>
+                                <label for="stock_minimum" class="field-label">
+                                    <i class="fas fa-triangle-exclamation" style="color: #b8860b; margin-right: 5px;"></i>
+                                    Seuil de stock minimum
+                                </label>
+                                <input type="number" id="stock_minimum" name="stock_minimum" value="{{ old('stock_minimum', 10) }}"
+                                    min="0" class="field-input" style="max-width: 300px; border: 2px solid {{ $errors->has('stock_minimum') ? '#dc3545' : '#e8e0d5' }};"
+                                    onfocus="this.style.borderColor='#2d5a27'; this.style.background='white'"
+                                    onblur="this.style.borderColor='{{ $errors->has('stock_minimum') ? '#dc3545' : '#e8e0d5' }}'; this.style.background='#faf8f5'">
+                                <div class="field-hint"><i class="fas fa-info-circle"></i> Alerte stock faible (défaut: 10)</div>
+                                @error('stock_minimum')<div class="field-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>@enderror
+                            </div>
 
                             {{-- <div>
                                 <label for="qte_dispo" class="field-label">
@@ -144,18 +156,6 @@
                             </div> --}}
                         </div>
 
-                        <div>
-                            <label for="stock_minimum" class="field-label">
-                                <i class="fas fa-triangle-exclamation" style="color: #b8860b; margin-right: 5px;"></i>
-                                Seuil de stock minimum
-                            </label>
-                            <input type="number" id="stock_minimum" name="stock_minimum" value="{{ old('stock_minimum', 10) }}"
-                                min="0" class="field-input" style="max-width: 300px; border: 2px solid {{ $errors->has('stock_minimum') ? '#dc3545' : '#e8e0d5' }};"
-                                onfocus="this.style.borderColor='#2d5a27'; this.style.background='white'"
-                                onblur="this.style.borderColor='{{ $errors->has('stock_minimum') ? '#dc3545' : '#e8e0d5' }}'; this.style.background='#faf8f5'">
-                            <div class="field-hint"><i class="fas fa-info-circle"></i> Alerte stock faible (défaut: 10)</div>
-                            @error('stock_minimum')<div class="field-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>@enderror
-                        </div>
                     </div>
 
                     <!-- Détails -->

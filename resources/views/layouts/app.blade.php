@@ -170,12 +170,20 @@
         Panier <span id="cart-badge" class="cart-badge">{{ auth()->user()?->cart?->items->sum('qte') ?? 0 }}</span>
     </a>
   </div>
-      @if(isset($pendingOrder))
-        <div style="background:#fff3cd;color:#856404;padding:12px 20px;text-align:center;">
-            ⚠️ Vous avez une commande en cours de finalisation —
-            <a href="{{ route('client.checkout.show', $pendingOrder) }}" style="font-weight:600;">Reprendre</a>
-        </div>
-      @endif
+        @if(isset($pendingOrder))
+          <div style="background:#fff3cd;color:#856404;padding:12px 20px;text-align:center;">
+              ⚠️ Vous avez une commande en cours de finalisation —
+              <a href="{{ route('client.checkout.show', $pendingOrder) }}" style="font-weight:600;">Reprendre</a>
+              &nbsp;|&nbsp;
+              <form action="{{ route('client.orders.abandon', $pendingOrder) }}" method="POST" style="display:inline;">
+                  @csrf
+                  @method('DELETE')
+                  <button type="submit" style="background:none;border:none;color:#856404;text-decoration:underline;cursor:pointer;font-weight:600;">
+                      Abandonner et créer un nouveau panier
+                  </button>
+              </form>
+          </div>
+        @endif
 </header>
  
 <main>

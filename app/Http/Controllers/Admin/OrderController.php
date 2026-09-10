@@ -53,8 +53,8 @@ class OrderController extends Controller
      * Supprimer une commande en attente
      */
     public function destroy(Order $order){
-        if ($order->statut !== 'en_attente') {
-            return redirect()->back()->with('error', 'Seules les commandes en attente peuvent être supprimées.');
+        if (!in_array($order->statut, ['en_attente', 'payee'])) {
+             return redirect()->back()->with('error', 'Seules les commandes en attente peuvent être supprimées.');
         }
         $order->delete();
         return redirect()->route('admin.orders.index')->with('success', 'Commande supprimée avec succès !');
