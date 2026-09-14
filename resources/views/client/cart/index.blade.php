@@ -3,64 +3,73 @@
 @section('title', 'Mon Panier')
 
 @section('content')
-<div class="container" style="max-width: 1200px; margin: 0 auto; padding: 40px 20px;">
-    <h1 style="font-size: 32px; margin-bottom: 30px;">🛒 Mon Panier</h1>
+
+<div class="container cart-wrapper">
+    <h1 class="cart-title">🛒 Mon Panier</h1>
 
     @guest
-        <div style="background: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-            ℹ️ Vous naviguez en tant qu'invité. <a href="{{ route('login') }}" style="color: #856404; font-weight: 600;">Connectez-vous</a> pour valider votre commande.
+        <div class="cart-guest-notice">
+            ℹ️ Vous naviguez en tant qu'invité.
+            <a href="{{ route('login') }}">Connectez-vous</a> pour valider votre commande.
         </div>
     @endguest
 
     @if($cart->items->count() > 0)
-        <div style="background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); overflow: hidden;">
-            <div style="overflow-x: auto;">
-                <table style="width: 100%; border-collapse: collapse; min-width: 600px;">
-                    <thead style="background: #f8f9fa;">
+
+        <!-- ============================================
+             TABLEAU (desktop) + CARTES (mobile)
+        ============================================ -->
+        <div class="cart-card">
+
+            <!-- Vue desktop : tableau -->
+            <div class="cart-table-wrapper">
+                <table class="cart-table">
+                    <thead>
                         <tr>
-                            <th style="padding: 15px; text-align: left; font-weight: 600;">Produit</th>
-                            <th style="padding: 15px; text-align: center; font-weight: 600;">Prix</th>
-                            <th style="padding: 15px; text-align: center; font-weight: 600;">Quantité</th>
-                            <th style="padding: 15px; text-align: center; font-weight: 600;">Total</th>
-                            <th style="padding: 15px; text-align: center; font-weight: 600;">Action</th>
+                            <th>Produit</th>
+                            <th>Prix</th>
+                            <th>Quantité</th>
+                            <th>Total</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($cart->items as $item)
-                            <tr style="border-bottom: 1px solid #eee;">
-                                <td style="padding: 15px;">
-                                    <div style="display: flex; align-items: center; gap: 15px;">
+                            <tr class="cart-row">
+                                <td>
+                                    <div class="cart-product">
                                         <img src="{{ $item->product->image_path ? asset('storage/' . $item->product->image_path) : asset('images/default-product.jpg') }}"
-                                             alt="{{ $item->product->designation }}"
-                                             style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
+                                             alt="{{ $item->product->designation }}">
                                         <div>
                                             <strong>{{ $item->product->designation }}</strong>
-                                            <p style="font-size: 12px; color: #6c757d; margin: 0;">
-                                                {{ $item->product->category->nom ?? 'Non catégorisé' }}
-                                            </p>
+                                            <p>{{ $item->product->category->nom ?? 'Non catégorisé' }}</p>
                                         </div>
                                     </div>
                                 </td>
-                                <td style="padding: 15px; text-align: center;">
+                                <td class="cart-cell-center">
                                     {{ number_format($item->product->prix_vente, 0, ',', ' ') }} FCFA
                                 </td>
-                                <td style="padding: 15px; text-align: center;">
-                                    <form action="{{ route('client.cart.update', $item->id) }}" method="POST" style="display: flex; justify-content: center; gap: 5px; align-items: center;" class="update-form">
+                                <td class="cart-cell-center">
+                                    <form action="{{ route('client.cart.update', $item->id) }}"
+                                          method="POST"
+                                          class="update-form cart-qty-form">
                                         @csrf
                                         @method('PATCH')
-                                        <input type="number" name="qte" value="{{ $item->qte }}" min="1" max="{{ $item->product->qte_dispo }}"
-                                               style="width: 60px; padding: 5px; border: 2px solid #e0e0e0; border-radius: 6px; text-align: center;">
-                                        <button type="button" class="btn-update" data-nom="{{ $item->product->designation }}" style="background: #2e7d32; color: white; padding: 5px 10px; border: none; border-radius: 6px; cursor: pointer;">✓</button>
+                                        <input type="number" name="qte" value="{{ $item->qte }}"
+                                               min="1" max="{{ $item->product->qte_dispo }}">
+                                        <button type="button" class="btn-update" data-nom="{{ $item->product->designation }}">✓</button>
                                     </form>
                                 </td>
-                                <td style="padding: 15px; text-align: center; font-weight: 700; color: #1b5e20;">
+                                <td class="cart-cell-center cart-cell-total">
                                     {{ number_format($item->qte * $item->product->prix_vente, 0, ',', ' ') }} FCFA
                                 </td>
-                                <td style="padding: 15px; text-align: center;">
-                                    <form action="{{ route('client.cart.destroy', $item->id) }}" method="POST" style="display: inline;" class="delete-form">
+                                <td class="cart-cell-center">
+                                    <form action="{{ route('client.cart.destroy', $item->id) }}"
+                                          method="POST"
+                                          class="delete-form cart-delete-form">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="button" class="btn-delete" data-nom="{{ $item->product->designation }}" style="background: #dc3545; color: white; padding: 5px 12px; border: none; border-radius: 6px; cursor: pointer;">✕</button>
+                                        <button type="button" class="btn-delete" data-nom="{{ $item->product->designation }}">✕</button>
                                     </form>
                                 </td>
                             </tr>
@@ -69,25 +78,68 @@
                 </table>
             </div>
 
-            <div style="padding: 20px; background: #f8f9fa; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-                <div>
-                    <strong style="font-size: 18px;">Total :</strong>
-                    <span style="font-size: 24px; font-weight: 700; color: #1b5e20; margin-left: 15px;">
-                        {{ number_format($total, 0, ',', ' ') }} FCFA
-                    </span>
+            <!-- Vue mobile : cartes -->
+            <div class="cart-mobile-list">
+                @foreach($cart->items as $item)
+                    <div class="cart-mobile-item">
+                        <div class="cart-mobile-top">
+                            <img src="{{ $item->product->image_path ? asset('storage/' . $item->product->image_path) : asset('images/default-product.jpg') }}"
+                                 alt="{{ $item->product->designation }}">
+                            <div class="cart-mobile-info">
+                                <strong>{{ $item->product->designation }}</strong>
+                                <p>{{ $item->product->category->nom ?? 'Non catégorisé' }}</p>
+                                <span class="cart-mobile-unit-price">
+                                    {{ number_format($item->product->prix_vente, 0, ',', ' ') }} FCFA / unité
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="cart-mobile-bottom">
+                            <form action="{{ route('client.cart.update', $item->id) }}"
+                                  method="POST"
+                                  class="update-form cart-qty-form">
+                                @csrf
+                                @method('PATCH')
+                                <input type="number" name="qte" value="{{ $item->qte }}"
+                                       min="1" max="{{ $item->product->qte_dispo }}">
+                                <button type="button" class="btn-update" data-nom="{{ $item->product->designation }}">✓</button>
+                            </form>
+
+                            <div class="cart-mobile-total">
+                                <span>Total</span>
+                                <strong>{{ number_format($item->qte * $item->product->prix_vente, 0, ',', ' ') }} FCFA</strong>
+                            </div>
+
+                            <form action="{{ route('client.cart.destroy', $item->id) }}"
+                                  method="POST"
+                                  class="delete-form cart-delete-form">
+                                @csrf
+                                @method('DELETE')
+                                <button type="button" class="btn-delete" data-nom="{{ $item->product->designation }}">✕</button>
+                            </form>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+            <!-- Pied du panier -->
+            <div class="cart-footer">
+                <div class="cart-footer-total">
+                    <strong>Total :</strong>
+                    <span>{{ number_format($total, 0, ',', ' ') }} FCFA</span>
                 </div>
-                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                    <button type="button" id="btn-clear" style="background: #dc3545; color: white; padding: 10px 25px; border: none; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
+
+                <div class="cart-footer-actions">
+                    <button type="button" id="btn-clear" class="btn-clear">
                         🗑️ Vider
                     </button>
 
                     @auth
-                        <button type="button" id="btn-order" style="background: #2e7d32; color: white; padding: 10px 30px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
+                        <button type="button" id="btn-order" class="btn-order">
                             📦 Passer commande
                         </button>
                     @else
-                        <a href="{{ route('login', ['redirect' => url()->current()]) }}"
-                           style="background: #2e7d32; color: white; padding: 10px 30px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center;">
+                        <a href="{{ route('login', ['redirect' => url()->current()]) }}" class="btn-order">
                             🔒 Se connecter pour commander
                         </a>
                     @endauth
@@ -108,11 +160,11 @@
         @endauth
 
     @else
-        <div style="text-align: center; padding: 80px 20px; background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
-            <div style="font-size: 64px; margin-bottom: 20px;">🛒</div>
-            <h3 style="color: #333; font-size: 24px; margin-bottom: 10px;">Votre panier est vide</h3>
-            <p style="color: #6c757d; margin-bottom: 20px;">Commencez vos achats dès maintenant !</p>
-            <a href="{{ route('client.products.catalogue') }}" style="background: #2e7d32; color: white; padding: 12px 30px; border-radius: 50px; text-decoration: none; display: inline-block;">
+        <div class="cart-empty">
+            <div class="cart-empty-icon">🛒</div>
+            <h3>Votre panier est vide</h3>
+            <p>Commencez vos achats dès maintenant !</p>
+            <a href="{{ route('client.products.catalogue') }}" class="btn-primary">
                 Voir les produits
             </a>
         </div>
@@ -120,10 +172,10 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Gestionnaire pour la mise à jour de la quantité
-    document.querySelectorAll('.btn-update').forEach(function(button) {
-        button.addEventListener('click', function() {
+document.addEventListener('DOMContentLoaded', function () {
+    // ===== Mise à jour de la quantité =====
+    document.querySelectorAll('.btn-update').forEach(function (button) {
+        button.addEventListener('click', function () {
             const form = this.closest('.update-form');
             const input = form.querySelector('input[name="qte"]');
             const qte = parseInt(input.value);
@@ -170,9 +222,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         text: 'Veuillez patienter',
                         allowOutsideClick: false,
                         showConfirmButton: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
+                        didOpen: () => { Swal.showLoading(); }
                     });
                     form.submit();
                 }
@@ -180,9 +230,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Gestionnaire pour la suppression d'un article
-    document.querySelectorAll('.btn-delete').forEach(function(button) {
-        button.addEventListener('click', function() {
+    // ===== Suppression d'un article =====
+    document.querySelectorAll('.btn-delete').forEach(function (button) {
+        button.addEventListener('click', function () {
             const form = this.closest('.delete-form');
             const nom = this.dataset.nom;
 
@@ -203,9 +253,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         text: 'Veuillez patienter',
                         allowOutsideClick: false,
                         showConfirmButton: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
+                        didOpen: () => { Swal.showLoading(); }
                     });
                     form.submit();
                 }
@@ -213,10 +261,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Gestionnaire pour vider le panier
+    // ===== Vider le panier =====
     const btnClear = document.getElementById('btn-clear');
     if (btnClear) {
-        btnClear.addEventListener('click', function() {
+        btnClear.addEventListener('click', function () {
             Swal.fire({
                 title: '🗑️ Vider le panier ?',
                 html: '<div style="text-align: left;"><p style="color: #721c24; font-weight: 500;"><i class="fas fa-exclamation-triangle" style="color: #856404;"></i> Tous les articles seront supprimés définitivement.</p></div>',
@@ -234,9 +282,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         text: 'Veuillez patienter',
                         allowOutsideClick: false,
                         showConfirmButton: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
+                        didOpen: () => { Swal.showLoading(); }
                     });
                     document.getElementById('clear-form').submit();
                 }
@@ -244,10 +290,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Gestionnaire pour passer commande
+    // ===== Passer commande =====
     const btnOrder = document.getElementById('btn-order');
     if (btnOrder) {
-        btnOrder.addEventListener('click', function() {
+        btnOrder.addEventListener('click', function () {
             const total = '{{ number_format($total, 0, ",", " ") }}';
             const nbArticles = {{ $cart->items->count() }};
 
@@ -269,9 +315,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         text: 'Veuillez patienter',
                         allowOutsideClick: false,
                         showConfirmButton: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
+                        didOpen: () => { Swal.showLoading(); }
                     });
                     document.getElementById('order-form').submit();
                 }
@@ -280,4 +324,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+
 @endsection

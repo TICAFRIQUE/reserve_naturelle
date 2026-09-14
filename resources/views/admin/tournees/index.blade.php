@@ -12,7 +12,7 @@
                 <div>
                     <h1 style="font-family: 'Playfair Display', serif; color: #2d5a27; font-size: 2rem; margin: 0;">
                         <i class="fas fa-route" style="color: #2d5a27; margin-right: 10px;"></i>
-                        Gestion des tournées
+                        Gestion des livraisons
                     </h1>
                     <p style="color: #6c757d; margin: 5px 0 0 0;">Organisez les livraisons par zone et livreur</p>
                 </div>

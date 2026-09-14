@@ -1,0 +1,84 @@
+/* ============================================
+   FOOTER
+============================================ */
+.footer {
+    background: var(--green-dark);
+    color: rgba(255, 255, 255, 0.8);
+    padding: 50px 0 0;
+    margin-top: 40px;
+}
+
+.footer-container {
+    max-width: 1180px;
+    margin: 0 auto;
+    width: 92%;
+    padding: 0 20px;
+}
+
+.footer-links {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(24px, 4vw, 40px);
+    padding: 40px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.footer-links h4 {
+    color: var(--gold-light);
+    font-size: clamp(14px, 1.2vw, 16px);
+    font-weight: 700;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.footer-links ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.footer-links ul li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: clamp(13px, 1vw, 14px);
+    transition: all 0.3s ease;
+}
+
+.footer-links ul li a {
+    color: rgba(255, 255, 255, 0.7);
+    transition: all 0.3s ease;
+}
+
+.footer-links ul li a:hover {
+    color: var(--gold-light);
+    padding-left: 4px;
+}
+
+.footer-links ul li svg {
+    color: var(--gold);
+    flex-shrink: 0;
+    opacity: 0.6;
+    width: clamp(16px, 1.3vw, 18px);
+    height: clamp(16px, 1.3vw, 18px);
+}
+
+.footer-links ul li:hover svg {
+    opacity: 1;
+}
+
+.footer-bottom {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 0;
+    text-align: center;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.footer-bottom strong {
+    color: var(--gold-light);
+}

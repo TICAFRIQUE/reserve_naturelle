@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Casts\Attribute;
  
 class User extends Authenticatable
 {
@@ -29,6 +30,11 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    protected function tel(): Attribute{
+        return Attribute::make(
+            get: fn ($value) => str_pad((string) $value, 10, '0', STR_PAD_LEFT),
+        );
+    }
     public function isAdmin(){
         return $this->role === "admin";
     }

@@ -1,185 +1,143 @@
-{{-- resources/views/client/products/show.blade.php --}}
 @extends('layouts.app')
 
 @section('title', $product->designation . ' - La Réserve Naturelle')
 
 @section('content')
 
-<div class="container" style="padding: 40px 20px;">
-    <nav style="margin-bottom: 30px; font-size: 14px;">
-        <a href="{{ route('home') }}" style="color: var(--green); text-decoration: none;">Accueil</a>
-        <span style="color: var(--muted);"> › </span>
-        <a href="{{ route('client.products.index') }}" style="color: var(--green); text-decoration: none;">Catalogue</a>
-        <span style="color: var(--muted);"> › </span>
-        <span style="color: var(--text);">{{ $product->designation }}</span>
+<div class="container product-show-wrapper">
+
+    <!-- ============================================
+         BREADCRUMB
+    ============================================ -->
+    <nav class="breadcrumb">
+        <a href="{{ route('home') }}">Accueil</a>
+        <span class="breadcrumb-sep">›</span>
+        <a href="{{ route('client.products.catalogue') }}">Catalogue</a>
+        <span class="breadcrumb-sep">›</span>
+        <span class="breadcrumb-current">{{ $product->designation }}</span>
     </nav>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; max-width: 1200px; margin: 0 auto;">
+    <!-- ============================================
+         PRODUIT : IMAGE + INFOS
+    ============================================ -->
+    <div class="product-show-grid">
 
-        <div style="background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); padding: 20px;">
-            <div style="aspect-ratio: 1; overflow: hidden; border-radius: 8px;">
+        <!-- Colonne image -->
+        <div class="product-show-image-card">
+            <div class="product-show-image">
                 <img src="{{ $product->image_path ? asset('storage/' . $product->image_path) : asset('images/default-product.jpg') }}"
-                     alt="{{ $product->designation }}"
-                     style="width: 100%; height: 100%; object-fit: cover;">
+                     alt="{{ $product->designation }}">
             </div>
 
-            <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
+            <div class="product-badges">
                 @if($product->prix_vente < 1000)
-                    <span style="background: #e74c3c; color: white; padding: 5px 15px; border-radius: 20px; font-size: 13px;">🔥 Promo</span>
+                    <span class="badge badge-promo">🔥 Promo</span>
                 @endif
                 @if($product->created_at->diffInDays(now()) < 7)
-                    <span style="background: #4CAF50; color: white; padding: 5px 15px; border-radius: 20px; font-size: 13px;">🆕 Nouveau</span>
+                    <span class="badge badge-new">🆕 Nouveau</span>
                 @endif
                 @if($product->qte_dispo > 10)
-                    <span style="background: #27ae60; color: white; padding: 5px 15px; border-radius: 20px; font-size: 13px;">✓ En stock</span>
+                    <span class="badge badge-stock">✓ En stock</span>
                 @elseif($product->qte_dispo > 0)
-                    <span style="background: #f39c12; color: white; padding: 5px 15px; border-radius: 20px; font-size: 13px;">⚠ Stock limité</span>
+                    <span class="badge badge-limited">⚠ Stock limité</span>
                 @else
-                    <span style="background: #e74c3c; color: white; padding: 5px 15px; border-radius: 20px; font-size: 13px;">✗ Rupture</span>
+                    <span class="badge badge-out">✗ Rupture</span>
                 @endif
             </div>
         </div>
 
-        <div>
-            <h1 style="font-size: 28px; color: var(--text); margin-bottom: 10px;">{{ $product->designation }}</h1>
+        <!-- Colonne infos -->
+        <div class="product-show-info">
+            <h1>{{ $product->designation }}</h1>
 
-            <p style="color: var(--muted); font-size: 14px; margin-bottom: 15px;">
+            <p class="product-show-category">
                 Catégorie :
-                <span style="color: var(--green); font-weight: 600;">
-                    {{ $product->category->nom ?? 'Non catégorisé' }}
-                </span>
+                <span>{{ $product->category->nom ?? 'Non catégorisé' }}</span>
             </p>
 
-            <div style="background: var(--green-light); padding: 15px 20px; border-radius: 8px; margin-bottom: 20px;">
-                <span style="font-size: 32px; font-weight: 700; color: var(--green-dark);">
+            <!-- Prix -->
+            <div class="product-show-price-box">
+                <span class="product-show-price">
                     {{ number_format($product->prix_vente, 0, ',', ' ') }} FCFA
                 </span>
                 @if($product->prix_vente < 1000)
-                    <span style="font-size: 16px; color: var(--muted); text-decoration: line-through; margin-left: 15px;">
+                    <span class="product-show-price-old">
                         {{ number_format($product->prix_vente * 1.3, 0, ',', ' ') }} FCFA
                     </span>
-                    <span style="background: #e74c3c; color: white; padding: 2px 10px; border-radius: 20px; font-size: 12px; margin-left: 10px;">-30%</span>
+                    <span class="product-show-discount">-30%</span>
                 @endif
             </div>
 
-            <div style="margin-bottom: 25px;">
-                <h3 style="font-size: 16px; color: var(--text); margin-bottom: 8px;">Description</h3>
-                <p style="color: var(--text); line-height: 1.8;">
-                    {{ $product->description ?? 'Aucune description disponible pour ce produit.' }}
-                </p>
+            <!-- Description -->
+            <div class="product-show-block">
+                <h3>Description</h3>
+                <p>{{ $product->description ?? 'Aucune description disponible pour ce produit.' }}</p>
             </div>
 
             @if($product->reference_prod)
-                <p style="color: var(--muted); font-size: 13px; margin-bottom: 20px;">Référence : {{ $product->reference_prod }}</p>
+                <p class="product-show-ref">Référence : {{ $product->reference_prod }}</p>
             @endif
 
-            <div style="margin-bottom: 25px;">
-                <p style="color: var(--text);">
-                    <strong>Quantité disponible :</strong>
-                    {{ $product->qte_dispo > 0 ? $product->qte_dispo . ' unité(s)' : 'Rupture de stock' }}
-                </p>
-            </div>
+            <p class="product-show-stock">
+                <strong>Quantité disponible :</strong>
+                {{ $product->qte_dispo > 0 ? $product->qte_dispo . ' unité(s)' : 'Rupture de stock' }}
+            </p>
 
+            <!-- Actions -->
             @if($product->qte_dispo > 0)
-                <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <label for="qte" style="font-weight: 600;">Quantité :</label>
-                        <input type="number" id="qte" value="1" min="1" max="{{ $product->qte_dispo }}"
-                            style="width: 70px; padding: 8px; border: 2px solid var(--green-light); border-radius: 8px; text-align: center;">
+                <div class="product-show-actions">
+                    <div class="qty-field">
+                        <label for="qte">Quantité :</label>
+                        <input type="number" id="qte" value="1" min="1" max="{{ $product->qte_dispo }}">
                     </div>
                     <x-add-to-cart-button
                         :product-id="$product->id"
                         qte-input-id="qte"
                         label="🛒 Ajouter au panier"
-                        style="padding: 12px 40px; border-radius: 50px; font-size: 16px;" />
+                        class="btn-add-cart-large" />
                 </div>
             @else
-                <div style="background: #fde8e8; padding: 15px; border-radius: 8px; text-align: center;">
-                    <p style="color: #e74c3c; font-weight: 600; margin: 0;">Ce produit est actuellement en rupture de stock</p>
+                <div class="product-show-out">
+                    Ce produit est actuellement en rupture de stock
                 </div>
             @endif
         </div>
     </div>
 
-    <!-- Produits similaires (carte inlinée : pas de partial product-card dans le projet) -->
+    <!-- ============================================
+         PRODUITS SIMILAIRES
+    ============================================ -->
     @if(isset($similarProducts) && $similarProducts->count() > 0)
-        <div style="max-width: 1200px; margin: 60px auto 0;">
-            <h2 style="font-size: 24px; color: var(--text); margin-bottom: 20px;">Produits similaires</h2>
-            <div class="products-grid" style="grid-template-columns: repeat(4, 1fr); display: grid; gap: 20px;">
-                @foreach($similarProducts as $product)
-                    <div class="product-card" style="
-                        background: var(--white);
-                        border-radius: 16px;
-                        overflow: hidden;
-                        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-                        border: 1px solid rgba(0,0,0,0.04);
-                        display: flex;
-                        flex-direction: column;
-                    ">
-                        <div style="height: 180px; background: #f8f5f0; overflow: hidden;">
-                            @if($product->image_path)
-                                <a href="{{ route('client.products.show', $product) }}">
-                                    <img src="{{ asset('storage/' . $product->image_path) }}"
-                                         alt="{{ $product->designation }}"
-                                         style="width: 100%; height: 100%; object-fit: cover;">
-                                </a>
-                            @else
-                                <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #b8860b;">
-                                    <i class="fas fa-box" style="font-size: 32px;"></i>
-                                </div>
-                            @endif
-                        </div>
-                        <div style="padding: 14px; display: flex; flex-direction: column; gap: 6px;">
-                            <a href="{{ route('client.products.show', $product) }}" style="color: var(--text); text-decoration: none; font-weight: 700; font-size: 15px;">
-                                {{ $product->designation }}
-                            </a>
-                            <div style="font-size: 16px; font-weight: 800; color: var(--green-dark);">
-                                {{ number_format($product->prix_vente, 0, ',', ' ') }} FCFA
+        <div class="similar-products">
+            <h2>Produits similaires</h2>
+
+            <div class="similar-products-grid">
+                @foreach($similarProducts as $similar)
+                    <article class="similar-product-card">
+                        <a href="{{ route('client.products.show', $similar->id) }}" class="similar-product-link">
+                            <div class="similar-product-image">
+                                @if($similar->image_path)
+                                    <img src="{{ asset('storage/' . $similar->image_path) }}"
+                                         alt="{{ $similar->designation }}">
+                                @else
+                                    <div class="similar-product-placeholder">
+                                        <i class="fas fa-box"></i>
+                                    </div>
+                                @endif
                             </div>
-                        </div>
-                    </div>
+                            <div class="similar-product-info">
+                                <h3>{{ $similar->designation }}</h3>
+                                <div class="similar-product-price">
+                                    {{ number_format($similar->prix_vente, 0, ',', ' ') }} FCFA
+                                </div>
+                            </div>
+                        </a>
+                    </article>
                 @endforeach
             </div>
         </div>
     @endif
+
 </div>
-
-<script>
-function addToCart(productId) {
-    const qteInput = document.getElementById('qte');
-    const qte = qteInput ? parseInt(qteInput.value) : 1;
-    const btn = event.target.closest('button');
-    const originalText = btn.innerHTML;
-
-    btn.disabled = true;
-    btn.innerHTML = 'Ajout en cours...';
-
-    fetch('{{ route('client.cart.store') }}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-        },
-        body: JSON.stringify({ product_id: productId, qte: qte })
-    })
-    .then(res => res.json().then(data => ({ status: res.status, body: data })))
-    .then(({ status, body }) => {
-        if (status === 200 && body.success) {
-            btn.innerHTML = '✓ Ajouté !';
-            setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 1500);
-        } else {
-            alert(body.message || 'Erreur lors de l\'ajout au panier.');
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-        }
-    })
-    .catch(() => {
-        alert('Erreur réseau. Réessayez.');
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-    });
-}
-</script>
 
 @endsection

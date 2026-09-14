@@ -155,7 +155,7 @@
           
         @else
           {{-- VISITEUR NON CONNECTÉ --}}
-          <li><a href="{{ route('register') }}" class="btn-inscription">Inscription</a></li>
+          {{-- <li><a href="{{ route('register') }}" class="btn-inscription">Inscription</a></li> --}}
           <li><a href="{{ route('login') }}" class="btn-connexion">Connexion</a></li>
         @endauth
       </ul>

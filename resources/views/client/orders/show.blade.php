@@ -1,4 +1,3 @@
-{{-- resources/views/client/orders/show.blade.php --}}
 @extends('layouts.app')
 
 @section('title', 'Commande ' . $order->num_order . ' - La Réserve Naturelle')
@@ -7,82 +6,101 @@
 
 @php
     $statutLabels = [
-        'en_attente' => ['label' => 'En attente', 'color' => '#e65100', 'bg' => '#fff3e0'],
-        'payee'      => ['label' => 'Payée', 'color' => '#6a1b9a', 'bg' => '#f3e5f5'], // ← manquant
-        'validee'    => ['label' => 'Validée', 'color' => '#1565c0', 'bg' => '#e3f2fd'],
-        'livree'     => ['label' => 'Livrée', 'color' => '#2e7d32', 'bg' => '#e8f5e9'],
-        'annulee'    => ['label' => 'Annulée', 'color' => '#c62828', 'bg' => '#ffebee'],
+        'en_attente' => ['label' => 'En attente', 'class' => 'status-pending'],
+        'payee'      => ['label' => 'Payée',      'class' => 'status-paid'],
+        'validee'    => ['label' => 'Validée',    'class' => 'status-validated'],
+        'livree'     => ['label' => 'Livrée',     'class' => 'status-delivered'],
+        'annulee'    => ['label' => 'Annulée',    'class' => 'status-cancelled'],
     ];
-    $statut = $statutLabels[$order->statut] ?? ['label' => $order->statut, 'color' => '#666', 'bg' => '#eee'];
+    $statut = $statutLabels[$order->statut]
+        ?? ['label' => $order->statut, 'class' => 'status-default'];
 @endphp
 
-<div class="container" style="max-width: 900px; margin: 40px auto; padding: 0 20px 60px;">
+<div class="container order-show-wrapper">
+
+    <!-- ============================================
+         MESSAGES FLASH
+    ============================================ -->
     @if(session('success'))
-        <div style="background: #d4edda; color: #155724; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+        <div class="alert alert-success">
             <i class="fas fa-check-circle"></i>
             {{ session('success') }}
         </div>
     @endif
 
     @if(session('error'))
-        <div style="background: #f8d7da; color: #721c24; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+        <div class="alert alert-error">
             <i class="fas fa-exclamation-circle"></i>
             {{ session('error') }}
         </div>
     @endif
-    <a href="{{ route('client.orders.index') }}" style="color: var(--muted); text-decoration: none; font-size: 14px; display: inline-block; margin-bottom: 20px;">
+
+    <!-- Retour -->
+    <a href="{{ route('client.orders.index') }}" class="order-show-back">
         ← Retour aux commandes
     </a>
 
-    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px;">
-        <div>
-            <h1 style="font-size: 28px; color: var(--text); margin-bottom: 6px;">{{ $order->num_order }}</h1>
-            <p style="color: var(--muted); font-size: 14px;">Passée le {{ $order->date_order->format('d/m/Y') }}</p>
+    <!-- ============================================
+         EN-TÊTE
+    ============================================ -->
+    <div class="order-show-header">
+        <div class="order-show-header-left">
+            <h1>{{ $order->num_order }}</h1>
+            <p>Passée le {{ $order->date_order->format('d/m/Y') }}</p>
         </div>
-        <span style="background: {{ $statut['bg'] }}; color: {{ $statut['color'] }}; padding: 8px 20px; border-radius: 20px; font-size: 14px; font-weight: 600;">
+        <span class="order-status {{ $statut['class'] }}">
             {{ $statut['label'] }}
         </span>
     </div>
 
-    <div style="background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); overflow: hidden; margin-bottom: 25px;">
+    <!-- ============================================
+         LISTE DES ARTICLES
+    ============================================ -->
+    <div class="order-show-items">
         @foreach($order->items as $item)
-            <div style="display: flex; align-items: center; gap: 20px; padding: 18px 20px; border-bottom: 1px solid #f0f0f0;">
+            <div class="order-show-item">
                 <img src="{{ $item->product->image_path ? asset('storage/' . $item->product->image_path) : asset('images/default-product.jpg') }}"
-                     style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
+                     alt="{{ $item->product->designation }}">
 
-                <div style="flex: 1;">
-                    <h3 style="font-size: 15px; color: var(--text); margin-bottom: 4px;">{{ $item->product->designation }}</h3>
-                    <p style="font-size: 13px; color: var(--muted);">
+                <div class="order-show-item-info">
+                    <h3>{{ $item->product->designation }}</h3>
+                    <p>
                         {{ $item->qte }} × {{ number_format($item->product->prix_vente, 0, ',', ' ') }} FCFA
                     </p>
                 </div>
 
-                <p style="font-weight: 700; color: var(--text);">
+                <p class="order-show-item-total">
                     {{ number_format($item->qte * $item->product->prix_vente, 0, ',', ' ') }} FCFA
                 </p>
             </div>
         @endforeach
     </div>
 
-    <div style="background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); padding: 25px; display: flex; justify-content: space-between; align-items: center;">
-        <span style="font-size: 16px; color: var(--text); font-weight: 600;">Total</span>
-        <span style="font-size: 24px; font-weight: 700; color: var(--green-dark);">
+    <!-- ============================================
+         TOTAL
+    ============================================ -->
+    <div class="order-show-total">
+        <span>Total</span>
+        <span class="order-show-total-value">
             {{ number_format($order->mt_total, 0, ',', ' ') }} FCFA
         </span>
     </div>
 
+    <!-- ============================================
+         ACTIONS SELON STATUT
+    ============================================ -->
     @if($order->statut === 'en_attente')
-        <div style="text-align: center; margin-top: 25px;">
-            <a href="{{ route('client.checkout.show', $order) }}"
-               style="background: var(--green-dark, #1565c0); color: white; padding: 14px 40px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block;">
+        <div class="order-show-action">
+            <a href="{{ route('client.checkout.show', $order) }}" class="btn-primary-lg">
                 Valider le panier
             </a>
         </div>
     @elseif($order->statut === 'payee')
-        <p style="text-align: center; color: var(--muted); font-size: 13px; margin-top: 20px;">
+        <p class="order-show-note">
             Paiement reçu, commande en attente de validation par l'administration.
         </p>
     @endif
+
 </div>
 
 @endsection

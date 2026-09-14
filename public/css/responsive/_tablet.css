@@ -1,0 +1,365 @@
+/* ============================================
+   RESPONSIVE — TABLETTE (<= 992px)
+============================================ */
+@media (max-width: 992px) {
+
+    /* ========================================
+       NAVIGATION
+    ======================================== */
+    .nav {
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        min-height: auto;
+        gap: 10px;
+    }
+
+    .brand {
+        order: 0;
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .hamburger {
+        display: flex;
+        order: 1;
+        margin-left: auto;
+    }
+
+    .cart-btn {
+        order: 2;
+        padding: 10px 16px;
+        font-size: 13px;
+        margin-left: 8px;
+    }
+
+    .navbar {
+        order: 3;
+        flex-basis: 100%;
+        display: none;
+        width: 100%;
+        padding: 0;
+        background: transparent;
+        box-shadow: none;
+        border-top: none;
+    }
+
+    .navbar.active {
+        display: block;
+        padding-top: 12px;
+        border-top: 1px solid var(--line);
+        animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .nav-links {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 0;
+        width: 100%;
+    }
+
+    .nav-links > li {
+        border-bottom: 1px solid var(--line);
+        width: 100%;
+    }
+
+    .nav-links > li:last-child {
+        border-bottom: none;
+    }
+
+    .nav-links > li > a {
+        display: block;
+        padding: 14px 12px;
+        font-size: 16px;
+        text-align: center;
+        white-space: normal;
+    }
+
+    .nav-links > li > a::after {
+        display: none;
+    }
+
+    .dropdown-menu,
+    .nav-links .dropdown-profile .dropdown-menu {
+        position: static;
+        display: none;
+        width: 100%;
+        min-width: 0;
+        background: rgba(0, 0, 0, 0.03);
+        border: none;
+        box-shadow: none;
+        border-radius: 8px;
+        margin: 4px 0 8px;
+        padding: 4px 0;
+        left: auto;
+        right: auto;
+    }
+
+    .nav-links li.dropdown.active > .dropdown-menu,
+    .nav-links li.dropdown-profile.active > .dropdown-menu {
+        display: block;
+    }
+
+    .nav-links li.dropdown:hover > .dropdown-menu,
+    .nav-links li.dropdown-profile:hover > .dropdown-menu {
+        display: none;
+    }
+
+    .dropdown-menu a,
+    .nav-links .dropdown-profile .dropdown-menu li a {
+        padding: 10px 16px;
+        font-size: 14px;
+        text-align: center;
+        justify-content: center;
+    }
+
+    .btn-logout-dropdown {
+        justify-content: center;
+        padding: 10px 16px !important;
+    }
+
+    /* Boutons connexion/inscription */
+    .btn-connexion,
+    .btn-inscription {
+        display: block;
+        text-align: center;
+        padding: 12px 20px;
+        border-radius: 8px;
+        margin: 6px 12px;
+    }
+
+    .btn-connexion {
+        background: transparent;
+        border: 2px solid var(--green);
+        color: var(--green);
+    }
+
+    .btn-connexion:hover {
+        background: var(--green);
+        color: var(--white);
+    }
+
+    .btn-inscription {
+        background: var(--green);
+        color: var(--white);
+        border: 2px solid var(--green);
+    }
+
+    /* ========================================
+       FOOTER
+    ======================================== */
+    .footer-links {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+    }
+
+    /* ========================================
+       ACCUEIL
+    ======================================== */
+    .home-hero {
+        border-radius: 0 0 24px 24px;
+        background:
+            linear-gradient(180deg,
+                rgba(5, 89, 54, 0.9) 0%,
+                rgba(5, 89, 54, 0.7) 60%,
+                rgba(5, 89, 54, 0.5) 100%),
+            #055936;
+    }
+
+    .home-hero .container {
+        padding: 50px 20px 40px;
+    }
+
+    .home-hero-content { max-width: 100%; }
+    .hero-lead { max-width: 100%; }
+
+    .products-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .about-visual-home {
+        min-height: 260px;
+        padding: 30px 20px;
+    }
+
+    .about-visual-emoji { font-size: 64px; }
+
+    /* ========================================
+       CATALOGUE
+    ======================================== */
+    .catalogue-header {
+        padding: 40px 16px;
+        margin-bottom: 24px;
+    }
+
+    .catalogue-wrapper { padding: 0 16px 40px; }
+    .catalogue-filters { padding: 20px; }
+
+    .filters-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .filter-submit { grid-column: 1 / -1; }
+
+    .catalogue-layout {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .catalogue-sidebar {
+        position: static;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .sidebar-card {
+        flex: 1 1 calc(50% - 8px);
+        min-width: 240px;
+    }
+
+    .catalogue-products-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px;
+    }
+
+    /* ========================================
+       PRODUIT SHOW
+    ======================================== */
+    .product-show-wrapper { padding: 30px 16px; }
+
+    .product-show-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+
+    .product-show-image-card {
+        position: static;
+        max-width: 500px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    .similar-products-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+
+    .similar-products { margin-top: 40px; }
+
+    /* ========================================
+       PANIER
+    ======================================== */
+    .cart-wrapper { padding: 30px 16px; }
+    .cart-title { font-size: 26px; margin-bottom: 20px; }
+
+    /* Basculer tableau → cartes */
+    .cart-table-wrapper { display: none; }
+    .cart-mobile-list   { display: flex; }
+
+    .cart-footer { padding: 16px; }
+
+    /* ========================================
+       COMMANDES (INDEX)
+    ======================================== */
+    .orders-wrapper { padding: 30px 16px; }
+    .orders-title { font-size: 26px; margin-bottom: 20px; }
+
+    .orders-table-wrapper { display: none; }
+    .orders-mobile-list   { display: flex; }
+
+    /* ========================================
+       CHECKOUT
+    ======================================== */
+    .checkout-wrapper { padding: 30px 16px; }
+
+    .checkout-layout {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .checkout-summary { position: static; }
+
+    /* Résumé en premier sur mobile */
+    .checkout-sidebar { order: -1; }
+
+    .checkout-stepper {
+        gap: 6px;
+        margin-bottom: 25px;
+    }
+
+    .step-line { width: 30px; }
+
+    /* ========================================
+       CONFIRMATION (payment)
+    ======================================== */
+    .payment-wrapper {
+        padding: 40px 20px;
+        align-items: flex-start;
+    }
+
+    .payment-card { border-radius: 16px; }
+
+    /* ========================================
+       COMMANDES (SHOW)
+    ======================================== */
+    .order-show-wrapper {
+        max-width: 100%;
+        margin: 30px auto;
+        padding: 0 16px 50px;
+    }
+
+    /* ========================================
+       CONTACT & À PROPOS
+    ======================================== */
+    .contact-hero,
+    .about-hero {
+        padding: 50px 24px;
+        margin-bottom: 30px;
+    }
+
+    .contact-hero-icon,
+    .about-hero-icon { font-size: 48px; }
+
+    .contact-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+
+    .contact-form-card { padding: 28px; }
+
+    .map-frame { height: 380px; }
+    .map-section { padding: 40px 0; }
+
+    .about-history-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+
+    .about-history-visual {
+        min-height: 250px;
+        font-size: 64px;
+    }
+
+    .about-values { padding: 40px 0; }
+
+    .values-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+    }
+
+    .about-team { padding: 40px 0; }
+
+    .team-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+    }
+}

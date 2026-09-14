@@ -1,0 +1,220 @@
+/* ============================================
+   PAGE À PROPOS
+============================================ */
+.about-hero {
+    background: linear-gradient(135deg, #055936 0%, #0B7A48 60%, #D79A05 100%);
+    padding: 80px 40px;
+    border-radius: 16px;
+    color: var(--white);
+    margin-bottom: 50px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    width: min(1180px, 92%);
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.about-hero-bg-1,
+.about-hero-bg-2 {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.about-hero-bg-1 {
+    top: -30%;
+    right: -5%;
+    width: 400px;
+    height: 400px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.about-hero-bg-2 {
+    bottom: -20%;
+    left: 10%;
+    width: 300px;
+    height: 300px;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.about-hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+.about-hero-icon {
+    font-size: 64px;
+    margin-bottom: 15px;
+    line-height: 1;
+}
+
+.about-hero h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(28px, 4vw, 48px);
+    margin-bottom: 15px;
+    line-height: 1.2;
+}
+
+.about-hero p {
+    font-size: clamp(15px, 1.3vw, 20px);
+    max-width: 600px;
+    margin: 0 auto;
+    opacity: 0.9;
+    line-height: 1.6;
+}
+
+/* --- HISTOIRE --- */
+.about-history {
+    padding: 0 0 40px;
+}
+
+.about-history-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 50px;
+    align-items: center;
+}
+
+.about-history-text h2 {
+    font-family: 'Playfair Display', Georgia, serif;
+    color: var(--brown);
+    font-size: clamp(26px, 3vw, 36px);
+    margin: 15px 0 20px;
+    line-height: 1.25;
+}
+
+.about-paragraph {
+    color: var(--muted);
+    line-height: 1.8;
+    font-size: clamp(14px, 1.1vw, 16px);
+    margin-bottom: 15px;
+}
+
+.about-stats {
+    display: flex;
+    gap: 30px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    flex: 1 1 auto;
+    min-width: 90px;
+}
+
+.stat-value {
+    font-size: clamp(24px, 3vw, 32px);
+    color: var(--green);
+    font-weight: 900;
+    line-height: 1.2;
+}
+
+.stat-label {
+    color: var(--muted);
+    font-size: 14px;
+    margin-top: 4px;
+}
+
+.about-history-visual {
+    background: linear-gradient(135deg, var(--green-dark), var(--green));
+    border-radius: 16px;
+    min-height: 350px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    font-size: 80px;
+    box-shadow: 0 8px 30px rgba(11, 122, 72, 0.2);
+    line-height: 1;
+}
+
+/* --- VALEURS --- */
+.about-values {
+    background: var(--white);
+    padding: 60px 0;
+}
+
+.values-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+}
+
+.value-card {
+    background: var(--cream);
+    padding: 35px 25px;
+    border-radius: 12px;
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+    border: 1px solid var(--line);
+}
+
+.value-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 30px rgba(11, 122, 72, 0.12);
+}
+
+.value-icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+    line-height: 1;
+}
+
+.value-card h3 {
+    color: var(--brown);
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.value-card p {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* --- ÉQUIPE --- */
+.about-team {
+    padding: 60px 0;
+}
+
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+}
+
+.team-member {
+    text-align: center;
+}
+
+.team-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--green), var(--gold));
+    margin: 0 auto 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    color: var(--white);
+    line-height: 1;
+    box-shadow: 0 8px 20px rgba(11, 122, 72, 0.2);
+    transition: transform 0.3s;
+}
+
+.team-member:hover .team-avatar {
+    transform: translateY(-4px) scale(1.05);
+}
+
+.team-member h4 {
+    color: var(--brown);
+    font-size: 18px;
+    margin-bottom: 4px;
+}
+
+.team-member p {
+    color: var(--muted);
+    font-size: 14px;
+}

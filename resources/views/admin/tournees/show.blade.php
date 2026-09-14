@@ -11,7 +11,7 @@
                 <div>
                     <h1 style="font-family: 'Playfair Display', serif; color: #2d5a27; font-size: 2rem; margin: 0;">
                         <i class="fas fa-route" style="color: #2d5a27; margin-right: 10px;"></i>
-                        Tournée #{{ $tournee->id }}
+                        Livraison {{ $tournee->id }}
                     </h1>
                     <p style="color: #6c757d; margin: 5px 0 0 0;">
                         {{ $tournee->zone->nom }} — {{ $tournee->date_tournee->format('d/m/Y') }}

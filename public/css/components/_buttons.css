@@ -1,0 +1,283 @@
+/* ============================================
+   BOUTONS SPÉCIALISÉS
+============================================ */
+
+/* Bouton d'ajout au panier (utilisé partout) */
+.btn-add-cart,
+.add-to-cart-btn {
+    background: var(--green);
+    color: var(--white);
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.3s;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.btn-add-cart:hover,
+.add-to-cart-btn:hover {
+    background: var(--green-dark);
+    transform: translateY(-2px);
+}
+
+.btn-add-cart:disabled,
+.add-to-cart-btn:disabled {
+    opacity: 0.7;
+    cursor: wait;
+    transform: none;
+}
+
+/* Variante large (page show produit) */
+.btn-add-cart-large {
+    padding: 12px 40px;
+    border-radius: 50px;
+    font-size: 16px;
+}
+
+/* Bouton de recherche */
+.btn-search {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 32px;
+    background: var(--green);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    font-size: clamp(14px, 1.1vw, 16px);
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: inherit;
+    white-space: nowrap;
+    min-height: 54px;
+    width: 100%;
+}
+
+.btn-search:hover {
+    background: var(--green-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(11, 122, 72, 0.3);
+}
+
+/* Boutons update / delete (panier) */
+.btn-update {
+    background: var(--green);
+    color: var(--white);
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.3s, transform 0.2s;
+}
+
+.btn-update:hover {
+    background: var(--green-dark);
+    transform: scale(1.05);
+}
+
+.btn-delete {
+    background: #dc3545;
+    color: var(--white);
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.3s, transform 0.2s;
+}
+
+.btn-delete:hover {
+    background: #b02a37;
+    transform: scale(1.05);
+}
+
+/* Boutons commandes */
+.btn-order-view,
+.btn-order-ticket {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 6px 18px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--white);
+    white-space: nowrap;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-order-view {
+    background: var(--green);
+}
+
+.btn-order-view:hover {
+    background: var(--green-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(11, 122, 72, 0.25);
+}
+
+.btn-order-ticket {
+    background: #1565c0;
+}
+
+.btn-order-ticket:hover {
+    background: #0d47a1;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(21, 101, 192, 0.25);
+}
+
+/* Bouton vider / commander (panier) */
+.btn-clear,
+.btn-order {
+    padding: 10px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+    transition: background 0.3s, transform 0.3s;
+    white-space: nowrap;
+}
+
+.btn-clear {
+    background: #dc3545;
+    color: var(--white);
+}
+
+.btn-clear:hover {
+    background: #b02a37;
+    transform: translateY(-2px);
+}
+
+.btn-order {
+    background: var(--green);
+    color: var(--white);
+    padding: 10px 30px;
+}
+
+.btn-order:hover {
+    background: var(--green-dark);
+    transform: translateY(-2px);
+}
+
+/* Bouton submit checkout */
+.btn-checkout-submit {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
+    color: var(--white);
+    border: none;
+    border-radius: 50px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 4px 15px rgba(11, 122, 72, 0.3);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.btn-checkout-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(11, 122, 72, 0.4);
+}
+
+/* Bouton submit payment */
+.btn-payment-confirm {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
+    color: var(--white);
+    border: none;
+    border-radius: 50px;
+    font-size: clamp(15px, 2vw, 18px);
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 4px 15px rgba(11, 122, 72, 0.3);
+    transition: transform 0.3s, box-shadow 0.3s, opacity 0.3s;
+}
+
+.btn-payment-confirm:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(11, 122, 72, 0.4);
+}
+
+.btn-payment-confirm:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Bouton large primaire */
+.btn-primary-lg {
+    display: inline-block;
+    background: var(--green-dark);
+    color: var(--white);
+    padding: 14px 40px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    transition: background 0.3s, transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+    border: none;
+    font-family: inherit;
+}
+
+.btn-primary-lg:hover {
+    background: var(--green);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(11, 122, 72, 0.3);
+}
+
+/* Bouton submit générique (contact) */
+.btn-submit {
+    width: 100%;
+    padding: 16px;
+    background: var(--green);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.3s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-submit:hover {
+    background: var(--green-dark);
+    transform: translateY(-2px);
+}

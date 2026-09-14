@@ -3,91 +3,156 @@
 @section('title', 'Mes Commandes')
 
 @section('content')
-<div class="container" style="max-width: 1200px; margin: 0 auto; padding: 40px 20px;">
-    <h1 style="font-size: 32px; margin-bottom: 30px;">📋 Mes Commandes</h1>
 
+<div class="container orders-wrapper">
+    <h1 class="orders-title">📋 Mes Commandes</h1>
+
+    <!-- ============================================
+         MESSAGES FLASH
+    ============================================ -->
     @if(session('success'))
-        <div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+        <div class="alert alert-success">
             {{ session('success') }}
         </div>
     @endif
 
     @if(session('error'))
-        <div style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+        <div class="alert alert-error">
             {{ session('error') }}
         </div>
     @endif
 
     @if($orders->count() > 0)
+
         @php
             $statutLabels = [
-                'en_attente' => ['label' => 'En attente', 'color' => '#e65100', 'bg' => '#fff3e0'],
-                'payee'      => ['label' => 'Payée', 'color' => '#6a1b9a', 'bg' => '#f3e5f5'],
-                'validee'    => ['label' => 'Validée', 'color' => '#1565c0', 'bg' => '#e3f2fd'],
-                'livree'     => ['label' => 'Livrée', 'color' => '#2e7d32', 'bg' => '#e8f5e9'],
-                'annulee'    => ['label' => 'Annulée', 'color' => '#c62828', 'bg' => '#ffebee'],
+                'en_attente' => ['label' => 'En attente', 'class' => 'status-pending'],
+                'payee'      => ['label' => 'Payée',      'class' => 'status-paid'],
+                'validee'    => ['label' => 'Validée',    'class' => 'status-validated'],
+                'livree'     => ['label' => 'Livrée',     'class' => 'status-delivered'],
+                'annulee'    => ['label' => 'Annulée',    'class' => 'status-cancelled'],
             ];
         @endphp
 
-        <div style="background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); overflow: hidden;">
-            <table style="width: 100%; border-collapse: collapse;">
-                <thead style="background: #f8f9fa;">
-                    <tr>
-                        <th style="padding: 15px; text-align: left; font-weight: 600;">N° Commande</th>
-                        <th style="padding: 15px; text-align: center; font-weight: 600;">Date</th>
-                        <th style="padding: 15px; text-align: center; font-weight: 600;">Statut</th>
-                        <th style="padding: 15px; text-align: center; font-weight: 600;">Total</th>
-                        <th style="padding: 15px; text-align: center; font-weight: 600;">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($orders as $order)
-                        @php $statut = $statutLabels[$order->statut] ?? ['label' => $order->statut, 'color' => '#666', 'bg' => '#eee']; @endphp
-                        <tr style="border-bottom: 1px solid #eee;">
-                            <td style="padding: 15px;">
-                                <strong>{{ $order->num_order }}</strong>
-                            </td>
-                            <td style="padding: 15px; text-align: center; color: #6c757d;">
-                                {{ $order->date_order->format('d/m/Y') }}
-                            </td>
-                            <td style="padding: 15px; text-align: center;">
-                                <span style="background: {{ $statut['bg'] }}; color: {{ $statut['color'] }}; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 600;">
-                                    {{ $statut['label'] }}
-                                </span>
-                            </td>
-                            <td style="padding: 15px; text-align: center; font-weight: 700; color: #1b5e20;">
-                                {{ number_format($order->mt_total, 0, ',', ' ') }} FCFA
-                            </td>
-                            <td style="padding: 15px; text-align: center;">
-                                <a href="{{ route('client.orders.show', $order) }}"
-                                style="background: #2e7d32; color: white; padding: 6px 18px; border-radius: 6px; text-decoration: none; font-size: 13px;">
-                                    Voir détails
-                                </a>
-                                @if($order->ticket_path)
-                                    <a href="{{ route('client.orders.ticket', $order) }}"
-                                    style="background: #1565c0; color: white; padding: 6px 18px; border-radius: 6px; text-decoration: none; font-size: 13px; margin-left: 5px; display: inline-flex; align-items: center; gap: 5px;">
-                                        <i class="fas fa-file-pdf"></i> Reçu
-                                    </a>
-                                @endif
-                            </td>
+        <div class="orders-card">
+
+            <!-- ========================================
+                 VUE DESKTOP : TABLEAU
+            ======================================== -->
+            <div class="orders-table-wrapper">
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>N° Commande</th>
+                            <th>Date</th>
+                            <th>Statut</th>
+                            <th>Total</th>
+                            <th>Action</th>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach($orders as $order)
+                            @php
+                                $statut = $statutLabels[$order->statut]
+                                    ?? ['label' => $order->statut, 'class' => 'status-default'];
+                            @endphp
+                            <tr>
+                                <td class="orders-cell-num">
+                                    <strong>{{ $order->num_order }}</strong>
+                                </td>
+                                <td class="orders-cell-center">
+                                    {{ $order->date_order->format('d/m/Y') }}
+                                </td>
+                                <td class="orders-cell-center">
+                                    <span class="order-status {{ $statut['class'] }}">
+                                        {{ $statut['label'] }}
+                                    </span>
+                                </td>
+                                <td class="orders-cell-center orders-cell-total">
+                                    {{ number_format($order->mt_total, 0, ',', ' ') }} FCFA
+                                </td>
+                                <td class="orders-cell-center">
+                                    <div class="orders-actions">
+                                        <a href="{{ route('client.orders.show', $order) }}" class="btn-order-view">
+                                            Voir détails
+                                        </a>
+                                        @if($order->ticket_path)
+                                            <a href="{{ route('client.orders.ticket', $order) }}" class="btn-order-ticket">
+                                                <i class="fas fa-file-pdf"></i> Reçu
+                                            </a>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ========================================
+                 VUE MOBILE : CARTES
+            ======================================== -->
+            <div class="orders-mobile-list">
+                @foreach($orders as $order)
+                    @php
+                        $statut = $statutLabels[$order->statut]
+                            ?? ['label' => $order->statut, 'class' => 'status-default'];
+                    @endphp
+                    <div class="order-mobile-item">
+
+                        <div class="order-mobile-header">
+                            <div class="order-mobile-num">
+                                <span class="order-mobile-label">N°</span>
+                                <strong>{{ $order->num_order }}</strong>
+                            </div>
+                            <span class="order-status {{ $statut['class'] }}">
+                                {{ $statut['label'] }}
+                            </span>
+                        </div>
+
+                        <div class="order-mobile-body">
+                            <div class="order-mobile-line">
+                                <span class="order-mobile-label">Date</span>
+                                <span>{{ $order->date_order->format('d/m/Y') }}</span>
+                            </div>
+                            <div class="order-mobile-line">
+                                <span class="order-mobile-label">Total</span>
+                                <span class="order-mobile-total">
+                                    {{ number_format($order->mt_total, 0, ',', ' ') }} FCFA
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="order-mobile-actions">
+                            <a href="{{ route('client.orders.show', $order) }}" class="btn-order-view">
+                                Voir détails
+                            </a>
+                            @if($order->ticket_path)
+                                <a href="{{ route('client.orders.ticket', $order) }}" class="btn-order-ticket">
+                                    <i class="fas fa-file-pdf"></i> Reçu
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                @endforeach
+            </div>
         </div>
 
-        <div style="margin-top: 30px; display: flex; justify-content: center;">
+        <!-- Pagination -->
+        <div class="orders-pagination">
             {{ $orders->links() }}
         </div>
+
     @else
-        <div style="text-align: center; padding: 80px 20px; background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
-            <div style="font-size: 64px; margin-bottom: 20px;">📦</div>
-            <h3 style="color: #333; font-size: 24px; margin-bottom: 10px;">Aucune commande pour l'instant</h3>
-            <p style="color: #6c757d; margin-bottom: 20px;">Vos commandes passées apparaîtront ici.</p>
-            <a href="{{ route('client.products.catalogue') }}" style="background: #2e7d32; color: white; padding: 12px 30px; border-radius: 50px; text-decoration: none; display: inline-block;">
+        <div class="orders-empty">
+            <div class="orders-empty-icon">📦</div>
+            <h3>Aucune commande pour l'instant</h3>
+            <p>Vos commandes passées apparaîtront ici.</p>
+            <a href="{{ route('client.products.catalogue') }}" class="btn-primary">
                 Voir les produits
             </a>
         </div>
     @endif
 </div>
+
 @endsection

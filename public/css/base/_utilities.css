@@ -1,0 +1,109 @@
+/* ============================================
+   UTILITAIRES
+============================================ */
+
+/* Container principal */
+.container {
+    width: min(1180px, 92%);
+    margin: auto;
+}
+
+/* Couleurs de texte */
+.text-green { color: var(--green); }
+.text-gold  { color: var(--gold); }
+
+/* Eyebrow (petit label au-dessus des titres) */
+.eyebrow {
+    color: var(--green);
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.eyebrow.green {
+    color: var(--green);
+}
+
+/* Section générique */
+.section {
+    padding: clamp(40px, 6vw, 78px) 0;
+}
+
+.section-heading {
+    text-align: center;
+    margin-bottom: 38px;
+}
+
+.section-heading p {
+    color: var(--green);
+    text-transform: uppercase;
+    font-size: clamp(11px, 1vw, 13px);
+    font-weight: 800;
+    letter-spacing: 0.14em;
+}
+
+.section-heading h2,
+.split h2 {
+    font-family: 'Playfair Display', Georgia, serif;
+    color: var(--brown);
+    font-size: clamp(26px, 4vw, 44px);
+}
+
+/* Bouton de base */
+.btn {
+    display: inline-block;
+    padding: 13px 22px;
+    border-radius: 6px;
+    font-weight: 800;
+}
+
+/* Bouton primaire (utilisé sur plusieurs pages) */
+.btn-primary {
+    display: inline-block;
+    background: var(--green);
+    color: var(--white);
+    padding: 12px 30px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background 0.3s, transform 0.3s;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+}
+
+.btn-primary:hover {
+    background: var(--green-dark);
+    transform: translateY(-2px);
+}
+
+/* Bouton outline (transparent avec bordure) */
+.btn-outline {
+    display: inline-block;
+    background: transparent;
+    color: var(--green);
+    border: 2px solid var(--green);
+    padding: 12px 30px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+}
+
+.btn-outline:hover {
+    background: var(--green);
+    color: var(--white);
+    transform: translateY(-2px);
+}
+
+/* Animation fadeIn */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}

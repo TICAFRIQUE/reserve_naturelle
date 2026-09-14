@@ -1,0 +1,347 @@
+/* ============================================
+   HEADER / NAVBAR
+============================================ */
+.header {
+    background: rgba(250, 246, 235, 0.96);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.nav {
+    min-height: 86px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 28px;
+    width: min(1180px, 92%);
+    margin: auto;
+    position: relative;
+}
+
+/* --- LOGO / BRAND --- */
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-decoration: none;
+    min-width: 200px;
+}
+
+.brand-icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 2px solid var(--gold);
+    padding: 4px;
+    background: var(--white);
+    box-shadow: 0 2px 12px rgba(11, 122, 72, 0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.brand:hover .brand-icon {
+    transform: scale(1.05);
+    box-shadow: 0 4px 20px rgba(11, 122, 72, 0.25);
+}
+
+.brand-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+}
+
+.brand-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+}
+
+.brand-text strong {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(15px, 2.5vw, 20px);
+    color: var(--brown);
+    font-weight: 900;
+    letter-spacing: -0.5px;
+}
+
+.brand-text em {
+    font-family: 'Dancing Script', cursive;
+    font-size: clamp(15px, 2.5vw, 21px);
+    color: var(--green);
+    font-style: normal;
+    font-weight: 700;
+    margin-top: -2px;
+}
+
+/* --- HAMBURGER --- */
+.hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    z-index: 110;
+    transition: all 0.3s ease;
+}
+
+.hamburger .bar {
+    display: block;
+    width: 28px;
+    height: 3px;
+    background: var(--brown);
+    border-radius: 3px;
+    transition: all 0.3s ease;
+    transform-origin: center;
+}
+
+.hamburger.active .bar:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+}
+
+.hamburger.active .bar:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+}
+
+.hamburger.active .bar:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+}
+
+.hamburger:hover .bar {
+    background: var(--green);
+}
+
+/* --- NAVBAR --- */
+.navbar {
+    display: flex;
+    align-items: center;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 1.8rem;
+    flex-wrap: wrap;
+    padding: 0.8rem 0;
+}
+
+.nav-links li {
+    position: relative;
+}
+
+.nav-links a {
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: clamp(14px, 1.2vw, 1.05rem);
+    padding: 0.5rem 0.2rem;
+    transition: color 0.25s ease;
+    white-space: nowrap;
+}
+
+.nav-links a:hover {
+    color: var(--success);
+}
+
+.nav-links > li > a {
+    position: relative;
+    padding: 8px 4px;
+    font-weight: 500;
+    color: var(--text);
+    transition: color 0.3s ease;
+}
+
+.nav-links > li > a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: var(--green);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.nav-links > li > a:hover::after {
+    width: 100%;
+}
+
+.nav-links > li > a:hover {
+    color: var(--green);
+}
+
+/* --- DROPDOWN --- */
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: var(--text);
+    min-width: 200px;
+    list-style: none;
+    padding: 0.6rem 0;
+    border-radius: 0 0 10px 10px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    flex-direction: column;
+    z-index: 105;
+}
+
+.dropdown-menu li {
+    width: 100%;
+}
+
+.dropdown-menu a {
+    display: block;
+    padding: 0.6rem 1.5rem;
+    color: #e2e8f0;
+    font-weight: 400;
+    transition: background 0.2s, color 0.2s;
+    white-space: nowrap;
+}
+
+.dropdown-menu a:hover {
+    background: #1e293b;
+    color: #facc15;
+}
+
+.nav-links li.dropdown:hover .dropdown-menu,
+.nav-links li.dropdown:focus-within .dropdown-menu {
+    display: flex;
+}
+
+.dropdown > a::after {
+    content: " ▾";
+    font-size: 0.75rem;
+    color: #94a3b8;
+    transition: transform 0.2s;
+    display: inline-block;
+    margin-left: 4px;
+}
+
+.nav-links li.dropdown:hover > a::after {
+    transform: rotate(180deg);
+    color: #facc15;
+}
+
+/* --- DROPDOWN PROFIL --- */
+.user-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--green);
+    color: var(--white);
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    flex-shrink: 0;
+}
+
+.user-avatar:hover {
+    background: var(--green-dark);
+    transform: scale(1.05);
+}
+
+.nav-links .dropdown-profile .dropdown-menu {
+    min-width: 220px;
+    right: 0;
+    left: auto;
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    padding: 8px 0;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.nav-links .dropdown-profile .dropdown-menu li a {
+    padding: 10px 20px;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s ease;
+}
+
+.nav-links .dropdown-profile .dropdown-menu li a i {
+    width: 20px;
+    color: var(--muted);
+    font-size: 15px;
+    transition: color 0.2s ease;
+}
+
+.nav-links .dropdown-profile .dropdown-menu li a:hover {
+    background: rgba(11, 122, 72, 0.06);
+    color: var(--green);
+    padding-left: 24px;
+}
+
+.nav-links .dropdown-profile .dropdown-menu li a:hover i {
+    color: var(--green);
+}
+
+.dropdown-divider {
+    margin: 6px 0;
+    border: none;
+    border-top: 1px solid var(--line);
+}
+
+.btn-logout-dropdown {
+    background: none !important;
+    border: none !important;
+    color: var(--danger) !important;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    padding: 10px 20px !important;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s ease;
+}
+
+.btn-logout-dropdown i {
+    width: 20px;
+    color: var(--danger);
+    font-size: 15px;
+}
+
+.btn-logout-dropdown:hover {
+    background: rgba(184, 50, 50, 0.06) !important;
+    color: var(--danger) !important;
+    padding-left: 24px !important;
+}
+
+/* --- BOUTON PANIER --- */
+.cart-btn {
+    background: var(--green);
+    color: var(--white);
+    padding: 12px 18px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: clamp(13px, 1.1vw, 1rem);
+    transition: background 0.3s ease, transform 0.3s ease;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.cart-btn:hover {
+    background: var(--green-dark);
+    transform: translateY(-2px);
+}

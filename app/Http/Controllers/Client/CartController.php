@@ -55,7 +55,7 @@ class CartController extends Controller
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Produit ajouté au panier.',
+                'message' => "Produit « {$product->designation} » ajouté au panier avec succès.",
                 'cart_count' => $cart->items->sum('qte'),
                 'cart_total' => $cart->items->sum(fn($item) => $item->qte * $item->product->prix_vente)
             ]);
@@ -66,9 +66,9 @@ class CartController extends Controller
     public function update(Request $request, CartItem $item){
         $this->authorizeItem($item);
         $validated = $request->validate(['qte' => ['required', 'integer', 'min:1']]);
+        $product = $item->product; // ← déplacé ici, accessible dans les deux branches
 
-        if ($validated['qte'] > $item->product->qte_dispo) {
-            $product = $item->product;
+        if ($validated['qte'] > $product->qte_dispo) {
             $message = $product->sous_seuil
                 ? "Stock critique pour {$product->designation} : seulement {$product->qte_dispo} disponible(s) (seuil d'alerte atteint). Quantité demandée : {$validated['qte']}."
                 : "Stock insuffisant pour {$product->designation}. Maximum disponible : {$product->qte_dispo}.";
@@ -76,7 +76,7 @@ class CartController extends Controller
         }
 
         $item->update(['qte' => $validated['qte']]);
-        return back()->with('success', 'Panier mis à jour.');
+        return back()->with('success', "Quantité de « {$product->designation} » mise à jour avec succès.");
     }
 
     public function destroy(CartItem $item){

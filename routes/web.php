@@ -27,6 +27,8 @@
 
     // Accueil = catalogue produit (public)
     Route::get('/', [ClientProductController::class, 'index'])->name('home');
+    Route::redirect('/connexion', '/login');
+    Route::redirect('/inscription', '/register');
 
     // Public (invité + connecté)
     Route::prefix('client')->name('client.')->group(function () {
@@ -95,7 +97,9 @@
     //-------------------------------------------------
     // Back-office : auth + middleware admin
     Route::middleware(['auth'])->group(function () {
+        //pour faire une redirection sur le dashboard
         Route::prefix('admin')->middleware(['admin'])->name('admin.')->group(function () {
+            Route::redirect('/', '/admin/dashboard')->name('index'); // ← ajouté
             Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
             //Routes CRUD categories,sous-categories,users,zones, produits,livreur et fournisseurs admin

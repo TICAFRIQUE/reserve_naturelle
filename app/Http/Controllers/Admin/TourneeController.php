@@ -12,8 +12,23 @@ use Illuminate\Support\Facades\DB;
 
 class TourneeController extends Controller
 {
-    public function index(){
-        $tournees = Tournee::with(['livreur', 'zone', 'orders'])->latest('date_tournee')->paginate(10);
+        public function index(Request $request){
+        $tournees = Tournee::with(['livreur', 'zone', 'orders'])
+            ->when($request->filled('search'), fn($q) =>
+                $q->whereHas('livreur', fn($q) =>
+                    $q->where('nom', 'like', '%' . $request->search . '%')
+                    ->orWhere('prenom', 'like', '%' . $request->search . '%')
+                )->orWhereHas('zone', fn($q) =>
+                    $q->where('nom', 'like', '%' . $request->search . '%')
+                )
+            )
+            ->when($request->filled('statut'), fn($q) =>
+                $q->where('statut', $request->statut)
+            )
+            ->latest('date_tournee')
+            ->paginate(10)
+            ->withQueryString();
+
         return view('admin.tournees.index', compact('tournees'));
     }
 

@@ -9,8 +9,17 @@ use Illuminate\Support\Facades\DB;
 
 class ZoneController extends Controller
 {
-    public function index(){
-        $zones = Zone::orderBy('nom')->paginate(15);
+    public function index(Request $request){
+        $zones = Zone::when($request->filled('search'), fn($q) =>
+                $q->where('nom', 'like', '%' . $request->search . '%')
+            )
+            ->when($request->filled('type'), fn($q) =>
+                $q->where('est_expedition', $request->type === 'expedition')
+            )
+            ->orderBy('nom')
+            ->paginate(15)
+            ->withQueryString();
+
         return view('admin.zones.index', compact('zones'));
     }
 

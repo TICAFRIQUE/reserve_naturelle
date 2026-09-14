@@ -3,13 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Services\CartService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Cart;
 
 class AuthController extends Controller
 {
-
     public function create(Request $request){
         if ($request->has('redirect')) {
             $redirectUrl = $request->redirect;
@@ -20,7 +19,7 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-    public function store(Request $request){
+    public function store(Request $request, CartService $carts){
         $credentials = $request->validate([
             "email" => ["required", "email"],
             "password" => ["required", "string"],
@@ -35,7 +34,8 @@ class AuthController extends Controller
             // Sauvegarder avant de regenerate()
             $pending = $request->session()->get("reservation_pending");
             $intended = $request->session()->get("url.intended");
-            $request->session()->regenerate();  
+            $cartSessionId = session('cart_session_id');
+            $request->session()->regenerate();
 
             // Restaurer après avoir regénéré
             if ($pending) {
@@ -47,34 +47,15 @@ class AuthController extends Controller
 
             $user = Auth::user();
 
-            // Fusionner le panier invité avec le panier de l'utilisateur connecté
-            if (session()->has('cart_session_id')) {
-                $guestCart = Cart::where('session_id', session('cart_session_id'))->whereNull('user_id')->first();
-
-                if ($guestCart) {
-                    $userCart = Cart::firstOrCreate(
-                        ['user_id' => $user->id],
-                        ['date_creation' => now()]
-                    );
-
-                    foreach ($guestCart->items as $item) {
-                        $existing = $userCart->items()->where('product_id', $item->product_id)->first();
-                        $existing
-                            ? $existing->increment('qte', $item->qte)
-                            : $userCart->items()->create(['product_id' => $item->product_id, 'qte' => $item->qte]);
-                    }
-                    $guestCart->delete();
-                    session()->forget('cart_session_id');
-                }
-            }
+            $carts->mergeGuestCart($user, $cartSessionId);
 
             // Si admin alors dashboard sinon page client
             if ($user->isAdmin()) {
                 return redirect()->intended(route("admin.dashboard"));
             }
-            return redirect()->intended(route('client.products.index'));  
+            return redirect()->intended(route('client.products.index'));
         }
-        return back()->withErrors(["email" => "Identifiants invalides ou compte inactif"])->withInput($request->only("email"));      
+        return back()->withErrors(["email" => "Identifiants invalides ou compte inactif"])->withInput($request->only("email"));
     }
 
     public function destroy(Request $request){

@@ -1,53 +1,56 @@
-{{-- resources/views/client/products/catalogue.blade.php --}}
 @extends('layouts.app')
 
 @section('title', 'Catalogue Complet - La Réserve Naturelle')
 
 @section('content')
 
-<!-- ====== EN-TÊTE ====== -->
-<div style="background: linear-gradient(135deg, var(--green-dark) 0%, var(--green) 100%); padding: 60px 20px; text-align: center; color: white; margin-bottom: 40px;">
-    <div class="container" style="max-width: 1200px; margin: 0 auto;">
-        <h1 style="font-size: 42px; margin-bottom: 15px;">📦 Catalogue Complet</h1>
-        <p style="font-size: 18px; opacity: 0.9; max-width: 600px; margin: 0 auto;">
+<!-- ============================================
+     EN-TÊTE CATALOGUE
+============================================ -->
+<div class="catalogue-header">
+    <div class="container">
+        <h1>📦 Catalogue Complet</h1>
+        <p class="catalogue-subtitle">
             Découvrez l'ensemble de nos produits naturels soigneusement sélectionnés
         </p>
 
-        <!-- Statistiques -->
-        <div style="display: flex; justify-content: center; gap: 50px; margin-top: 30px; flex-wrap: wrap;">
-            <div>
-                <span style="font-size: 32px; font-weight: 700; display: block;">{{ $totalProducts ?? 0 }}</span>
-                <span style="font-size: 14px; opacity: 0.8;">Produits</span>
+        <div class="catalogue-stats">
+            <div class="stat">
+                <span class="stat-value">{{ $totalProducts ?? 0 }}</span>
+                <span class="stat-label">Produits</span>
             </div>
-            <div>
-                <span style="font-size: 32px; font-weight: 700; display: block;">{{ $totalCategories ?? 0 }}</span>
-                <span style="font-size: 14px; opacity: 0.8;">Catégories</span>
+            <div class="stat">
+                <span class="stat-value">{{ $totalCategories ?? 0 }}</span>
+                <span class="stat-label">Catégories</span>
             </div>
-            <div>
-                <span style="font-size: 32px; font-weight: 700; display: block;">{{ $totalInStock ?? 0 }}</span>
-                <span style="font-size: 14px; opacity: 0.8;">En stock</span>
+            <div class="stat">
+                <span class="stat-value">{{ $totalInStock ?? 0 }}</span>
+                <span class="stat-label">En stock</span>
             </div>
         </div>
     </div>
 </div>
 
-<div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 20px 60px;">
-    <!-- Barre de recherche et filtres -->
-    <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); margin-bottom: 30px;">
+<div class="container catalogue-wrapper">
+
+    <!-- ============================================
+         BARRE DE FILTRES
+    ============================================ -->
+    <div class="catalogue-filters">
         <form action="{{ route('client.products.catalogue') }}" method="GET" id="catalogueForm">
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 15px; align-items: end;">
+
+            <div class="filters-grid">
                 <!-- Recherche -->
-                <div>
-                    <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 5px; color: var(--text);">🔍 Rechercher</label>
+                <div class="filter-field">
+                    <label>🔍 Rechercher</label>
                     <input type="text" name="search" placeholder="Nom du produit..."
-                           value="{{ request('search') }}"
-                           style="width: 100%; padding: 10px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+                           value="{{ request('search') }}">
                 </div>
 
                 <!-- Catégorie -->
-                <div>
-                    <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 5px; color: var(--text);">📂 Catégorie</label>
-                    <select name="category" style="width: 100%; padding: 10px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+                <div class="filter-field">
+                    <label>📂 Catégorie</label>
+                    <select name="category">
                         <option value="">Toutes les catégories</option>
                         @foreach($categories ?? [] as $category)
                             <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>
@@ -58,9 +61,9 @@
                 </div>
 
                 <!-- Tri -->
-                <div>
-                    <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 5px; color: var(--text);">📊 Trier par</label>
-                    <select name="sort" style="width: 100%; padding: 10px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+                <div class="filter-field">
+                    <label>📊 Trier par</label>
+                    <select name="sort">
                         <option value="designation" {{ request('sort') == 'designation' ? 'selected' : '' }}>Nom (A-Z)</option>
                         <option value="prix_asc" {{ request('sort') == 'prix_asc' ? 'selected' : '' }}>Prix croissant</option>
                         <option value="prix_desc" {{ request('sort') == 'prix_desc' ? 'selected' : '' }}>Prix décroissant</option>
@@ -72,29 +75,25 @@
                 </div>
 
                 <!-- Bouton -->
-                <div>
-                    <button type="submit" style="background: var(--green); color: white; padding: 10px 30px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%;">
-                        Appliquer
-                    </button>
+                <div class="filter-field filter-submit">
+                    <button type="submit" class="btn-apply">Appliquer</button>
                 </div>
             </div>
 
-            <!-- Filtres supplémentaires -->
-            <div style="display: flex; gap: 20px; margin-top: 15px; flex-wrap: wrap; align-items: center;">
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <label style="font-size: 14px; font-weight: 500;">💰 Prix :</label>
+            <!-- Filtres secondaires -->
+            <div class="filters-extra">
+                <div class="filter-inline">
+                    <label>💰 Prix :</label>
                     <input type="number" name="prix_min" placeholder="Min"
-                           value="{{ request('prix_min') }}"
-                           style="width: 80px; padding: 8px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 13px;">
-                    <span style="color: var(--muted);">-</span>
+                           value="{{ request('prix_min') }}" class="input-mini">
+                    <span class="separator">-</span>
                     <input type="number" name="prix_max" placeholder="Max"
-                           value="{{ request('prix_max') }}"
-                           style="width: 80px; padding: 8px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 13px;">
+                           value="{{ request('prix_max') }}" class="input-mini">
                 </div>
 
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <label style="font-size: 14px; font-weight: 500;">📦 Disponibilité :</label>
-                    <select name="disponible" style="padding: 8px 15px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 13px;">
+                <div class="filter-inline">
+                    <label>📦 Disponibilité :</label>
+                    <select name="disponible">
                         <option value="">Tous</option>
                         <option value="oui" {{ request('disponible') == 'oui' ? 'selected' : '' }}>En stock</option>
                         <option value="non" {{ request('disponible') == 'non' ? 'selected' : '' }}>Rupture</option>
@@ -102,7 +101,7 @@
                 </div>
 
                 @if(request()->hasAny(['search', 'category', 'sort', 'prix_min', 'prix_max', 'disponible']))
-                    <a href="{{ route('client.products.catalogue') }}" style="color: var(--red); font-size: 14px; text-decoration: none;">
+                    <a href="{{ route('client.products.catalogue') }}" class="btn-reset">
                         ✕ Réinitialiser
                     </a>
                 @endif
@@ -110,150 +109,141 @@
         </form>
     </div>
 
-    <!-- Résultats -->
-    <div style="display: flex; gap: 30px;">
-        <!-- Sidebar gauche -->
-        <div style="width: 250px; flex-shrink: 0;">
-            <!-- Filtres rapides -->
-            <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); margin-bottom: 20px;">
-                <h3 style="font-size: 16px; margin-bottom: 15px; color: var(--text);">📂 Catégories</h3>
-                <ul style="list-style: none; padding: 0;">
-                    <li style="margin-bottom: 8px;">
-                        <a href="{{ route('client.products.catalogue') }}" style="color: var(--text); text-decoration: none; font-size: 14px; {{ !request('category') ? 'font-weight: 700; color: var(--green);' : '' }}">
+    <!-- ============================================
+         RÉSULTATS
+    ============================================ -->
+    <div class="catalogue-layout">
+
+        <!-- SIDEBAR -->
+        <aside class="catalogue-sidebar">
+
+            <!-- Catégories -->
+            <div class="sidebar-card">
+                <h3>📂 Catégories</h3>
+                <ul class="sidebar-list">
+                    <li>
+                        <a href="{{ route('client.products.catalogue') }}"
+                           class="{{ !request('category') ? 'active' : '' }}">
                             Tous les produits
-                            <span style="color: var(--muted); font-weight: 400;">({{ $totalProducts ?? 0 }})</span>
+                            <span class="count">({{ $totalProducts ?? 0 }})</span>
                         </a>
                     </li>
                     @foreach($categories ?? [] as $category)
-                        <li style="margin-bottom: 8px;">
+                        <li>
                             <a href="{{ route('client.products.catalogue', ['category' => $category->id]) }}"
-                               style="color: var(--text); text-decoration: none; font-size: 14px; {{ request('category') == $category->id ? 'font-weight: 700; color: var(--green);' : '' }}">
+                               class="{{ request('category') == $category->id ? 'active' : '' }}">
                                 {{ $category->nom ?? $category->name }}
-                                <span style="color: var(--muted); font-weight: 400;">({{ $category->products->count() ?? 0 }})</span>
+                                <span class="count">({{ $category->products->count() ?? 0 }})</span>
                             </a>
                         </li>
                     @endforeach
                 </ul>
             </div>
 
-            <!-- Produits récents -->
-            <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
-                <h3 style="font-size: 16px; margin-bottom: 15px; color: var(--text);">🆕 Nouveautés</h3>
+            <!-- Nouveautés -->
+            <div class="sidebar-card">
+                <h3>🆕 Nouveautés</h3>
                 @forelse($recentProducts ?? [] as $recent)
-                    <div style="display: flex; gap: 10px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #f0f0f0;">
+                    <div class="recent-item">
                         <img src="{{ $recent->image_path ? asset('storage/' . $recent->image_path) : asset('images/default-product.jpg') }}"
-                             style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px;">
+                             alt="{{ $recent->designation }}">
                         <div>
-                            <a href="{{ route('client.products.show', $recent->id) }}" style="text-decoration: none; color: var(--text); font-size: 13px; font-weight: 500;">
+                            <a href="{{ route('client.products.show', $recent->id) }}">
                                 {{ $recent->designation }}
                             </a>
-                            <p style="font-size: 12px; color: var(--muted); margin: 2px 0 0;">
-                                {{ number_format($recent->prix_vente, 0, ',', ' ') }} FCFA
-                            </p>
+                            <p>{{ number_format($recent->prix_vente, 0, ',', ' ') }} FCFA</p>
                         </div>
                     </div>
                 @empty
-                    <p style="color: var(--muted); font-size: 13px; text-align: center;">Aucun produit récent</p>
+                    <p class="empty-text">Aucun produit récent</p>
                 @endforelse
             </div>
-        </div>
+        </aside>
 
-        <!-- Liste des produits -->
-        <div style="flex: 1;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <p style="color: var(--muted); font-size: 14px;">
-                    {{ $products->total() ?? 0 }} produit(s) trouvé(s)
-                </p>
+        <!-- LISTE PRODUITS -->
+        <div class="catalogue-main">
+
+            <div class="results-header">
+                <p>{{ $products->total() ?? 0 }} produit(s) trouvé(s)</p>
             </div>
 
             @if(($products ?? collect())->count() > 0)
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px;">
+                <div class="catalogue-products-grid">
                     @foreach($products as $product)
-                        <article style="background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.08); transition: transform 0.3s, box-shadow 0.3s;">
+                        <article class="catalogue-product-card">
 
-                            {{-- Le lien couvre uniquement image + infos, PAS le bloc prix/bouton --}}
-                            <a href="{{ route('client.products.show', $product->id) }}" style="text-decoration: none; color: inherit; display: block;">
-                                <div style="height: 200px; background-image: url('{{ $product->image_path ? asset('storage/' . $product->image_path) : asset('images/default-product.jpg') }}');
-                                            background-size: cover; background-position: center; position: relative;">
+                            <a href="{{ route('client.products.show', $product->id) }}" class="product-link">
+                                <div class="product-image"
+                                     style="background-image: url('{{ $product->image_path ? asset('storage/' . $product->image_path) : asset('images/default-product.jpg') }}');">
+
                                     @if($product->prix_vente < 1000)
-                                        <span style="position: absolute; top: 10px; right: 10px; background: #e74c3c; color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;">PROMO</span>
+                                        <span class="badge badge-promo">PROMO</span>
                                     @endif
+
                                     @if($product->qte_dispo > 10)
-                                        <span style="position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.7); color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px;">En stock</span>
+                                        <span class="badge badge-stock">En stock</span>
                                     @elseif($product->qte_dispo > 0)
-                                        <span style="position: absolute; bottom: 10px; right: 10px; background: rgba(255,152,0,0.9); color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px;">Stock limité</span>
+                                        <span class="badge badge-limited">Stock limité</span>
                                     @else
-                                        <span style="position: absolute; bottom: 10px; right: 10px; background: rgba(244,67,54,0.9); color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px;">Rupture</span>
+                                        <span class="badge badge-out">Rupture</span>
                                     @endif
                                 </div>
-                                <div style="padding: 15px 15px 0;">
-                                    <p style="font-size: 12px; color: var(--muted); margin-bottom: 5px;">
+
+                                <div class="product-info">
+                                    <p class="product-category">
                                         {{ $product->category->nom ?? $product->category->name ?? 'Non catégorisé' }}
                                     </p>
-                                    <h3 style="font-size: 16px; margin-bottom: 5px; color: var(--text);">{{ $product->designation }}</h3>
-                                    <p style="font-size: 14px; color: var(--muted); margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 40px;">
+                                    <h3>{{ $product->designation }}</h3>
+                                    <p class="product-desc">
                                         {{ Str::limit($product->description ?? 'Aucune description', 80) }}
                                     </p>
                                 </div>
                             </a>
 
-                            {{-- Bloc prix + action, hors du <a> --}}
-                            <div style="padding: 0 15px 15px; display: flex; justify-content: space-between; align-items: center;">
-                                <span style="font-size: 18px; font-weight: 700; color: var(--green-dark);">
+                            <div class="product-footer">
+                                <span class="product-price">
                                     {{ number_format($product->prix_vente, 0, ',', ' ') }} FCFA
                                 </span>
                                 @if($product->qte_dispo > 0)
                                     <x-add-to-cart-button :product-id="$product->id" />
                                 @else
-                                    <span style="color: var(--muted); font-size: 13px;">Indisponible</span>
+                                    <span class="unavailable">Indisponible</span>
                                 @endif
                             </div>
                         </article>
                     @endforeach
                 </div>
 
-                <!-- Pagination -->
                 @if(isset($products) && $products->hasPages())
-                    <div style="margin-top: 40px; display: flex; justify-content: center;">
+                    <div class="catalogue-pagination">
                         {{ $products->appends(request()->query())->links() }}
                     </div>
                 @endif
+
             @else
-                <div style="text-align: center; padding: 60px 20px; background: #f5f5f5; border-radius: 12px;">
-                    <div style="font-size: 64px; margin-bottom: 20px;">🔍</div>
-                    <h3 style="color: var(--text); font-size: 24px; margin-bottom: 10px;">Aucun produit trouvé</h3>
-                    <p style="color: var(--muted); max-width: 400px; margin: 0 auto 20px;">
-                        Aucun produit ne correspond à vos critères de recherche.
-                    </p>
-                    <a href="{{ route('client.products.catalogue') }}" style="background: var(--green); color: white; padding: 12px 30px; border-radius: 50px; text-decoration: none; display: inline-block;">
+                <div class="empty-state">
+                    <div class="empty-icon">🔍</div>
+                    <h3>Aucun produit trouvé</h3>
+                    <p>Aucun produit ne correspond à vos critères de recherche.</p>
+                    <a href="{{ route('client.products.catalogue') }}" class="btn-primary">
                         Voir tous les produits
                     </a>
                 </div>
             @endif
+
         </div>
     </div>
 </div>
 
 <script>
-// Auto-submit du formulaire au changement de tri ou catégorie
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const selects = document.querySelectorAll('#catalogueForm select');
     selects.forEach(select => {
-        select.addEventListener('change', function() {
+        select.addEventListener('change', function () {
             document.getElementById('catalogueForm').submit();
         });
     });
 });
 </script>
 
-<style>
-/* Variables CSS si non définies dans le layout */
-:root {
-    --green: #2e7d32;
-    --green-dark: #1b5e20;
-    --text: #333333;
-    --muted: #6c757d;
-    --red: #dc3545;
-}
-</style>
 @endsection

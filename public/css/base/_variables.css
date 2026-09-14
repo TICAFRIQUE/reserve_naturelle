@@ -1,0 +1,25 @@
+/* ============================================
+   VARIABLES GLOBALES
+============================================ */
+:root {
+    /* Couleurs de marque */
+    --green: #0B7A48;
+    --green-dark: #055936;
+    --gold: #D79A05;
+    --gold-light: #F2B832;
+    --cream: #FAF6EB;
+    --brown: #5C3D1E;
+
+    /* Couleurs de texte */
+    --text: #2F2A22;
+    --muted: #777064;
+    --white: #fff;
+
+    /* Couleurs d'état */
+    --danger: #B83232;
+    --warning: #C98200;
+    --success: #16804A;
+
+    /* Lignes et bordures */
+    --line: rgba(11, 122, 72, 0.14);
+}

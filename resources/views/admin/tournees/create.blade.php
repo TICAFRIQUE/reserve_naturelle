@@ -10,7 +10,7 @@
                 <div>
                     <h1 style="font-family: 'Playfair Display', serif; color: #2d5a27; font-size: 2rem; margin: 0;">
                         <i class="fas fa-plus-circle" style="color: #2d5a27; margin-right: 10px;"></i>
-                        Nouvelle tournée
+                        Nouvelle livraison
                     </h1>
                     <p style="color: #6c757d; margin: 5px 0 0 0;">Regroupez des commandes validées et assignez un livreur</p>
                 </div>
