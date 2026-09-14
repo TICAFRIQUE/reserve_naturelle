@@ -167,5 +167,6 @@
 
             //ROUTES POUR LES RAPPORTS
             Route::get('/rapports', [RapportController::class, 'index'])->name('rapports.index');
+            Route::get('/rapports/print', [RapportController::class, 'print'])->name('rapports.print');
         });
     });

@@ -18,7 +18,7 @@ class AchatController extends Controller
 
     //Liste des achats
     public function index(Request $request){
-        $query = Achat::with(['fournisseur', 'user'])->latest();
+        $query = Achat::with(['fournisseur', 'user','produits'])->latest();
 
         if($request->filled('statut')){
             $query->where('statut', $request->statut);
@@ -100,9 +100,8 @@ class AchatController extends Controller
     // Formulaire de réception
     public function receptionForm(Achat $achat){
         if (!in_array($achat->statut, ['confirme', 'recu_partiel'])) {
-            return back()->with('error', 'Cet achat ne peut pas être réceptionné.');
+            return redirect()->route('admin.achats.show', $achat)->with('error', 'Cet achat ne peut pas être réceptionné.');
         }
-
         $achat->load('produits.product');
         return view('admin.achats.reception', compact('achat'));
     }
@@ -110,7 +109,8 @@ class AchatController extends Controller
     // Traitement de la réception
     public function receptionner(Request $request, Achat $achat){
         if (!in_array($achat->statut, ['confirme', 'recu_partiel'])) {
-            return back()->with('error', 'Cet achat ne peut pas être réceptionné.');
+            return redirect()->route('admin.achats.show', $achat)
+                ->with('error', 'Cet achat ne peut pas être réceptionné.');
         }
 
         $request->validate([
@@ -160,9 +160,8 @@ class AchatController extends Controller
                     : ($achat->estPartiellementRecu() ? 'recu_partiel' : $achat->statut),
             ]);
         });
-        return back()->with('success', 'Réception de l’achat enregistrée avec succès.');
+        return redirect()->route('admin.achats.show', $achat)->with('success', 'Réception de l’achat enregistrée avec succès.');
     }
-
     // Annuler un achat
     public function annuler(Achat $achat){
         if ($achat->statut !== 'confirme') {

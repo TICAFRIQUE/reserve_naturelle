@@ -64,42 +64,19 @@ class Achat extends Model
             fn($l) => $l->qte_recue > 0 && $l->qte_recue < $l->qte_commandee
         );
     }
+    //afficher la quantité reçue sur le total
+    public function getReceptionAttribute(): array{
+        $commandee = $this->produits->sum('qte_commandee');
+        $recue = $this->produits->sum('qte_recue');
 
-    // //Calculer le montant du apres paiement partiel
-    // public function getResteAPayerAttribute():int{
-    //     return max(0, $this->mt_total - $this->mt_paye);
-    // }
-
-    // //Afficher le statut du paiement
-    // public function getStatutPaiementAttribute():string{
-    //         if ($this->mt_paye <= 0) {
-    //         return 'non_paye';
-    //     }
-
-    //     if ($this->mt_paye < $this->mt_total) {
-    //         return 'partiellement_paye';
-    //     }
-
-    //     return 'paye';
-    // }
-
-    // //Enregistrer paiement
-    // public function enregistrerPaiement(int $montant):void{
-    //         if ($montant <= 0) {
-    //         throw new \InvalidArgumentException(
-    //             'Le montant du paiement doit être supérieur à zéro.'
-    //         );
-    //     }
-
-    //     if ($montant > $this->reste_a_payer) {
-    //         throw new \InvalidArgumentException(
-    //             'Le montant dépasse le reste à payer.'
-    //         );
-    //     }
-
-    //     $this->mt_paye += $montant;
-    //     $this->date_paiement = now()->toDateString();
-
-    //     $this->save();
-    // }
+        return [
+            'recue' => $recue,
+            'commandee' => $commandee,
+            'couleur' => match(true) {
+                $commandee > 0 && $recue >= $commandee => 'vert',
+                $recue > 0 => 'orange',
+                default => 'gris',
+            },
+        ];
+    }
 }

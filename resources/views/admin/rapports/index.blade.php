@@ -6,23 +6,42 @@
     <div class="row">
         <div class="col-12">
             <!-- En-tête -->
-            <div style="margin-bottom: 30px;">
-                <h1 style="
-                    font-family: 'Playfair Display', serif;
-                    color: #2d5a27;
-                    font-size: 2rem;
-                    margin: 0;
-                ">
-                    <i class="fas fa-chart-line"
-                       style="color: #2d5a27; margin-right: 10px;"></i>
-                    Rapports
-                </h1>
-                <p style="
-                    color: #6c757d;
-                    margin: 5px 0 0 0;
-                ">
-                    Bilan CA, dépenses et marge par période
-                </p>
+            <div style="margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <div>
+                    <h1 style="
+                        font-family: 'Playfair Display', serif;
+                        color: #2d5a27;
+                        font-size: 2rem;
+                        margin: 0;
+                    ">
+                        <i class="fas fa-chart-line" style="color: #2d5a27; margin-right: 10px;"></i>
+                        Rapports
+                    </h1>
+                    <p style="color: #6c757d; margin: 5px 0 0 0;">
+                        Bilan CA, dépenses et marge par période
+                    </p>
+                </div>
+              <a href="{{ route('admin.rapports.print', request()->only(['date_from', 'date_to'])) }}"
+                    target="_blank"
+                    class="no-print"
+                    style="
+                            padding: 10px 22px;
+                            border-radius: 8px;
+                            border: none;
+                            cursor: pointer;
+                            background: #2d5a27;
+                            color: white;
+                            font-weight: 600;
+                            font-size: 0.9rem;
+                            display: inline-flex;
+                            align-items: center;
+                            gap: 8px;
+                            text-decoration: none;
+                        "
+                    >
+                        <i class="fas fa-print"></i>
+                        Imprimer
+                    </a>
             </div>
             <!--
             ================================================================
@@ -31,6 +50,7 @@
             -->
             <form method="GET"
                   action="{{ route('admin.rapports.index') }}"
+                  class="no-print"
                   style="
                       display: flex;
                       align-items: end;

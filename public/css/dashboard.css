@@ -1440,3 +1440,42 @@ ul {
 .admin-dashboard .kpi-card:nth-child(4) { animation-delay: 0.20s; }
 .admin-dashboard .kpi-card:nth-child(5) { animation-delay: 0.25s; }
 .admin-dashboard .kpi-card:nth-child(6) { animation-delay: 0.30s; }
+/* ============================================
+   IMPRESSION
+============================================ */
+@media print {
+    .admin-sidebar,
+    .admin-sidebar-overlay,
+    .header,
+    .admin-footer,
+    .sidebar-toggle,
+    .no-print {
+        display: none !important;
+    }
+
+    .admin-dashboard,
+    .admin-main-wrapper,
+    .admin-main {
+        display: block !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+    }
+
+    body {
+        background: white !important;
+    }
+
+    .kpi-card,
+    .table-container {
+        box-shadow: none !important;
+        border: 1px solid #ddd !important;
+        break-inside: avoid;
+    }
+}
+@media print {
+    .chart-print-block {
+        break-before: page;
+        page-break-before: always; /* compatibilité anciens moteurs */
+    }
+}

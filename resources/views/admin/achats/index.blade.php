@@ -118,6 +118,7 @@
                                 <th style="padding:15px 20px;text-align:left;font-weight:600;color:#2d5a27;">Fournisseur</th>
                                 <th style="padding:15px 20px;text-align:center;font-weight:600;color:#2d5a27;">Date achat</th>
                                 <th style="padding:15px 20px;text-align:center;font-weight:600;color:#2d5a27;">Statut</th>
+                                <th style="padding:15px 20px;text-align:center;font-weight:600;color:#2d5a27;">Réception</th>
                                 <th style="padding:15px 20px;text-align:right;font-weight:600;color:#2d5a27;">Montant</th>
                                 <th style="padding:15px 20px;text-align:center;font-weight:600;color:#2d5a27;">Créé par</th>
                                 <th style="padding:15px 20px;text-align:center;font-weight:600;color:#2d5a27;">Actions</th>
@@ -158,6 +159,21 @@
                                         @endphp
                                         <span style="background:{{ $badge['bg'] }};color:{{ $badge['color'] }};padding:4px 14px;border-radius:20px;font-size:0.8rem;font-weight:500;display:inline-flex;align-items:center;gap:6px;">
                                             <i class="fas {{ $badge['icon'] }}"></i> {{ $badge['label'] }}
+                                        </span>
+                                    </td>
+
+                                    {{-- Réception --}}
+                                    @php
+                                        $recepColors = [
+                                            'vert'   => ['bg' => '#d4edda', 'color' => '#155724'],
+                                            'orange' => ['bg' => '#fff3cd', 'color' => '#856404'],
+                                            'gris'   => ['bg' => '#f0ebe5', 'color' => '#6c757d'],
+                                        ];
+                                        $rc = $recepColors[$achat->reception['couleur']] ?? $recepColors['gris'];
+                                    @endphp
+                                    <td style="padding:15px 20px;text-align:center;">
+                                        <span style="background:{{ $rc['bg'] }};color:{{ $rc['color'] }};padding:4px 14px;border-radius:20px;font-size:0.8rem;font-weight:600;">
+                                            {{ $achat->reception['recue'] }}/{{ $achat->reception['commandee'] }}
                                         </span>
                                     </td>
 
@@ -207,7 +223,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" style="padding:60px 20px;text-align:center;color:#6c757d;">
+                                    <td colspan="8" style="padding:60px 20px;text-align:center;color:#6c757d;">
                                         <i class="fas fa-shopping-basket" style="font-size:48px;display:block;margin-bottom:15px;color:#d4c9bb;"></i>
                                         <p style="font-size:1.1rem;margin:0;">Aucune commande d'achat trouvée</p>
                                         <p style="margin-top:5px;">Cliquez sur "Nouvelle commande" pour en créer une</p>
@@ -220,83 +236,83 @@
             </div>
 
             <!-- Pagination -->
-<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mt-4">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mt-4">
 
-    <!-- Informations -->
-    <div class="text-muted small">
-        <i class="fas fa-info-circle text-success"></i>
+                <!-- Informations -->
+                <div class="text-muted small">
+                    <i class="fas fa-info-circle text-success"></i>
 
-        @if ($achats->total() > 0)
-            Affichage de
-            <strong>{{ $achats->firstItem() }}</strong>
-            à
-            <strong>{{ $achats->lastItem() }}</strong>
-            sur
-            <strong>{{ $achats->total() }}</strong>
-            fournisseurs
-        @else
-            Aucun fournisseur trouvé
-        @endif
-    </div>
-
-    <!-- Pagination Bootstrap 5 -->
-    @if ($achats->hasPages())
-        <nav aria-label="Pagination des fournisseurs">
-            <ul class="pagination mb-0">
-
-                {{-- Précédent --}}
-                @if ($achats->onFirstPage())
-                    <li class="page-item disabled">
-                        <span class="page-link">
-                            <i class="fas fa-chevron-left"></i>
-                        </span>
-                    </li>
-                @else
-                    <li class="page-item">
-                        <a class="page-link"
-                           href="{{ $achats->previousPageUrl() }}">
-                            <i class="fas fa-chevron-left"></i>
-                        </a>
-                    </li>
-                @endif
-
-                {{-- Pages --}}
-                @foreach ($achats->getUrlRange(1, $achats->lastPage()) as $page => $url)
-                    @if ($page == $achats->currentPage())
-                        <li class="page-item active">
-                            <span class="page-link">{{ $page }}</span>
-                        </li>
+                    @if ($achats->total() > 0)
+                        Affichage de
+                        <strong>{{ $achats->firstItem() }}</strong>
+                        à
+                        <strong>{{ $achats->lastItem() }}</strong>
+                        sur
+                        <strong>{{ $achats->total() }}</strong>
+                        fournisseurs
                     @else
-                        <li class="page-item">
-                            <a class="page-link"
-                               href="{{ $url }}">
-                                {{ $page }}
-                            </a>
-                        </li>
+                        Aucun fournisseur trouvé
                     @endif
-                @endforeach
+                </div>
 
-                {{-- Suivant --}}
-                @if ($achats->hasMorePages())
-                    <li class="page-item">
-                        <a class="page-link"
-                           href="{{ $achats->nextPageUrl() }}">
-                            <i class="fas fa-chevron-right"></i>
-                        </a>
-                    </li>
-                @else
-                    <li class="page-item disabled">
-                        <span class="page-link">
-                            <i class="fas fa-chevron-right"></i>
-                        </span>
-                    </li>
+                <!-- Pagination Bootstrap 5 -->
+                @if ($achats->hasPages())
+                    <nav aria-label="Pagination des fournisseurs">
+                        <ul class="pagination mb-0">
+
+                            {{-- Précédent --}}
+                            @if ($achats->onFirstPage())
+                                <li class="page-item disabled">
+                                    <span class="page-link">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </span>
+                                </li>
+                            @else
+                                <li class="page-item">
+                                    <a class="page-link"
+                                       href="{{ $achats->previousPageUrl() }}">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                </li>
+                            @endif
+
+                            {{-- Pages --}}
+                            @foreach ($achats->getUrlRange(1, $achats->lastPage()) as $page => $url)
+                                @if ($page == $achats->currentPage())
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ $page }}</span>
+                                    </li>
+                                @else
+                                    <li class="page-item">
+                                        <a class="page-link"
+                                           href="{{ $url }}">
+                                            {{ $page }}
+                                        </a>
+                                    </li>
+                                @endif
+                            @endforeach
+
+                            {{-- Suivant --}}
+                            @if ($achats->hasMorePages())
+                                <li class="page-item">
+                                    <a class="page-link"
+                                       href="{{ $achats->nextPageUrl() }}">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                            @else
+                                <li class="page-item disabled">
+                                    <span class="page-link">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </span>
+                                </li>
+                            @endif
+
+                        </ul>
+                    </nav>
                 @endif
 
-            </ul>
-        </nav>
-    @endif
-
-</div>
+            </div>
 
         </div>
     </div>

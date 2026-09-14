@@ -12,26 +12,29 @@ class RapportController extends Controller
 {
     public function index(Request $request)
     {
-        /*
-        |--------------------------------------------------------------------------
-        | Gestion de la période
-        |--------------------------------------------------------------------------
-        | Même logique que le DashboardController :
-        |
-        | - Aucun filtre :
-        |      début du mois -> fin du mois
-        |
-        | - date_from uniquement :
-        |      date_from -> aujourd'hui
-        |
-        | - date_to uniquement :
-        |      début du mois -> date_to
-        |
-        | - date_from + date_to :
-        |      date_from -> date_to
-        |--------------------------------------------------------------------------
-        */
+        $donnees = $this->calculerDonnees($request, paginer: true);
 
+        return view('admin.rapports.index', $donnees);
+    }
+
+    /**
+     * Page d'impression dédiée : mise en page autonome (pas de sidebar/header admin),
+     * sans pagination (le rapport imprimé doit contenir TOUTES les lignes de la période,
+     * pas seulement la page actuellement affichée à l'écran).
+     */
+    public function print(Request $request){
+        $donnees = $this->calculerDonnees($request, paginer: false);
+
+        return view('admin.rapports.print', $donnees);
+    }
+
+    /**
+     * Calcule les KPI, l'évolution CA/dépenses et les listes ventes/achats
+     * pour une période donnée. Factorisé entre index() (écran, paginé)
+     * et print() (impression, listes complètes).
+     */
+    private function calculerDonnees(Request $request, bool $paginer): array
+    {
         $hasFilter = $request->filled('date_from') || $request->filled('date_to');
 
         $dateFrom = $hasFilter && $request->filled('date_from')
@@ -42,51 +45,27 @@ class RapportController extends Controller
             ? Carbon::parse($request->date_to)->endOfDay()
             : ($hasFilter ? today()->endOfDay() : now()->endOfMonth());
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Requête des ventes
-        |--------------------------------------------------------------------------
-        |
-        | On considère uniquement les commandes livrées comme chiffre
-        | d'affaires réel.
-        |
-        */
-
         $ordersQuery = Order::where('statut', 'livree')
             ->whereBetween('created_at', [$dateFrom, $dateTo]);
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Requête des achats
-        |--------------------------------------------------------------------------
-        |
-        | Les achats annulés sont exclus.
-        |
-        */
 
         $achatsQuery = Achat::where('statut', '!=', 'annule')
             ->whereBetween('date_achat', [$dateFrom, $dateTo]);
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | KPI
-        |--------------------------------------------------------------------------
-        */
-
         $ca = (clone $ordersQuery)->sum('montant_ttc');
-
         $depenses = (clone $achatsQuery)->sum('mt_total');
-
         $marge = $ca - $depenses;
-        $ventes = (clone $ordersQuery)->with('user')->latest('created_at')->paginate(15, ['*'], 'ventes_page');
-        $achats = (clone $achatsQuery)->with('fournisseur')->latest('date_achat')->paginate(15, ['*'], 'achats_page');
+
+        if ($paginer) {
+            $ventes = (clone $ordersQuery)->with('user')->latest('created_at')->paginate(15, ['*'], 'ventes_page');
+            $achats = (clone $achatsQuery)->with('fournisseur')->latest('date_achat')->paginate(15, ['*'], 'achats_page');
+        } else {
+            $ventes = (clone $ordersQuery)->with('user')->latest('created_at')->get();
+            $achats = (clone $achatsQuery)->with('fournisseur')->latest('date_achat')->get();
+        }
+
         $nombreJours = $dateFrom->diffInDays($dateTo) + 1;
 
         if ($nombreJours <= 31) {
-
             $evolution = collect();
 
             for ($date = $dateFrom->copy()->startOfDay();
@@ -114,7 +93,6 @@ class RapportController extends Controller
                     'marge'    => $caJour - $depensesJour,
                 ]);
             }
-
         } else {
             $evolution = collect();
 
@@ -144,7 +122,7 @@ class RapportController extends Controller
                 $date->addMonth();
             }
         }
-        return view('admin.rapports.index', compact('ca','depenses','marge','ventes','achats','evolution','dateFrom','dateTo','hasFilter'
-        ));
+
+        return compact('ca', 'depenses', 'marge', 'ventes', 'achats', 'evolution', 'dateFrom', 'dateTo', 'hasFilter');
     }
 }
