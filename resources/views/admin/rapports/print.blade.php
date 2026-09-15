@@ -105,7 +105,7 @@
             margin-bottom: 15px;
         }
 
-        .chart-wrap {
+            .chart-wrap {
             border: 1px solid #e8e0d5;
             border-radius: 10px;
             padding: 30px;
@@ -179,7 +179,7 @@
     </section>
 
     <!-- PAGE 2 : Graphique seul, jamais coupé -->
-   <section class="print-page chart-page">
+    <section class="print-page">
         <div class="section-title"><i class="fas fa-chart-area"></i> Évolution du CA et des dépenses</div>
         <div class="chart-wrap">
             <canvas id="evolutionChart" height="90"></canvas>
