@@ -133,13 +133,16 @@
                                             @endif
                                         </td>
                                         <td style="padding:12px 20px;text-align:center;">
-                                            <input type="number"
-                                                name="lignes[{{ $index }}][qte_recue]"
-                                                min="0"
-                                                max="{{ $reliquat }}"
-                                                value="{{ old('lignes.' . $index . '.qte_recue', $complet ? 0 : $reliquat) }}"
-                                                {{ $complet ? 'disabled' : '' }}
-                                                style="width:90px;padding:8px 12px;border:1px solid {{ $complet ? '#e8e0d5' : '#2d5a27' }};border-radius:8px;text-align:center;background:{{ $complet ? '#f8f5f0' : 'white' }};outline:none;">
+                                 <input type="number"
+    name="lignes[{{ $index }}][qte_recue]"
+    min="0"
+    max="{{ $reliquat }}"
+    value="{{ old('lignes.' . $index . '.qte_recue', $complet ? 0 : '') }}"
+    placeholder="0"
+    {{ $complet ? 'disabled' : '' }}
+    style="width:90px;padding:8px 12px;border:1px solid {{ $complet ? '#e8e0d5' : '#2d5a27' }};
+    border-radius:8px;text-align:center;background:{{ $complet ? '#f8f5f0' : 'white' }};
+    outline:none;">
                                         </td>
                                         <td style="padding:12px 20px;text-align:center;">
                                             @if($complet)
