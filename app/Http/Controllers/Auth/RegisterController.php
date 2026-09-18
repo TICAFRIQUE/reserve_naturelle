@@ -51,7 +51,7 @@ class RegisterController extends Controller
 
         // 3. Sauvegarder avant regenerate()
         $intended = $request->session()->get('url.intended');
-        $cartSessionId = session('cart_session_id');
+        $cartSessionId = $request->cookie('cart_uuid');
 
         // 4. Connexion + régénération de session
         Auth::login($user);

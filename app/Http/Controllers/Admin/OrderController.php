@@ -5,12 +5,16 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Order;
 use App\Models\User;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;    
-use Illuminate\Support\Facades\Validator;
+use App\Services\StockService;
 use App\Events\OrderValidated;
+use Illuminate\Support\Facades;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller; 
+use Illuminate\Support\Facades\Validator;
 
 class OrderController extends Controller
 {
+    public function __construct(protected StockService $stockService) {}
     /**
      * Afficher la liste des commandes
      */
@@ -30,19 +34,39 @@ class OrderController extends Controller
 
     /**
      * Changer le statut d'une commande
-     */
+     **/
     public function changeStatus(Request $request, Order $order){
         $validator = Validator::make($request->all(), [
-            'statut' => 'required|in:en_attente,payee,validee,livree,annulee'
+            // 'livree' retiré : ne peut être défini que via TourneeController::markOrderDelivered
+            'statut' => 'required|in:en_attente,payee,validee,annulee'
         ]);
-
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+            return back()->with('error', $validator->errors()->first());
         }
 
-        $order->update(['statut' => $request->statut]);
-        
-        //Pour la gestion de reçue
+        if ($order->statut === 'en_livraison') {
+            return back()->with('error', 'Cette commande est en tournée. Changez son statut depuis la page de la tournée.');
+        }
+        $stockDejaDecremente = in_array($order->statut, ['payee', 'validee', 'livree']);
+        $nouveauStatut = $request->statut;
+
+        DB::transaction(function () use ($order, $nouveauStatut, $stockDejaDecremente) {
+            $order->update(['statut' => $nouveauStatut]);
+
+            if ($nouveauStatut === 'annulee' && $stockDejaDecremente && $order->wasChanged('statut')) {
+                $order->load('items.product');
+                foreach ($order->items as $item) {
+                    $this->stockService->entreeStock(
+                        product: $item->product,
+                        quantite: $item->qte,
+                        type: 'retour_client',
+                        source: $order,
+                        notes: "Annulation commande {$order->num_order}",
+                    );
+                }
+            }
+        });
+
         if ($order->statut === 'validee' && $order->wasChanged('statut')) {
             event(new OrderValidated($order));
         }

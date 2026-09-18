@@ -3,9 +3,23 @@
 ============================================ */
 .header {
     background: rgba(250, 246, 235, 0.96);
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 100;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.06);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+}
+body.has-fixed-header {
+    padding-top: 86px;
+}
+
+@media (max-width: 992px) {
+    body.has-fixed-header {
+        padding-top: 70px;   /* header mobile plus compact */
+    }
 }
 
 .nav {

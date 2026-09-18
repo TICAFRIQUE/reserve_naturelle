@@ -11,13 +11,21 @@
 <!-- ============================================
      BANNIÈRE
 ============================================ -->
-<section class="home-banner">
+<section class="home-banner"
+         @if($banner && $banner->image_path)
+            style="background-image: linear-gradient(135deg, rgba(5,89,54,0.92) 0%, rgba(11,122,72,0.75) 50%, rgba(215,154,5,0.55) 100%), url('{{ asset('storage/' . $banner->image_path) }}');"
+         @endif>
     <div class="home-banner-inner">
         <div class="home-banner-content">
             <span class="eyebrow">Expérience Nature &amp; Terroir</span>
-            <h1>Le meilleur de la<br><span>terre ivoirienne</span></h1>
-            <p>Des produits naturels sélectionnés directement auprès des producteurs locaux, pour une qualité authentique jusqu'à votre table.</p>
-            <a href="#catalogue" class="btn">Découvrir le catalogue</a>
+            <h1>
+                {{ $banner->titre ?? 'Le meilleur de la' }}<br>
+                <span>{{ $banner->titre_span ?? 'terre ivoirienne' }}</span>
+            </h1>
+            <p>{{ $banner->sous_titre ?? 'Des produits naturels sélectionnés...' }}</p>
+            <a href="{{ $banner->lien_bouton ?? '#catalogue' }}" class="btn">
+                {{ $banner->texte_bouton ?? 'Découvrir le catalogue' }}
+            </a>
         </div>
         <div class="home-banner-icons">
             <div class="icon-box">🌾<small>Céréales</small></div>

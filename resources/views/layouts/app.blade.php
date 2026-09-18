@@ -20,7 +20,7 @@
 
   @stack('styles')
 </head>
-<body>
+<body  class="has-fixed-header">
 
 <!-- ============================================
      HEADER
@@ -96,25 +96,9 @@
     <!-- PANIER -->
     <a class="cart-btn" href="{{ route('client.cart.index') }}">
       <i class="fas fa-shopping-cart"></i>
-      Panier <span id="cart-badge" class="cart-badge">{{ auth()->user()?->cart?->items->sum('qte') ?? 0 }}</span>
+      Panier <span id="cart-badge" class="cart-badge">{{ $cartCount ?? 0 }}</span>
     </a>
   </div>
-
-  <!-- BANNIÈRE PENDING ORDER -->
-  @if(isset($pendingOrder))
-    <div class="pending-order-banner" style="background:#fff3cd;color:#856404;">
-      <span>⚠️ Vous avez une commande en cours de finalisation —</span>
-      <a href="{{ route('client.checkout.show', $pendingOrder) }}">Reprendre</a>
-      <span>|</span>
-      <form action="{{ route('client.orders.abandon', $pendingOrder) }}" method="POST">
-        @csrf
-        @method('DELETE')
-        <button type="submit" style="background:none;border:none;text-decoration:underline;cursor:pointer;font-family:inherit;">
-          Abandonner et créer un nouveau panier
-        </button>
-      </form>
-    </div>
-  @endif
 </header>
 
 <!-- ============================================
@@ -307,7 +291,7 @@
             toast: true,
             position: 'top-end',
             showConfirmButton: false,
-            timer: 2500,
+            timer: 1500,
             timerProgressBar: true,
         });
 

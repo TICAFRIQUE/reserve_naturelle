@@ -2,28 +2,23 @@
 
 namespace App\Http\Controllers\Client;
 
-use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Product;
-use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Services\CartService;
 
 class CartController extends Controller
 {
+    public function __construct(private CartService $cartService) {}
+
     public function index(){
-        $cart = $this->getOrCreateCart();
+        $cart = $this->cartService->getOrCreateCart();
         $cart->load('items.product');
 
         $total = $cart->items->sum(fn($item) => $item->qte * $item->product->prix_vente);
-        $hasIssues = $cart->items->contains(function ($item) {
-            $product = $item->product;
-            if (!$product) {
-                return true;
-            }
-            return $item->qte > $product->qte_dispo;
-        });
-        return view('client.cart.index', compact('cart', 'total', 'hasIssues'));      
+        $hasIssues = $cart->items->contains(fn($item) => !$item->product || $item->qte > $item->product->qte_dispo);
+        return view('client.cart.index', compact('cart', 'total', 'hasIssues'));
     }
 
     public function store(Request $request){
@@ -33,19 +28,18 @@ class CartController extends Controller
         ]);
 
         $product = Product::findOrFail($validated['product_id']);
-        $cart = $this->getOrCreateCart();
+        $cart = $this->cartService->getOrCreateCart();
         $item = $cart->items()->where('product_id', $product->id)->first();
         $newQte = $item ? $item->qte + $validated['qte'] : $validated['qte'];
 
         if ($newQte > $product->qte_dispo) {
             $message = $product->sous_seuil
                 ? "Stock critique pour {$product->designation} : seulement {$product->qte_dispo} disponible(s) (seuil d'alerte atteint). Quantité demandée : {$newQte}."
-                   : "Stock insuffisant pour {$product->designation}. Maximum disponible : {$product->qte_dispo}.";
+                : "Stock insuffisant pour {$product->designation}. Maximum disponible : {$product->qte_dispo}.";
 
-            if ($request->expectsJson()) {
-                return response()->json(['success' => false, 'message' => $message], 422);
-            }
-            return back()->with('error', $message);
+            return $request->expectsJson()
+                ? response()->json(['success' => false, 'message' => $message], 422)
+                : back()->with('error', $message);
         }
 
         $item
@@ -57,7 +51,7 @@ class CartController extends Controller
                 'success' => true,
                 'message' => "Produit « {$product->designation} » ajouté au panier avec succès.",
                 'cart_count' => $cart->items->sum('qte'),
-                'cart_total' => $cart->items->sum(fn($item) => $item->qte * $item->product->prix_vente)
+                'cart_total' => $cart->items->sum(fn($item) => $item->qte * $item->product->prix_vente),
             ]);
         }
         return back()->with('success', 'Produit ajouté au panier.');
@@ -66,7 +60,7 @@ class CartController extends Controller
     public function update(Request $request, CartItem $item){
         $this->authorizeItem($item);
         $validated = $request->validate(['qte' => ['required', 'integer', 'min:1']]);
-        $product = $item->product; // ← déplacé ici, accessible dans les deux branches
+        $product = $item->product;
 
         if ($validated['qte'] > $product->qte_dispo) {
             $message = $product->sous_seuil
@@ -74,7 +68,6 @@ class CartController extends Controller
                 : "Stock insuffisant pour {$product->designation}. Maximum disponible : {$product->qte_dispo}.";
             return back()->with('error', $message);
         }
-
         $item->update(['qte' => $validated['qte']]);
         return back()->with('success', "Quantité de « {$product->designation} » mise à jour avec succès.");
     }
@@ -86,27 +79,8 @@ class CartController extends Controller
     }
 
     public function clear(){
-        $cart = $this->getOrCreateCart();
-        $cart->items()->delete();
+        $this->cartService->getOrCreateCart()->items()->delete();
         return back()->with('success', 'Panier vidé avec succès.');
-    }
-
-    private function getOrCreateCart(): Cart{
-        if (auth()->check()) {
-            return Cart::firstOrCreate(
-                ['user_id' => auth()->id()],
-                ['date_creation' => now()]
-            );
-        }
-
-        if (!session()->has('cart_session_id')) {
-            session()->put('cart_session_id', (string) Str::uuid());
-        }
-
-        return Cart::firstOrCreate(
-            ['session_id' => session('cart_session_id'), 'user_id' => null],
-            ['date_creation' => now()]
-        );
     }
 
     private function authorizeItem(CartItem $item): void{
@@ -114,6 +88,6 @@ class CartController extends Controller
             abort_unless($item->cart->user_id === auth()->id(), 403);
             return;
         }
-        abort_unless($item->cart->session_id === session('cart_session_id'), 403);
+        abort_unless($item->cart->session_id === $this->cartService->guestCartId(), 403);
     }
 }

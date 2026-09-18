@@ -34,7 +34,7 @@ class AuthController extends Controller
             // Sauvegarder avant de regenerate()
             $pending = $request->session()->get("reservation_pending");
             $intended = $request->session()->get("url.intended");
-            $cartSessionId = session('cart_session_id');
+            $cartSessionId = $request->cookie('cart_uuid');
             $request->session()->regenerate();
 
             // Restaurer après avoir regénéré

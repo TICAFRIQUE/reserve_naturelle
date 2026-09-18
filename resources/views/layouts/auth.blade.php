@@ -164,7 +164,7 @@
     <!-- ====== PANIER ====== -->
       <a class="cart-btn" href="{{ route('client.cart.index') }}">
         <i class="fas fa-shopping-cart"></i>
-        Panier <span id="cart-badge" class="cart-badge">{{ auth()->user()?->cart?->items->sum('qte') ?? 0 }}</span>
+         Panier <span id="cart-badge" class="cart-badge">{{ $cartCount ?? 0 }}</span>
     </a>
   </div>
 </header>

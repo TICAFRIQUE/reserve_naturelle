@@ -502,64 +502,68 @@
                         Mettre à jour le statut
                     </h5>
                 </div>
-                <div style="padding: 20px 25px;">
-                    <form action="{{ route('admin.orders.status', $order) }}" method="POST" style="display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end;">
-                        @csrf
-                        @method('PATCH')
-                        
-                        <div style="flex: 1; min-width: 200px;">
-                            <label for="statut" style="display: block; font-weight: 600; color: #2d5a27; margin-bottom: 8px; font-size: 0.95rem;">
-                                <i class="fas fa-tag" style="color: #2d5a27; margin-right: 5px;"></i>
-                                Nouveau statut
-                            </label>
-                            <select name="statut" id="statut" style="
-                                width: 100%;
-                                padding: 12px 16px;
-                                border: 2px solid #e8e0d5;
-                                border-radius: 8px;
-                                font-size: 1rem;
-                                transition: border-color 0.3s;
-                                outline: none;
-                                background: #faf8f5;
-                                cursor: pointer;
-                            " onfocus="this.style.borderColor='#2d5a27'" onblur="this.style.borderColor='#e8e0d5'">
-                                <option value="en_attente" {{ $order->statut == 'en_attente' ? 'selected' : '' }}>
-                                    ⏳ En Attente
-                                </option>
-                                <option value="payee" {{ $order->statut == 'payee' ? 'selected' : '' }}>
-                                    💳 Payée
-                                </option>
-                                <option value="validee" {{ $order->statut == 'validee' ? 'selected' : '' }}>
-                                    ✅ Validée
-                                </option>
-                                <option value="livree" {{ $order->statut == 'livree' ? 'selected' : '' }}>
-                                    🚚 Livrée
-                                </option>
-                                <option value="annulee" {{ $order->statut == 'annulee' ? 'selected' : '' }}>
-                                    ❌ Annulée
-                                </option>
-                            </select>
+               <div style="padding: 20px 25px;">
+                    @if($order->statut === 'en_livraison')
+                        <div style="background:#e2e3e5;color:#383d41;padding:12px 16px;border-radius:8px;">
+                            <i class="fas fa-truck-loading"></i>
+                            Cette commande est actuellement en tournée. Rendez-vous sur la
+                            <a href="{{ route('admin.tournees.index') }}">page des tournées</a> pour suivre sa livraison.
                         </div>
-                        
-                        <div style="flex: 0 0 auto;">
-                            <button type="submit" style="
-                                background: #2d5a27;
-                                color: white;
-                                padding: 12px 35px;
-                                border-radius: 30px;
-                                border: none;
-                                font-weight: 500;
-                                cursor: pointer;
-                                transition: all 0.3s ease;
-                                font-size: 1rem;
-                                display: inline-flex;
-                                align-items: center;
-                                gap: 8px;
-                            " onmouseover="this.style.background='#1e3d1a'" onmouseout="this.style.background='#2d5a27'">
-                                <i class="fas fa-sync"></i> Mettre à jour
-                            </button>
-                        </div>
-                    </form>
+                    @else
+                        <form action="{{ route('admin.orders.status', $order) }}" method="POST" style="display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end;">
+                            @csrf
+                            @method('PATCH')
+
+                            <div style="flex: 1; min-width: 200px;">
+                                <label for="statut" style="display: block; font-weight: 600; color: #2d5a27; margin-bottom: 8px; font-size: 0.95rem;">
+                                    <i class="fas fa-tag" style="color: #2d5a27; margin-right: 5px;"></i>
+                                    Nouveau statut
+                                </label>
+                                <select name="statut" id="statut" style="
+                                    width: 100%;
+                                    padding: 12px 16px;
+                                    border: 2px solid #e8e0d5;
+                                    border-radius: 8px;
+                                    font-size: 1rem;
+                                    transition: border-color 0.3s;
+                                    outline: none;
+                                    background: #faf8f5;
+                                    cursor: pointer;
+                                " onfocus="this.style.borderColor='#2d5a27'" onblur="this.style.borderColor='#e8e0d5'">
+                                    <option value="en_attente" {{ $order->statut == 'en_attente' ? 'selected' : '' }}>
+                                        ⏳ En Attente
+                                    </option>
+                                    <option value="payee" {{ $order->statut == 'payee' ? 'selected' : '' }}>
+                                        💳 Payée
+                                    </option>
+                                    <option value="validee" {{ $order->statut == 'validee' ? 'selected' : '' }}>
+                                        ✅ Validée
+                                    </option>
+                                    <option value="annulee" {{ $order->statut == 'annulee' ? 'selected' : '' }}>
+                                        ❌ Annulée
+                                    </option>
+                                </select>
+                            </div>
+                            <div style="flex: 0 0 auto;">
+                                <button type="submit" style="
+                                    background: #2d5a27;
+                                    color: white;
+                                    padding: 12px 35px;
+                                    border-radius: 30px;
+                                    border: none;
+                                    font-weight: 500;
+                                    cursor: pointer;
+                                    transition: all 0.3s ease;
+                                    font-size: 1rem;
+                                    display: inline-flex;
+                                    align-items: center;
+                                    gap: 8px;
+                                " onmouseover="this.style.background='#1e3d1a'" onmouseout="this.style.background='#2d5a27'">
+                                    <i class="fas fa-sync"></i> Mettre à jour
+                                </button>
+                            </div>
+                        </form>
+                    @endif
                 </div>
             </div>
         </div>

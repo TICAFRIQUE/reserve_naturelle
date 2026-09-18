@@ -9,11 +9,14 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use App\Services\StockService;
 use App\Events\OrderValidated;
 use Illuminate\Support\Str;
 
-class OrderController extends Controller
+class OrderController extends Controller 
 {
+    public function __construct(protected StockService $stockService) {}
+
     public function index(){
         $orders = Order::where('user_id', auth()->id())->where('statut', '!=', 'panier_converti')
                 ->latest('date_order')->paginate(10);
@@ -77,54 +80,60 @@ class OrderController extends Controller
             ->with('success', 'Commande créée avec succès ! Veuillez renseigner vos informations de livraison.');
     }
 
-    public function pay(Order $order){
-        abort_if($order->user_id !== auth()->id(), 403);
+    // public function pay(Order $order){
+    //     abort_if($order->user_id !== auth()->id(), 403);
 
-        if (!$order->zone_id || !$order->adresse_precise) {
-            return redirect()->route('client.checkout.show', $order)
-                ->with('error', 'Veuillez d\'abord renseigner vos informations de livraison.');
-        }
-        abort_if($order->statut !== 'panier_converti', 403, 'Commande déjà traitée.');
-        return view('client.orders.payment', compact('order'));
-    }
+    //     if (!$order->zone_id || !$order->adresse_precise) {
+    //         return redirect()->route('client.checkout.show', $order)
+    //             ->with('error', 'Veuillez d\'abord renseigner vos informations de livraison.');
+    //     }
+    //     abort_if($order->statut !== 'panier_converti', 403, 'Commande déjà traitée.');
+    //     return view('client.orders.payment', compact('order'));
+    // }
 
     /**
      * Étape 3 : Valider la commande (statut final: en_attente)
      */
-    public function confirm(Order $order){
-        abort_if($order->user_id !== auth()->id(), 403);
-        abort_if($order->statut !== 'panier_converti', 403, 'Commande déjà traitée.');
+    //     public function confirm(Order $order){
+    //     abort_if($order->user_id !== auth()->id(), 403);
+    //     abort_if($order->statut !== 'panier_converti', 403, 'Commande déjà traitée.');
 
-        if (!$order->zone_id || !$order->adresse_precise) {
-            return redirect()->route('client.checkout.show', $order)
-                ->with('error', 'Veuillez d\'abord renseigner vos informations de livraison.');
-        }
+    //     if (!$order->zone_id || !$order->adresse_precise) {
+    //         return redirect()->route('client.checkout.show', $order)
+    //             ->with('error', 'Veuillez d\'abord renseigner vos informations de livraison.');
+    //     }
+    //     $order->load('items.product');
+    //     try {
+    //         DB::transaction(function () use ($order) {
+    //             foreach ($order->items as $item) {
+    //                 // Verrouille la ligne produit jusqu'au commit : bloque les lectures concurrentes
+    //                 $product = $item->product()->lockForUpdate()->first();
 
-        $order->load('items.product');
+    //                 if ($item->qte > $product->qte_dispo) {
+    //                     $message = $product->sous_seuil
+    //                         ? "Stock critique pour {$product->designation} : seulement {$product->qte_dispo} disponible(s)."
+    //                         : "Stock insuffisant pour {$product->designation}. Disponible : {$product->qte_dispo}.";
+    //                     throw new \RuntimeException($message);
+    //                 }
+    //                 $this->stockService->sortieStock(
+    //                     product: $product,
+    //                     quantite: $item->qte,
+    //                     type: 'sortie_commande',
+    //                     source: $order,
+    //                     notes: "Commande {$order->num_order}",
+    //                 );
+    //             }
 
-        // Re-vérifier le stock hors transaction (lecture seule)
-        foreach ($order->items as $item) {
-            if ($item->qte > $item->product->qte_dispo) {
-                $message = $item->product->sous_seuil
-                    ? "Stock critique pour {$item->product->designation} : seulement {$item->product->qte_dispo} disponible(s)."
-                    : "Stock insuffisant pour {$item->product->designation}. Disponible : {$item->product->qte_dispo}.";
-                return back()->with('error', $message);
-            }
-        }
+    //             $order->update(['statut' => 'payee']);
+    //         });
+    //     } catch (\RuntimeException $e) {
+    //         return back()->with('error', $e->getMessage());
+    //     }
 
-        DB::transaction(function () use ($order) {
-            foreach ($order->items as $item) {
-                $item->product->decrement('qte_dispo', $item->qte);
-            }
-            $order->update(['statut' => 'payee']); 
-        });
-
-        session()->forget('panier_converti_order_id');
-        OrderValidated::dispatch($order);
-
-        return redirect()->route('client.orders.index')->with('success', 'Commande payée et en attente de confirmation.'); 
-    }
-
+    //     session()->forget('panier_converti_order_id');
+    //     OrderValidated::dispatch($order);
+    //     return redirect()->route('client.orders.index')->with('success', 'Commande payée et en attente de confirmation.');
+    // }
         /**
      * Abandonner le panier converti en cours pour repartir sur un panier vide.
      */

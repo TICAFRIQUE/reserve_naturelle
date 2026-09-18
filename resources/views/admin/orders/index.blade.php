@@ -196,7 +196,6 @@
                             border-bottom: 2px solid #e8e0d5;
                         ">
                             <tr>
-                                {{-- <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 4%;">#</th> --}}
                                 <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 12%;">N° Commande</th>
                                 <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 15%;">Client</th>
                                 <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27; width: 16%;">Livraison</th>
@@ -210,7 +209,6 @@
                         <tbody>
                             @forelse($orders as $order)
                                 <tr style="border-bottom: 1px solid #f0ebe5; transition: background 0.2s;" onmouseover="this.style.background='#faf8f5'" onmouseout="this.style.background='transparent'">
-                                    {{-- <td style="padding: 15px 20px; color: #6c757d; font-weight: 500;">{{ $order->id }}</td> --}}
                                     <td style="padding: 15px 20px;">
                                         <span style="
                                             background: #e8f5e9;
@@ -341,11 +339,14 @@
                                         @endif
 
                                         @if($order->statut === 'en_attente')
-                                            <form action="{{ route('admin.orders.destroy', $order) }}" method="POST" style="display:inline-block; margin-left:6px;"
-                                                onsubmit="return confirm('Supprimer définitivement la commande {{ $order->num_order }} ?');">
+                                            <form action="{{ route('admin.orders.destroy', $order) }}" 
+                                                  method="POST" 
+                                                  class="delete-order-form"
+                                                  data-num="{{ $order->num_order }}"
+                                                  style="display:inline-block; margin-left:6px;">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" style="
+                                                <button type="button" class="btn-delete-order" style="
                                                     background: #f8d7da;
                                                     color: #721c24;
                                                     padding: 8px 14px;
@@ -358,7 +359,7 @@
                                                     align-items: center;
                                                     gap: 6px;
                                                 " onmouseover="this.style.background='#f1b0b7'" onmouseout="this.style.background='#f8d7da'">
-                                                    <i class="fas fa-trash"></i> Supprimer
+                                                    <i class="fas fa-trash"></i> Sup
                                                 </button>
                                             </form>
                                         @endif
@@ -475,4 +476,47 @@
         }
     }
 </style>
+@endpush
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // ===== Suppression d'une commande avec SweetAlert =====
+    document.querySelectorAll('.btn-delete-order').forEach(function (button) {
+        button.addEventListener('click', function () {
+            const form = this.closest('.delete-order-form');
+            const num = this.closest('.delete-order-form').dataset.num;
+
+            Swal.fire({
+                title: '🗑️ Supprimer cette commande ?',
+                html: '<div style="text-align: left;">' +
+                      '<p style="color: #721c24; font-weight: 500;">' +
+                      '<i class="fas fa-exclamation-triangle" style="color: #856404;"></i> ' +
+                      'Cette action est <strong>irréversible</strong>.</p>' +
+                      '<p style="font-weight: 600; color: #2d5a27; background: #f8f5f0; padding: 10px; border-radius: 5px; text-align: center; margin-top: 10px;">' +
+                      '<strong>Commande ' + num + '</strong></p>' +
+                      '</div>',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '🗑️ Oui, supprimer',
+                cancelButtonText: 'Annuler',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Suppression en cours...',
+                        text: 'Veuillez patienter',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        didOpen: () => { Swal.showLoading(); }
+                    });
+                    form.submit();
+                }
+            });
+        });
+    });
+});
+</script>
 @endpush

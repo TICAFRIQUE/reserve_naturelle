@@ -5,14 +5,17 @@ namespace App\Http\Controllers\Client;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Zone;
+use App\Services\StockService;
+use App\Events\OrderValidated;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CheckoutController extends Controller
 {
-    /**
-     * Affiche le formulaire de checkout pour une commande existante
-     */
-    public function show(Order $order){
+    public function __construct(private StockService $stockService) {}
+
+    public function show(Order $order)
+    {
         if ($order->user_id !== auth()->id()) {
             abort(403, 'Vous n\'êtes pas autorisé à accéder à cette commande.');
         }
@@ -21,23 +24,15 @@ class CheckoutController extends Controller
             return redirect()->route('client.cart.index')->with('error', 'Votre commande est vide.');
         }
 
-        $sousTotal = $order->items->sum(function($item) {
-            return $item->qte * $item->product->prix_vente;
-        });
-
-        // Récupérer les zones de livraison à domicile (est_expedition = false)
+        $sousTotal = $order->items->sum(fn($item) => $item->qte * $item->product->prix_vente);
         $zones = Zone::where('est_expedition', false)->get();
-        
-        // Récupérer la zone d'expédition (est_expedition = true)
         $zoneExpedition = Zone::where('est_expedition', true)->first();
 
         return view('client.checkout.show', compact('order', 'zones', 'sousTotal', 'zoneExpedition'));
     }
 
-    /**
-     * Met à jour la commande avec les informations de livraison
-     */
-    public function store(Request $request, Order $order){
+    public function store(Request $request, Order $order)
+    {
         if ($order->user_id !== auth()->id()) {
             abort(403, 'Vous n\'êtes pas autorisé à modifier cette commande.');
         }
@@ -55,15 +50,12 @@ class CheckoutController extends Controller
         ]);
 
         if ($validated['mode_livraison'] === 'expedition') {
-            // Récupérer automatiquement la zone d'expédition
             $zone = Zone::where('est_expedition', true)->first();
-            
             if (!$zone) {
                 return back()->with('error', 'La zone d\'expédition n\'est pas configurée.');
             }
             $villeExpedition = $validated['ville_expedition'];
         } else {
-            // Livraison à domicile
             $zone = Zone::findOrFail($validated['zone_id']);
             $villeExpedition = null;
         }
@@ -72,15 +64,48 @@ class CheckoutController extends Controller
         $tarifLivraison = $zone->tarif;
         $montantTtc = $sousTotal + $tarifLivraison;
 
-        $order->update([
-            'mode_livraison' => $validated['mode_livraison'],
-            'adresse_precise' => $validated['adresse_precise'],
-            'zone_id' => $zone->id,
-            'ville_expedition' => $villeExpedition,
-            'tarif_livraison' => $tarifLivraison,
-            'montant_ttc' => $montantTtc,
-            'mt_total' => $sousTotal,
-        ]);
-        return redirect()->route('client.orders.pay', $order)->with('success', 'Informations de livraison enregistrées avec succès !');
+        $order->load('items.product');
+
+        try {
+            DB::transaction(function () use ($order, $validated, $zone, $villeExpedition, $sousTotal, $tarifLivraison, $montantTtc) {
+                foreach ($order->items as $item) {
+                    $product = $item->product()->lockForUpdate()->first();
+
+                    if ($item->qte > $product->qte_dispo) {
+                        $message = $product->sous_seuil
+                            ? "Stock critique pour {$product->designation} : seulement {$product->qte_dispo} disponible(s)."
+                            : "Stock insuffisant pour {$product->designation}. Disponible : {$product->qte_dispo}.";
+                        throw new \RuntimeException($message);
+                    }
+
+                    $this->stockService->sortieStock(
+                        product: $product,
+                        quantite: $item->qte,
+                        type: 'sortie_commande',
+                        source: $order,
+                        notes: "Commande {$order->num_order}",
+                    );
+                }
+
+                $order->update([
+                    'mode_livraison'    => $validated['mode_livraison'],
+                    'adresse_precise'   => $validated['adresse_precise'],
+                    'zone_id'           => $zone->id,
+                    'ville_expedition'  => $villeExpedition,
+                    'tarif_livraison'   => $tarifLivraison,
+                    'montant_ttc'       => $montantTtc,
+                    'mt_total'          => $sousTotal,
+                    'statut'            => 'en_attente',
+                ]);
+            });
+        } catch (\RuntimeException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        session()->forget('panier_converti_order_id');
+        OrderValidated::dispatch($order);
+
+        return redirect()->route('client.orders.index')
+            ->with('success', 'Commande validée avec succès ! Elle est en attente de traitement.');
     }
 }

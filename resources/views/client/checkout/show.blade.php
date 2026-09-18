@@ -208,7 +208,7 @@
 
                         <button type="submit" class="btn-checkout-submit">
                             <i class="fas fa-arrow-right"></i>
-                            Continuer vers la confirmation
+                            Valider votre commande
                         </button>
 
                         <div class="checkout-delivery-info">

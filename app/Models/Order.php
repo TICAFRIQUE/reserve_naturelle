@@ -47,4 +47,8 @@ class Order extends Model
     public function tournees(){
         return $this->belongsToMany(Tournee::class, 'tournee_order');
     }
+    
+      public function stockMouvements(){
+        return $this->morphMany(StockMouvement::class, 'source');
+    }
 }

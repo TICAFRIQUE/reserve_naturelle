@@ -17,6 +17,8 @@
     use App\Http\Controllers\Admin\StockMouvementController;
     use \App\Http\Controllers\Admin\StockAjustementController;
     use App\Http\Controllers\Admin\RapportController;
+    use App\Http\Controllers\Admin\DepenseController;
+    use App\Http\Controllers\Admin\BannerController;
     use App\Http\Controllers\Admin\OrderController as AdminOrderController;
     use App\Http\Controllers\Admin\ProductController as AdminProductController;
     use App\Http\Controllers\Client\ProductController as ClientProductController;
@@ -60,8 +62,8 @@
 
             // Routes paiement (déplacées ici pour cohérence)
             Route::delete('/{order}/abandon', [ClientOrderController::class, 'abandon'])->name('abandon');
-            Route::get('/{order}/pay', [ClientOrderController::class, 'pay'])->name('pay');
-            Route::post('/{order}/confirm', [ClientOrderController::class, 'confirm'])->name('confirm');
+            // Route::get('/{order}/pay', [ClientOrderController::class, 'pay'])->name('pay');
+            // Route::post('/{order}/confirm', [ClientOrderController::class, 'confirm'])->name('confirm');
             
             // Téléchargement du reçu
             Route::get('/{order}/ticket', [ClientOrderController::class, 'downloadTicket'])->name('ticket');
@@ -168,5 +170,12 @@
             //ROUTES POUR LES RAPPORTS
             Route::get('/rapports', [RapportController::class, 'index'])->name('rapports.index');
             Route::get('/rapports/print', [RapportController::class, 'print'])->name('rapports.print');
+            
+            //ROUTE POUR LES DEPENSES (paiements fournisseurs)
+            Route::get('/depenses', [DepenseController::class, 'index'])->name('depenses.index');
+
+            // Bannière
+            Route::get('/banner', [BannerController::class, 'edit'])->name('banner.edit');
+            Route::put('/banner', [BannerController::class, 'update'])->name('banner.update');
         });
     });

@@ -87,6 +87,9 @@
                 <i class="fas fa-boxes"></i> Produits
                 <span class="nav-badge">{{ $sidebarCounts['produits'] }}</span>
             </a>
+            <a href="{{ route('admin.banner.edit') }}" class="nav-item {{ request()->routeIs('admin.banner.*') ? 'active' : '' }}">
+                <i class="fas fa-image"></i> Bannière
+            </a>
 
             <div class="nav-section">Ventes</div>
 
@@ -120,10 +123,9 @@
             <a href="{{ route('admin.rapports.index') }}" class="nav-item {{ request()->routeIs('admin.rapports.*') ? 'active' : '' }}">
                 <i class="fas fa-chart-line"></i> Rapports
             </a>
-            <a href="#" class="nav-item">
+             <a href="{{ route('admin.depenses.index') }}" class="nav-item">
                 <i class="fas fa-wallet"></i> Dépenses
             </a>
-
             <div class="sidebar-divider"></div>
 
             <form action="{{ route('logout') }}" method="POST">
