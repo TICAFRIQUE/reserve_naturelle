@@ -123,9 +123,24 @@
             <a href="{{ route('admin.rapports.index') }}" class="nav-item {{ request()->routeIs('admin.rapports.*') ? 'active' : '' }}">
                 <i class="fas fa-chart-line"></i> Rapports
             </a>
-             <a href="{{ route('admin.depenses.index') }}" class="nav-item">
-                <i class="fas fa-wallet"></i> Dépenses
-            </a>
+            <div class="nav-item-dropdown">
+                <a href="#" class="nav-item nav-item-toggle {{ request()->routeIs('admin.depenses.*', 'admin.categorie-depenses.*') ? 'active' : '' }}" id="depensesToggle" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">
+                    <span><i class="fas fa-wallet"></i> Dépenses</span>
+                    <i class="fas fa-chevron-down" style="font-size: 11px; transition: transform 0.2s;" id="depensesChevron"></i>
+                </a>
+                <div id="depensesSubmenu" style="
+                    max-height: {{ request()->routeIs('admin.depenses.*', 'admin.categorie-depenses.*') ? '100px' : '0' }};
+                    overflow: hidden;
+                    transition: max-height 0.25s ease;
+                ">
+                    <a href="{{ route('admin.depenses.index') }}" class="nav-item nav-subitem {{ request()->routeIs('admin.depenses.*') ? 'active' : '' }}" style="padding-left: 45px; font-size: 0.92rem;">
+                        <i class="fas fa-list"></i> Toutes les dépenses
+                    </a>
+                    <a href="{{ route('admin.categorie-depenses.index') }}" class="nav-item nav-subitem {{ request()->routeIs('admin.categorie-depenses.*') ? 'active' : '' }}" style="padding-left: 45px; font-size: 0.92rem;">
+                        <i class="fas fa-tags"></i> Catégories de dépenses
+                    </a>
+                </div>
+            </div>
             <div class="sidebar-divider"></div>
 
             <form action="{{ route('logout') }}" method="POST">
@@ -323,7 +338,19 @@
             }
         });
     }
+    // ====== DROPDOWN DEPENSES ======
+    const depensesToggle = document.getElementById('depensesToggle');
+    const depensesSubmenu = document.getElementById('depensesSubmenu');
+    const depensesChevron = document.getElementById('depensesChevron');
 
+    if (depensesToggle) {
+        depensesToggle.addEventListener('click', function (e) {
+            e.preventDefault();
+            const isOpen = depensesSubmenu.style.maxHeight !== '0px' && depensesSubmenu.style.maxHeight !== '';
+            depensesSubmenu.style.maxHeight = isOpen ? '0' : '100px';
+            depensesChevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+        });
+}
     // ====== DROPDOWN MOBILE ======
     const dropdowns = document.querySelectorAll('.dropdown-profile');
 

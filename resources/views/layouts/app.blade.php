@@ -49,7 +49,7 @@
     <nav class="navbar" id="navbar">
       <ul class="nav-links">
         <li><a href="{{ route('home') }}">Accueil</a></li>
-        <li><a href="{{ route('client.about') }}">À propos</a></li>
+        {{-- <li><a href="{{ route('client.about') }}">À propos</a></li> --}}
         <li><a href="{{ route('client.products.catalogue') }}">Catalogue</a></li>
         <li><a href="{{ route('contact') }}">Contact</a></li>
 

@@ -17,6 +17,7 @@
     use App\Http\Controllers\Admin\StockMouvementController;
     use \App\Http\Controllers\Admin\StockAjustementController;
     use App\Http\Controllers\Admin\RapportController;
+    use App\Http\Controllers\Admin\CategorieDepenseController;
     use App\Http\Controllers\Admin\DepenseController;
     use App\Http\Controllers\Admin\BannerController;
     use App\Http\Controllers\Admin\OrderController as AdminOrderController;
@@ -77,7 +78,7 @@
     });
 
     // Pages statiques
-    Route::get('/a-propos', fn () => view('client.about'))->name('client.about');
+    // Route::get('/a-propos', fn () => view('client.about'))->name('client.about');
     Route::get('/contact', fn () => view('client.contact'))->name('contact');
 
     // Authentification
@@ -168,11 +169,13 @@
             Route::post('/stock-ajustements', [StockAjustementController::class, 'store'])->name('stock-ajustements.store');
 
             //ROUTES POUR LES RAPPORTS
+            Route::get('/rapports/stock', [RapportController::class, 'index'])->name('rapports.stock');
             Route::get('/rapports', [RapportController::class, 'index'])->name('rapports.index');
-            Route::get('/rapports/print', [RapportController::class, 'print'])->name('rapports.print');
+            Route::get('rapports/stock/export', [RapportController::class, 'exportPdf'])->name('rapports.stock_pdf');
             
             //ROUTE POUR LES DEPENSES (paiements fournisseurs)
-            Route::get('/depenses', [DepenseController::class, 'index'])->name('depenses.index');
+            Route::resource('depenses', DepenseController::class)->except('show');
+            Route::resource('categorie-depenses', CategorieDepenseController::class)->except('show');
 
             // Bannière
             Route::get('/banner', [BannerController::class, 'edit'])->name('banner.edit');

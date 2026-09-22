@@ -3,88 +3,73 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Achat;
-use App\Models\Fournisseur;
+use App\Models\CategorieDepense;
+use App\Models\Depense;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
 
 class DepenseController extends Controller
 {
-    public function index(Request $request)
-    {
+    public function index(Request $request){
         $request->validate([
-            'date_from'      => 'nullable|date',
-            'date_to'        => 'nullable|date|after_or_equal:date_from',
-            'fournisseur_id' => 'nullable|exists:fournisseurs,id',
+            'date_from'             => 'nullable|date',
+            'date_to'               => 'nullable|date|after_or_equal:date_from',
+            'categorie_depense_id'  => 'nullable|exists:categorie_depenses,id',
         ]);
 
-        $query = Achat::with('fournisseur')->where('mt_paye', '>', 0);
+        $query = Depense::with('categorie')
+            ->entre($request->date_from, $request->date_to)
+            ->when($request->filled('categorie_depense_id'),
+                fn ($q) => $q->where('categorie_depense_id', $request->categorie_depense_id));
 
-        if ($request->filled('fournisseur_id')) {
-            $query->where('fournisseur_id', $request->fournisseur_id);
-        }
-        if ($request->filled('date_from')) {
-            $query->whereDate('date_paiement', '>=', $request->date_from);
-        }
-        if ($request->filled('date_to')) {
-            $query->whereDate('date_paiement', '<=', $request->date_to);
-        }
+        $totalPeriode = (clone $query)->sum('montant');
+        $nombreDepenses = (clone $query)->count();
+        $depenseMoyenne = $nombreDepenses > 0 ? intdiv($totalPeriode, $nombreDepenses) : 0;
 
-        $totalPeriode = (clone $query)->sum('mt_paye');
-        $nombrePaiements = (clone $query)->count();
-        $paiementMoyen = $nombrePaiements > 0 ? intdiv((int) $totalPeriode, $nombrePaiements) : 0;
-
-        // Récupération des données brutes groupées par date
-        $rawData = (clone $query)
-            ->orderBy('date_paiement')
-            ->get(['date_paiement', 'mt_paye'])
-            ->groupBy(fn ($a) => $a->date_paiement->format('Y-m-d'))
-            ->map(fn ($groupe, $date) => [
-                'date'    => $date,
-                'montant' => $groupe->sum('mt_paye'),
-                'nombre'  => $groupe->count(),
-            ]);
-
-        // Création d'une plage de dates continue pour le graphique
-        $evolution = collect();
-        if ($rawData->isNotEmpty()) {
-            $start = Carbon::parse($rawData->keys()->first());
-            $end = Carbon::parse($rawData->keys()->last());
-            
-            // Si une seule date, on affiche juste ce point
-            if ($start->eq($end)) {
-                $evolution->push([
-                    'date' => $start->format('d/m/Y'),
-                    'montant' => $rawData->first()['montant'],
-                    'nombre' => $rawData->first()['nombre'],
-                ]);
-            } else {
-                // Boucle sur chaque jour entre le début et la fin
-                for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
-                    $key = $date->format('Y-m-d');
-                    if ($rawData->has($key)) {
-                        $evolution->push([
-                            'date' => $date->format('d/m/Y'),
-                            'montant' => $rawData[$key]['montant'],
-                            'nombre' => $rawData[$key]['nombre'],
-                        ]);
-                    } else {
-                        // Jour sans paiement : on met 0
-                        $evolution->push([
-                            'date' => $date->format('d/m/Y'),
-                            'montant' => 0, 
-                            'nombre' => 0,
-                        ]);
-                    }
-                }
-            }
-        }
-
-        $depenses = $query->latest('date_paiement')->paginate(15)->withQueryString();
-        $fournisseurs = Fournisseur::orderBy('nom')->get();
+        $depenses = $query->latest('date_depense')->paginate(15)->withQueryString();
+        $categories = CategorieDepense::orderBy('nom')->get();
 
         return view('admin.depenses.index', compact(
-            'depenses', 'fournisseurs', 'totalPeriode', 'nombrePaiements', 'paiementMoyen', 'evolution'
+            'depenses', 'categories', 'totalPeriode', 'nombreDepenses', 'depenseMoyenne'
         ));
+    }
+
+    public function create(){
+        $categories = CategorieDepense::orderBy('nom')->get();
+        return view('admin.depenses.create', compact('categories'));
+    }
+
+    public function store(Request $request){
+        $data = $this->validateData($request);
+        $data['created_by'] = auth()->id();
+
+        Depense::create($data);
+        return redirect()->route('admin.depenses.index')->with('success', 'Dépense enregistrée.');
+    }
+
+    public function edit(Depense $depense){
+        $categories = CategorieDepense::orderBy('nom')->get();
+        return view('admin.depenses.edit', compact('depense', 'categories'));
+    }
+
+    public function update(Request $request, Depense $depense){
+        $depense->update($this->validateData($request));
+        return redirect()->route('admin.depenses.index')->with('success', 'Dépense mise à jour.');
+    }
+
+    public function destroy(Depense $depense){
+        $depense->delete();
+        return redirect()->route('admin.depenses.index')->with('success', 'Dépense supprimée.');
+    }
+
+    private function validateData(Request $request): array{
+        return $request->validate([
+            'categorie_depense_id' => 'required|exists:categorie_depenses,id',
+            'libelle'              => 'required|string|max:255',
+            'description'          => 'nullable|string',
+            'montant'              => 'required|integer|min:1',
+            'date_depense'         => 'required|date',
+            'mode_paiement'        => 'required|in:especes,cheque,virement,mobile_money',
+            'reference'            => 'nullable|string|max:100',
+        ]);
     }
 }
