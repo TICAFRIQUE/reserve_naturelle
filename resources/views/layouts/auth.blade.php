@@ -113,7 +113,7 @@
         <li><a href="{{ route('home') }}">Accueil</a></li>
         
         <!-- À propos -->
-        <li><a href="{{ route('client.about') }}">À propos</a></li>
+        {{-- <li><a href="{{ route('client.about') }}">À propos</a></li> --}}
         
         <!-- Catalogue - Lien direct (sans dropdown) -->
         <li><a href="{{ route('client.products.catalogue') }}">Catalogue</a></li>

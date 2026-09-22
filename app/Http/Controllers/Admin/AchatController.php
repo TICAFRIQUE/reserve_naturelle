@@ -116,7 +116,7 @@ class AchatController extends Controller
         $request->validate([
             'lignes'                     => 'required|array',
             'lignes.*.achat_product_id'  => 'required|exists:achat_product,id',
-            'lignes.*.qte_recue'         => 'required|integer|min:0',
+            'lignes.*.qte_recue'         => 'nullable|integer|min:0',
             'date_reception'             => 'required|date',
             'mt_paye'                    => 'required|integer|min:0',
         ]);
@@ -130,7 +130,7 @@ class AchatController extends Controller
                 $reliquat = $achatProduit->qte_commandee - $achatProduit->qte_recue;
 
                 // Quantité réellement réceptionnée (bornée par le reliquat)
-                $qteAReceptionner = min((int) $ligne['qte_recue'], $reliquat);
+                $qteAReceptionner = min((int) ($ligne['qte_recue'] ?? 0), $reliquat);
 
                 if ($qteAReceptionner <= 0) {
                     continue;
