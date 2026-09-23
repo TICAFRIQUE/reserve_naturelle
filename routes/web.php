@@ -168,10 +168,10 @@
             Route::get('/stock-ajustements/create', [StockAjustementController::class, 'create'])->name('stock-ajustements.create');
             Route::post('/stock-ajustements', [StockAjustementController::class, 'store'])->name('stock-ajustements.store');
 
-            //ROUTES POUR LES RAPPORTS
-            Route::get('/rapports/stock', [RapportController::class, 'index'])->name('rapports.stock');
+           // ROUTES POUR LES RAPPORTS
+            Route::get('/rapports/stock/export', [RapportController::class, 'exportPdf'])->name('rapports.stock_pdf');
+            Route::get('/rapports/stock/{onglet?}', [RapportController::class, 'index'])->whereIn('onglet', RapportController::ONGLETS)->name('rapports.stock');
             Route::get('/rapports', [RapportController::class, 'index'])->name('rapports.index');
-            Route::get('rapports/stock/export', [RapportController::class, 'exportPdf'])->name('rapports.stock_pdf');
             
             //ROUTE POUR LES DEPENSES (paiements fournisseurs)
             Route::resource('depenses', DepenseController::class)->except('show');
