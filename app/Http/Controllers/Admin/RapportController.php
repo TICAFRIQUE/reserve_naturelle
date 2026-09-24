@@ -15,8 +15,8 @@ use App\Models\StockMouvement;
 use App\Models\CategorieDepense;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use App\services\CompteExploitationService;
-use Illuminate\Pagination\LengthAwarePaginator;;
+use App\Services\CompteExploitationService;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class RapportController extends Controller
 {
