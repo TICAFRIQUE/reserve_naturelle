@@ -222,7 +222,7 @@
                             <h3 style="font-size: 1.8rem; font-weight: 700; color: #b8860b; margin: 0;">{{ number_format($stats['revenue'] ?? 0, 0, ',', ' ') }} FCFA</h3>
                             <p style="color: #6c757d; margin: 0; font-size: 0.9rem;">
                                 @if(!empty($dateFrom) && !empty($dateTo) && $dateFrom != $dateTo)
-                                    CA du {{ \Carbon\Carbon::parse($dateFrom)->format('d/m/y') }} au {{ \Carbon\Carbon::parse($dateTo)->format('d/m/y') }}
+                                    Vente du {{ \Carbon\Carbon::parse($dateFrom)->format('d/m/y') }} au {{ \Carbon\Carbon::parse($dateTo)->format('d/m/y') }}
                                 @else
                                     CA {{ now()->translatedFormat('F Y') }}
                                 @endif
@@ -257,7 +257,7 @@
                             <h3 style="font-size: 1.8rem; font-weight: 700; color: #c62828; margin: 0;">{{ number_format($stats['expenses'] ?? 0, 0, ',', ' ') }} FCFA</h3>
                             <p style="color: #6c757d; margin: 0; font-size: 0.9rem;">
                                 @if(!empty($dateFrom) && !empty($dateTo) && $dateFrom != $dateTo)
-                                    Dépenses du {{ \Carbon\Carbon::parse($dateFrom)->format('d/m/y') }} au {{ \Carbon\Carbon::parse($dateTo)->format('d/m/y') }}
+                                    Achats du {{ \Carbon\Carbon::parse($dateFrom)->format('d/m/y') }} au {{ \Carbon\Carbon::parse($dateTo)->format('d/m/y') }}
                                 @else
                                     Dépenses {{ now()->translatedFormat('F Y') }}
                                 @endif
