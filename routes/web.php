@@ -18,6 +18,7 @@
     use \App\Http\Controllers\Admin\StockAjustementController;
     use App\Http\Controllers\Admin\RapportController;
     use App\Http\Controllers\Admin\CategorieDepenseController;
+    use App\Http\Controllers\Admin\CompteExploitationController;
     use App\Http\Controllers\Admin\DepenseController;
     use App\Http\Controllers\Admin\BannerController;
     use App\Http\Controllers\Admin\OrderController as AdminOrderController;
@@ -172,6 +173,12 @@
             Route::get('/rapports/stock/export', [RapportController::class, 'exportPdf'])->name('rapports.stock_pdf');
             Route::get('/rapports/stock/{onglet?}', [RapportController::class, 'index'])->whereIn('onglet', RapportController::ONGLETS)->name('rapports.stock');
             Route::get('/rapports', [RapportController::class, 'index'])->name('rapports.index');
+            
+            //ROUTES COMPTE D'EXPLOITATION
+            Route::get('rapports/compte-exploitation', [CompteExploitationController::class, 'index'])
+                    ->name('rapports.compte_exploitation');
+            Route::get('rapports/compte-exploitation/pdf', [CompteExploitationController::class, 'exportPdf'])
+                    ->name('rapports.compte_exploitation_pdf');
             
             //ROUTE POUR LES DEPENSES (paiements fournisseurs)
             Route::resource('depenses', DepenseController::class)->except('show');

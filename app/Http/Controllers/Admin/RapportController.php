@@ -2,20 +2,21 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use App\Models\Achat;
-use App\Models\Depense;
-use App\Models\Fournisseur;
 use App\Models\Order;
-use App\Models\Product;
-use App\Models\StockMouvement;
-use App\Models\CategorieDepense;
-use Illuminate\Pagination\LengthAwarePaginator;
 use App\Models\User;
 use App\Models\Zone;
-use Carbon\Carbon;
+use App\Models\Product;
+use App\Models\Depense;
+use App\Models\Fournisseur;
 use Illuminate\Http\Request;
+use App\Models\StockMouvement;
+use App\Models\CategorieDepense;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use App\services\CompteExploitationService;
+use Illuminate\Pagination\LengthAwarePaginator;;
 
 class RapportController extends Controller
 {
@@ -94,26 +95,109 @@ class RapportController extends Controller
     }
 
     private function calculerCartes($dateFrom, $dateTo, $prevFrom, $prevTo): array{
-        $valeurStock = (float) Product::sum(DB::raw('qte_dispo * cmp'));
-        $entreesPeriode = Achat::whereDate('date_achat', '>=', $dateFrom)->whereDate('date_achat', '<=', $dateTo)->sum('mt_total');
-        $entreesPrec    = Achat::whereDate('date_achat', '>=', $prevFrom)->whereDate('date_achat', '<=', $prevTo)->sum('mt_total');
-        $sortiesPeriode = Order::where('statut', 'livree')->whereDate('date_order', '>=', $dateFrom)->whereDate('date_order', '<=', $dateTo)->sum('montant_ttc');
-        $sortiesPrec    = Order::where('statut', 'livree')->whereDate('date_order', '>=', $prevFrom)->whereDate('date_order', '<=', $prevTo)->sum('montant_ttc');
-        $depensesPeriode = Depense::entre($dateFrom, $dateTo)->sum('montant');
-        $depensesPrec    = Depense::entre($prevFrom, $prevTo)->sum('montant');
-        $produitsAlerte = Product::whereColumn('qte_dispo', '<=', 'stock_minimum')->count();
-        $produitsRupture = Product::where('qte_dispo', '<=', 0)->count();
+        // ==============================
+        // VALEUR DU STOCK
+        // ==============================
+        $valeurStock = (float) Product::sum(
+            DB::raw('qte_dispo * cmp')
+        );
 
+        // ==============================
+        // ACHATS
+        // ==============================
+        $entreesPeriode = Achat::whereDate('date_achat', '>=', $dateFrom)->whereDate('date_achat', '<=', $dateTo)->sum('mt_total');
+        $entreesPrec = Achat::whereDate('date_achat', '>=', $prevFrom)->whereDate('date_achat', '<=', $prevTo)->sum('mt_total');
+
+        // ==============================
+        // VENTES
+        // ==============================
+        $sortiesPeriode = Order::where('statut', 'livree')->whereDate('date_order', '>=', $dateFrom)
+            ->whereDate('date_order', '<=', $dateTo)->sum('montant_ttc');
+        $sortiesPrec = Order::where('statut', 'livree')
+            ->whereDate('date_order', '>=', $prevFrom)
+            ->whereDate('date_order', '<=', $prevTo)
+            ->sum('montant_ttc');
+
+        // ==============================
+        // DEPENSES
+        // ==============================
+        $depensesPeriode = Depense::entre($dateFrom, $dateTo)->sum('montant');
+        $depensesPrec = Depense::entre($prevFrom, $prevTo)->sum('montant');
+
+        // ==============================
+        // ALERTES STOCK
+        // ==============================
+        $produitsAlerte = Product::whereColumn(
+            'qte_dispo',
+            '<=',
+            'stock_minimum'
+        )->count();
+
+        $produitsRupture = Product::where(
+            'qte_dispo',
+            '<=',
+            0
+        )->count();
+
+        // ==============================
+        // COMPTE D'EXPLOITATION
+        // ==============================
+        $service = app(CompteExploitationService::class);
+        $compteExploitation = $service->calculer(
+            Carbon::parse($dateFrom),
+            Carbon::parse($dateTo)
+        );
+
+        $compteExploitationPrecedent = $service->calculer(
+            Carbon::parse($prevFrom),
+            Carbon::parse($prevTo)
+        );
+
+        $resultatExploitation = (float) $compteExploitation['resultat'];
+        $resultatExploitationPrecedent = (float) $compteExploitationPrecedent['resultat'];
+
+        // ==============================
+        // RETOUR
+        // ==============================
         return [
-            'valeur_stock'     => $valeurStock,
-            'entrees'          => $entreesPeriode,
-            'entrees_var'      => $this->variation($entreesPeriode, $entreesPrec),
-            'sorties'          => $sortiesPeriode,
-            'sorties_var'      => $this->variation($sortiesPeriode, $sortiesPrec),
-            'depenses'         => $depensesPeriode,
-            'depenses_var'     => $this->variation($depensesPeriode, $depensesPrec),
-            'produits_alerte'  => $produitsAlerte,
+
+            // Stock
+            'valeur_stock' => $valeurStock,
+
+            // Achats
+            'entrees' => $entreesPeriode,
+            'entrees_var' => $this->variation(
+                $entreesPeriode,
+                $entreesPrec
+            ),
+
+            // Ventes
+            'sorties' => $sortiesPeriode,
+            'sorties_var' => $this->variation(
+                $sortiesPeriode,
+                $sortiesPrec
+            ),
+
+            // Dépenses
+            'depenses' => $depensesPeriode,
+            'depenses_var' => $this->variation(
+                $depensesPeriode,
+                $depensesPrec
+            ),
+
+            // Alertes
+            'produits_alerte' => $produitsAlerte,
             'produits_rupture' => $produitsRupture,
+
+            // Compte d'exploitation
+            'chiffre_affaires' => (float) $compteExploitation['chiffre_affaires'],
+            'achats_consommes' => (float) $compteExploitation['achats_consommes'],
+            'total_charges' => (float) $compteExploitation['total_charges'],
+            'resultat_exploitation' => $resultatExploitation,
+            'resultat_exploitation_var' => $this->variation(
+                $resultatExploitation,
+                $resultatExploitationPrecedent
+            ),
         ];
     }
 

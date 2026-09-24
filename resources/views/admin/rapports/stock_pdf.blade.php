@@ -207,8 +207,6 @@
             </tfoot>
         </table>
     @endif
-
     <div class="footer">La Réserve Naturelle — Rapport généré automatiquement</div>
-
 </body>
 </html>
