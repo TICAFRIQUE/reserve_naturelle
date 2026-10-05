@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Client;
 
+use App\Models\Cart;
 use App\Models\CartItem;
-use App\Models\Product;
+use App\Models\Order;
+use App\Models\ProductVariant;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Services\CartService;
 
@@ -13,29 +16,36 @@ class CartController extends Controller
     public function __construct(private CartService $cartService) {}
 
     public function index(){
-        $cart = $this->cartService->getOrCreateCart();
-        $cart->load('items.product');
+        // Restaure le panier_converti s'il existe, AVANT d'afficher le panier
+        $this->restorePanierConvertiIfExists();
 
-        $total = $cart->items->sum(fn($item) => $item->qte * $item->product->prix_vente);
-        $hasIssues = $cart->items->contains(fn($item) => !$item->product || $item->qte > $item->product->qte_dispo);
+        $cart = $this->cartService->getOrCreateCart();
+        $cart->load('items.variant');
+
+        $total = $cart->items->sum(fn($item) => $item->qte * $item->variant->prix_vente);
+        $hasIssues = $cart->items->contains(fn($item) => !$item->variant || $item->qte > $item->variant->qte_dispo);
+
         return view('client.cart.index', compact('cart', 'total', 'hasIssues'));
     }
 
     public function store(Request $request){
         $validated = $request->validate([
-            'product_id' => ['required', 'exists:products,id'],
+            'product_variant_id' => ['required', 'exists:product_variants,id'],
             'qte' => ['required', 'integer', 'min:1'],
         ]);
 
-        $product = Product::findOrFail($validated['product_id']);
+        // Restaure le panier_converti s'il existe, AVANT d'ajouter le nouvel article
+        $this->restorePanierConvertiIfExists();
+
+        $variant = ProductVariant::findOrFail($validated['product_variant_id']);
         $cart = $this->cartService->getOrCreateCart();
-        $item = $cart->items()->where('product_id', $product->id)->first();
+        $item = $cart->items()->where('product_variant_id', $variant->id)->first();
         $newQte = $item ? $item->qte + $validated['qte'] : $validated['qte'];
 
-        if ($newQte > $product->qte_dispo) {
-            $message = $product->sous_seuil
-                ? "Stock critique pour {$product->designation} : seulement {$product->qte_dispo} disponible(s) (seuil d'alerte atteint). Quantité demandée : {$newQte}."
-                : "Stock insuffisant pour {$product->designation}. Maximum disponible : {$product->qte_dispo}.";
+        if ($newQte > $variant->qte_dispo) {
+            $message = $variant->sous_seuil
+                ? "Stock critique pour {$variant->libelle} : seulement {$variant->qte_dispo} disponible(s) (seuil d'alerte atteint). Quantité demandée : {$newQte}."
+                : "Stock insuffisant pour {$variant->libelle}. Maximum disponible : {$variant->qte_dispo}.";
 
             return $request->expectsJson()
                 ? response()->json(['success' => false, 'message' => $message], 422)
@@ -44,32 +54,39 @@ class CartController extends Controller
 
         $item
             ? $item->update(['qte' => $newQte])
-            : $cart->items()->create(['product_id' => $product->id, 'qte' => $newQte]);
+            : $cart->items()->create([
+                'product_id'         => $variant->product_id,
+                'product_variant_id' => $variant->id,
+                'qte'                => $newQte,
+            ]);
 
         if ($request->expectsJson()) {
             return response()->json([
-                'success' => true,
-                'message' => "Produit « {$product->designation} » ajouté au panier avec succès.",
+                'success'    => true,
+                'message'    => "Produit « {$variant->libelle} » ajouté au panier avec succès.",
                 'cart_count' => $cart->items->sum('qte'),
-                'cart_total' => $cart->items->sum(fn($item) => $item->qte * $item->product->prix_vente),
+                'cart_total' => $cart->items->sum(fn($item) => $item->qte * $item->variant->prix_vente),
             ]);
         }
+
         return back()->with('success', 'Produit ajouté au panier.');
     }
 
     public function update(Request $request, CartItem $item){
         $this->authorizeItem($item);
         $validated = $request->validate(['qte' => ['required', 'integer', 'min:1']]);
-        $product = $item->product;
+        $variant = $item->variant;
 
-        if ($validated['qte'] > $product->qte_dispo) {
-            $message = $product->sous_seuil
-                ? "Stock critique pour {$product->designation} : seulement {$product->qte_dispo} disponible(s) (seuil d'alerte atteint). Quantité demandée : {$validated['qte']}."
-                : "Stock insuffisant pour {$product->designation}. Maximum disponible : {$product->qte_dispo}.";
+        if ($validated['qte'] > $variant->qte_dispo) {
+            $message = $variant->sous_seuil
+                ? "Stock critique pour {$variant->libelle} : seulement {$variant->qte_dispo} disponible(s) (seuil d'alerte atteint). Quantité demandée : {$validated['qte']}."
+                : "Stock insuffisant pour {$variant->libelle}. Maximum disponible : {$variant->qte_dispo}.";
             return back()->with('error', $message);
         }
+
         $item->update(['qte' => $validated['qte']]);
-        return back()->with('success', "Quantité de « {$product->designation} » mise à jour avec succès.");
+
+        return back()->with('success', "Quantité de « {$variant->libelle} » mise à jour avec succès.");
     }
 
     public function destroy(CartItem $item){
@@ -89,5 +106,53 @@ class CartController extends Controller
             return;
         }
         abort_unless($item->cart->session_id === $this->cartService->guestCartId(), 403);
+    }
+
+    /**
+     * Restaure les articles d'une commande en attente (statut "panier_converti")
+     * dans le panier du client, puis supprime cette commande.
+     *
+     * Appelée automatiquement :
+     * - quand le client va sur son panier (index)
+     * - quand le client ajoute un nouvel article (store)
+     */
+    private function restorePanierConvertiIfExists(): void
+    {
+        if (!auth()->check()) {
+            return;
+        }
+
+        $order = Order::where('user_id', auth()->id())
+            ->where('statut', 'panier_converti')
+            ->with('items')
+            ->first();
+
+        if (!$order) {
+            return;
+        }
+
+        $cart = $this->cartService->getOrCreateCart();
+
+        DB::transaction(function () use ($order, $cart) {
+            foreach ($order->items as $item) {
+                $existing = $cart->items()
+                    ->where('product_variant_id', $item->product_variant_id)
+                    ->first();
+
+                if ($existing) {
+                    $existing->increment('qte', $item->qte);
+                } else {
+                    $cart->items()->create([
+                        'product_id'         => $item->product_id,
+                        'product_variant_id' => $item->product_variant_id,
+                        'qte'                => $item->qte,
+                    ]);
+                }
+            }
+
+            $order->delete();
+        });
+
+        session()->forget('panier_converti_order_id');
     }
 }

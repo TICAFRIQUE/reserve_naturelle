@@ -17,6 +17,7 @@
     use App\Http\Controllers\Admin\StockMouvementController;
     use \App\Http\Controllers\Admin\StockAjustementController;
     use App\Http\Controllers\Admin\RapportController;
+    use App\Http\Controllers\Admin\ProductVariantController;
     use App\Http\Controllers\Admin\CategorieDepenseController;
     use App\Http\Controllers\Admin\CompteExploitationController;
     use App\Http\Controllers\Admin\DepenseController;
@@ -82,19 +83,19 @@
     // Route::get('/a-propos', fn () => view('client.about'))->name('client.about');
     Route::get('/contact', fn () => view('client.contact'))->name('contact');
 
-    // Authentification
-    Route::get('/login', [AuthController::class, 'create'])->name('login')->middleware('throttle:5,1');
-    Route::post('/login', [AuthController::class, 'store']);
+ // Authentification
+    Route::get('/login', [AuthController::class, 'create'])->name('login');
+    Route::post('/login', [AuthController::class, 'store'])->name('login.store')->middleware('throttle:login');
     Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
 
     Route::get('/register', [RegisterController::class, 'create'])->name('register');
-    Route::post('/register', [RegisterController::class, 'store']);
-    Route::post('/check-email', [RegisterController::class, 'checkEmail'])->name('check.email');
+    Route::post('/register', [RegisterController::class, 'store'])->middleware('throttle:10,1');
+    Route::post('/check-email', [RegisterController::class, 'checkEmail'])->name('check.email')->middleware('throttle:10,1');
 
-    Route::middleware(['auth'])->group(function () {
-        //Changer de password
+    Route::middleware(['auth', 'auth.session'])->group(function () {
+        // Changer de mot de passe
         Route::get('/mot-de-passe', [PasswordController::class, 'edit'])->name('password.edit');
-        Route::put('/mot-de-passe', [PasswordController::class, 'update'])->name('password.update');
+        Route::put('/mot-de-passe', [PasswordController::class, 'update'])->name('password.update')->middleware('throttle:6,1');
     });
     //-------------------------------------------------
     // LES ROUTES ADMIN
@@ -107,7 +108,7 @@
             Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
             //Routes CRUD categories,sous-categories,users,zones, produits,livreur et fournisseurs admin
-             Route::get('/categories/{categoryId}/sous-categories', [AdminProductController::class, 'getSousCategories'])->name('sous-categories.get');
+            Route::get('/categories/{categoryId}/sous-categories', [AdminProductController::class, 'getSousCategories'])->name('sous-categories.get');
             Route::resource('categories', CategoryController::class);
             Route::resource('sous-categories', SousCategoryController::class);
             Route::resource('zones', ZoneController::class)->except(['show']);
@@ -115,6 +116,10 @@
             Route::resource('livreurs', LivreurController::class);
             Route::resource('fournisseurs', FournisseurController::class);
             Route::resource('produits', AdminProductController::class);
+           Route::resource('produits.variants', ProductVariantController::class)
+            ->shallow()
+            ->except(['show'])
+            ->parameters(['produits' => 'product']);
 
             // Routes commandes
             Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');

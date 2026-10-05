@@ -378,7 +378,7 @@
                                         <td style="padding: 12px 20px; color: #6c757d;">{{ $index + 1 }}</td>
                                         <td style="padding: 12px 20px;">
                                             <div style="display: flex; align-items: center; gap: 12px;">
-                                                @if($item->product && $item->product->image_path)
+                                                @if($item->variant && $item->variant->product && $item->variant->product->image_path)
                                                     <div style="
                                                         width: 45px;
                                                         height: 45px;
@@ -387,8 +387,8 @@
                                                         flex-shrink: 0;
                                                         background: #f8f5f0;
                                                     ">
-                                                        <img src="{{ asset('storage/' . $item->product->image_path) }}" 
-                                                             alt="{{ $item->product->designation ?? $item->product->name ?? '' }}"
+                                                        <img src="{{ asset('storage/' . $item->variant->product->image_path) }}" 
+                                                             alt="{{ $item->variant->product->designation ?? '' }}"
                                                              style="width: 100%; height: 100%; object-fit: cover;">
                                                     </div>
                                                 @else
@@ -407,9 +407,12 @@
                                                 @endif
                                                 <div>
                                                     <div style="font-weight: 500; color: #2d5a27;">
-                                                        {{ $item->product->designation ?? $item->product->name ?? $item->product->nom ?? 'Produit supprimé' }}
+                                                        {{ $item->variant->product->designation ?? 'Produit supprimé' }}
+                                                        @if($item->variant)
+                                                            <span style="color:#6c757d; font-size:0.85rem;">({{ $item->variant->conditionnement }})</span>
+                                                        @endif
                                                     </div>
-                                                    @if(!$item->product)
+                                                    @if(!$item->variant)
                                                         <span style="
                                                             background: #f8d7da;
                                                             color: #721c24;
@@ -419,14 +422,14 @@
                                                             display: inline-block;
                                                             margin-top: 2px;
                                                         ">
-                                                            <i class="fas fa-exclamation-triangle"></i> Produit non disponible
+                                                            <i class="fas fa-exclamation-triangle"></i> Variante non disponible
                                                         </span>
                                                     @endif
                                                 </div>
                                             </div>
                                         </td>
                                         <td style="padding: 12px 20px; color: #6c757d;">
-                                            {{ $item->product->reference_prod ?? $item->product->reference ?? 'N/A' }}
+                                            {{ $item->variant->reference_prod ?? 'N/A' }}
                                         </td>
                                         <td style="padding: 12px 20px; text-align: center;">
                                             <span style="
@@ -438,14 +441,14 @@
                                                 font-weight: 600;
                                                 display: inline-block;
                                             ">
-                                                {{ $item->qte ?? $item->quantity }}
+                                                {{ $item->qte }}
                                             </span>
                                         </td>
                                         <td style="padding: 12px 20px; text-align: right; color: #6c757d;">
-                                            {{ number_format($item->product->prix_vente ?? $item->price ?? 0, 0, ',', ' ') }} FCFA
+                                            {{ number_format($item->variant->prix_vente ?? 0, 0, ',', ' ') }} FCFA
                                         </td>
                                         <td style="padding: 12px 20px; text-align: right; font-weight: 700; color: #2d5a27;">
-                                            {{ number_format(($item->qte ?? $item->quantity) * ($item->product->prix_vente ?? $item->price ?? 0), 0, ',', ' ') }} FCFA
+                                            {{ number_format($item->qte * ($item->variant->prix_vente ?? 0), 0, ',', ' ') }} FCFA
                                         </td>
                                     </tr>
                                 @endforeach

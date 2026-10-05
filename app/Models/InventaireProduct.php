@@ -14,9 +14,11 @@ class InventaireProduct extends Model
     protected $fillable = [
         'inventaire_id',
         'product_id',
+        'product_variant_id',
         'qte_theorique',
         'qte_reelle',
         'ecart',
+        'notes',
     ];
 
     public function inventaire()
@@ -27,5 +29,10 @@ class InventaireProduct extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function variant()
+    {
+        return $this->belongsTo(ProductVariant::class, 'product_variant_id');
     }
 }

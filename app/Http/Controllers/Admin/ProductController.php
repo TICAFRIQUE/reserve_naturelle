@@ -15,34 +15,29 @@ use Illuminate\Support\Facades\Storage;
 class ProductController extends Controller
 {
     public function index(Request $request){
-        $query = Product::with(['category', 'sousCategory']);
-        
+        $query = Product::with(['category', 'sousCategory', 'variants']);
         if ($request->filled('category_id')) {
             $query->where(function($q) use ($request) {
                 $q->where('category_id', $request->category_id)
-                  ->orWhere('sous_category_id', $request->category_id);
+                ->orWhere('sous_category_id', $request->category_id);
             });
         }
-        
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
-        
         if ($request->filled('stock_filter')) {
             if ($request->stock_filter === 'in_stock') {
-                $query->where('qte_dispo', '>', 0);
+                $query->whereHas('variants', fn ($q) => $q->where('qte_dispo', '>', 0));
             } elseif ($request->stock_filter === 'out_of_stock') {
-                $query->where('qte_dispo', '=', 0);
+                $query->whereDoesntHave('variants', fn ($q) => $q->where('qte_dispo', '>', 0));
             }
         }
-        
         if ($request->filled('price_min')) {
-            $query->where('prix_vente', '>=', $request->price_min);
+            $query->whereHas('variants', fn ($q) => $q->where('prix_vente', '>=', $request->price_min));
         }
         if ($request->filled('price_max')) {
-            $query->where('prix_vente', '<=', $request->price_max);
+            $query->whereHas('variants', fn ($q) => $q->where('prix_vente', '<=', $request->price_max));
         }
-        
         if ($request->filled('search')) {
             $search = $request->search;
             $query->search($search);
@@ -51,8 +46,8 @@ class ProductController extends Controller
         $sortField = $request->get('sort', 'created_at');
         $sortDirection = $request->get('direction', 'desc');
         $query->orderBy($sortField, $sortDirection);
+
         $products = $query->paginate(15)->withQueryString();
-        
         $categories = Category::with('sousCategories')->orderBy('nom')->get();
         return view('admin.produits.index', compact('products', 'categories'));
     }
@@ -122,7 +117,7 @@ class ProductController extends Controller
             'reference_prod' => ['required', 'string', 'max:50', Rule::unique('products')->ignore($product->id)],
             'designation' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'prix_vente' => 'required|numeric|min:0|regex:/^\d+(\.\d{1,2})?$/',
+            // 'prix_vente' => 'required|numeric|min:0|regex:/^\d+(\.\d{1,2})?$/',
             // 'qte_dispo' => 'required|integer|min:0',
             'stock_minimum' => 'nullable|integer|min:0',
             'category_id' => 'required|exists:categories,id',

@@ -56,10 +56,14 @@ class CartService
         );
 
         foreach ($guestCart->items as $item) {
-            $existing = $userCart->items()->where('product_id', $item->product_id)->first();
+            $existing = $userCart->items()->where('product_variant_id', $item->product_variant_id)->first();
             $existing
                 ? $existing->increment('qte', $item->qte)
-                : $userCart->items()->create(['product_id' => $item->product_id, 'qte' => $item->qte]);
+                : $userCart->items()->create([
+                    'product_id' => $item->product_id,
+                    'product_variant_id' => $item->product_variant_id,
+                    'qte' => $item->qte,
+                ]);
         }
         $guestCart->delete();
         Cookie::queue(Cookie::forget('cart_uuid'));

@@ -112,14 +112,14 @@
                         <div class="ligne-achat" style="display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:15px;align-items:end;padding:15px;background:#f8f5f0;border-radius:8px;margin-bottom:12px;">
                             <div>
                                 <label style="display:block;font-weight:600;color:#2d5a27;font-size:0.85rem;margin-bottom:5px;">
-                                    Produit <span style="color:#dc3545;">*</span>
+                                    Variante <span style="color:#dc3545;">*</span>
                                 </label>
-                                <select name="lignes[0][product_id]" required class="select-produit" style="width:100%;padding:10px 15px;border:1px solid #e8e0d5;border-radius:8px;background:white;outline:none;"
+                                <select name="lignes[0][product_variant_id]" required class="select-produit" style="width:100%;padding:10px 15px;border:1px solid #e8e0d5;border-radius:8px;background:white;outline:none;"
                                     onfocus="this.style.borderColor='#2d5a27'" onblur="this.style.borderColor='#e8e0d5'">
                                     <option value="">— Choisir —</option>
-                                    @foreach($produits as $p)
-                                        <option value="{{ $p->id }}" data-stock="{{ $p->qte_dispo }}" data-cmp="{{ $p->cmp }}">
-                                            {{ $p->designation }}
+                                    @foreach($variants as $v)
+                                        <option value="{{ $v->id }}" data-stock="{{ $v->qte_dispo }}" data-cmp="{{ $v->cmp }}">
+                                            {{ $v->reference_prod }} — {{ $v->product->designation }} ({{ $v->conditionnement }})
                                         </option>
                                     @endforeach
                                 </select>
@@ -313,11 +313,11 @@
                 if (!e.target.classList.contains('select-produit')) return;
 
                 const select = e.target;
-                const productId = select.value;
-                if (!productId) return;
+                const variantId = select.value;
+                if (!variantId) return;
 
                 const doublon = [...container.querySelectorAll('.select-produit')]
-                    .some(s => s !== select && s.value === productId);
+                    .some(s => s !== select && s.value === variantId);
 
                 if (doublon) {
                     Swal.fire({

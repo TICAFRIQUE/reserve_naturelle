@@ -9,15 +9,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rules\Password;
 
 class RegisterController extends Controller
 {
     public function create(Request $request){
-        if ($request->has('redirect')) {
-            $redirectUrl = $request->redirect;
-            if (str_starts_with($redirectUrl, url('/'))) {
-                session()->put('url.intended', $redirectUrl);
-            }
+       if ($redirectUrl = $this->safeIntendedUrl($request->query('redirect'))) {
+            session()->put('url.intended', $redirectUrl);
         }
         return view('auth.register');
     }
@@ -28,7 +26,7 @@ class RegisterController extends Controller
             'nom' => ['required', 'string', 'max:255'],
             'prenom' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:6', 'confirmed'],
+            'password' => ['required', 'string', Password::min(8)->letters()->numbers(), 'confirmed'],
             'tel' => ['required', 'regex:/^[0-9]{8,15}$/'],
         ],
         [

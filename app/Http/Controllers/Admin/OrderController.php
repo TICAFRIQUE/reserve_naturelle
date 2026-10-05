@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Order;
+use App\Models\ProductVariant;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Services\StockService;
@@ -28,7 +29,7 @@ class OrderController extends Controller
      * Afficher une commande spécifique
      */
     public function show(Order $order){
-        $order->load(['user', 'items', 'products']);
+        $order->load(['user', 'items', 'items.variant', 'products']);
         return view('admin.orders.show', compact('order'));
     }
 
@@ -54,10 +55,13 @@ class OrderController extends Controller
             $order->update(['statut' => $nouveauStatut]);
 
             if ($nouveauStatut === 'annulee' && $stockDejaDecremente && $order->wasChanged('statut')) {
-                $order->load('items.product');
+                $order->load('items.product', 'items.variant');
                 foreach ($order->items as $item) {
+                    $variant = $item->variant
+                        ?? ProductVariant::where('product_id', $item->product_id)->first();
+
                     $this->stockService->entreeStock(
-                        product: $item->product,
+                        variant: $variant,
                         quantite: $item->qte,
                         type: 'retour_client',
                         source: $order,

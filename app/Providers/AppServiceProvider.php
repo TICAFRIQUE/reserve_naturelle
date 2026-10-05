@@ -7,6 +7,10 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Cache;
 use App\Services\CartService;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 use App\Models\{Fournisseur, Achat, Category, SousCategory, Product, Order, User, Livreur};
 
 class AppServiceProvider extends ServiceProvider
@@ -17,6 +21,12 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void{
         Paginator::useBootstrapFive();
+
+          // Limitation des tentatives de connexion
+        RateLimiter::for('login', function (Request $request) {
+            $email = Str::transliterate(Str::lower($request->input('email')));
+            return Limit::perMinute(5)->by($email . '|' . $request->ip());
+        });
 
         View::composer('layouts.admin', function ($view) {
             $view->with('sidebarCounts', [

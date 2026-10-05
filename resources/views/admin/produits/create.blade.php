@@ -108,56 +108,6 @@
                         </div>
                     </div>
 
-                    <!-- Prix & Stock -->
-                    <div class="form-section">
-                        <h3 class="form-section-title"><i class="fas fa-warehouse"></i> Prix & Stock</h3>
-
-                        <div class="grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 25px;">
-                            <div>
-                                <label for="prix_vente" class="field-label">
-                                    <i class="fas fa-money-bill-wave" style="color: #b8860b; margin-right: 5px;"></i>
-                                    Prix de vente <span style="color: #dc3545;">*</span>
-                                </label>
-                                <input type="number" id="prix_vente" name="prix_vente" value="{{ old('prix_vente') }}"
-                                    step="100" min="0" class="field-input"
-                                    style="border: 2px solid {{ $errors->has('prix_vente') ? '#dc3545' : '#e8e0d5' }};"
-                                    onfocus="this.style.borderColor='#2d5a27'; this.style.background='white'"
-                                    onblur="this.style.borderColor='{{ $errors->has('prix_vente') ? '#dc3545' : '#e8e0d5' }}'; this.style.background='#faf8f5'"
-                                    placeholder="Ex: 5000" required>
-                                <div class="field-hint"><i class="fas fa-info-circle"></i> Prix de vente en FCFA</div>
-                                @error('prix_vente')<div class="field-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>@enderror
-                            </div>
-                             <div>
-                                <label for="stock_minimum" class="field-label">
-                                    <i class="fas fa-triangle-exclamation" style="color: #b8860b; margin-right: 5px;"></i>
-                                    Seuil de stock minimum
-                                </label>
-                                <input type="number" id="stock_minimum" name="stock_minimum" value="{{ old('stock_minimum', 10) }}"
-                                    min="0" class="field-input" style="max-width: 300px; border: 2px solid {{ $errors->has('stock_minimum') ? '#dc3545' : '#e8e0d5' }};"
-                                    onfocus="this.style.borderColor='#2d5a27'; this.style.background='white'"
-                                    onblur="this.style.borderColor='{{ $errors->has('stock_minimum') ? '#dc3545' : '#e8e0d5' }}'; this.style.background='#faf8f5'">
-                                <div class="field-hint"><i class="fas fa-info-circle"></i> Alerte stock faible (défaut: 10)</div>
-                                @error('stock_minimum')<div class="field-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>@enderror
-                            </div>
-
-                            {{-- <div>
-                                <label for="qte_dispo" class="field-label">
-                                    <i class="fas fa-cubes" style="color: #b8860b; margin-right: 5px;"></i>
-                                    Quantité disponible <span style="color: #dc3545;">*</span>
-                                </label>
-                                <input type="number" id="qte_dispo" name="qte_dispo" value="{{ old('qte_dispo', 0) }}"
-                                    min="0" class="field-input"
-                                    style="border: 2px solid {{ $errors->has('qte_dispo') ? '#dc3545' : '#e8e0d5' }};"
-                                    onfocus="this.style.borderColor='#2d5a27'; this.style.background='white'"
-                                    onblur="this.style.borderColor='{{ $errors->has('qte_dispo') ? '#dc3545' : '#e8e0d5' }}'; this.style.background='#faf8f5'"
-                                    required>
-                                <div class="field-hint"><i class="fas fa-info-circle"></i> Quantité initiale en stock</div>
-                                @error('qte_dispo')<div class="field-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>@enderror
-                            </div> --}}
-                        </div>
-
-                    </div>
-
                     <!-- Détails -->
                     <div class="form-section">
                         <h3 class="form-section-title"><i class="fas fa-align-left"></i> Détails</h3>

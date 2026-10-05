@@ -170,7 +170,7 @@
                                        onchange="toggleScope()"
                                        style="accent-color: #2d5a27; width: 16px; height: 16px;">
                                 <span style="font-weight: 500; color: #2d5a27;">
-                                    <i class="fas fa-globe" style="color: #b8860b;"></i> Global (tous les produits)
+                                    <i class="fas fa-globe" style="color: #b8860b;"></i> Global (toutes les variantes)
                                 </span>
                             </label>
                             <label style="
@@ -196,7 +196,7 @@
                         </div>
                     </div>
 
-                    <!-- Sélection des produits (partiel) -->
+                    <!-- Sélection des variantes (partiel) -->
                     <div id="product-selector" style="display:none; margin-bottom: 25px;">
                         <div style="
                             background: #f8f5f0;
@@ -212,14 +212,14 @@
                                 margin-bottom: 10px;
                             ">
                                 <i class="fas fa-boxes" style="color: #b8860b; margin-right: 8px;"></i>
-                                Sélectionner les produits <span style="color: #dc3545;">*</span>
+                                Sélectionner les variantes <span style="color: #dc3545;">*</span>
                             </label>
 
                             <!-- Recherche -->
                             <div style="margin-bottom: 12px;">
                                 <input type="text" 
                                        id="product-search" 
-                                       placeholder="🔍 Rechercher un produit par nom ou référence..."
+                                       placeholder="🔍 Rechercher une variante par nom ou référence..."
                                        style="
                                            width: 100%;
                                            padding: 10px 16px;
@@ -266,11 +266,11 @@
                                     align-items: center;
                                     margin-left: auto;
                                 ">
-                                    <span id="selectedCount">0</span> produit(s) sélectionné(s)
+                                    <span id="selectedCount">0</span> variante(s) sélectionnée(s)
                                 </span>
                             </div>
 
-                            <!-- Liste des produits -->
+                            <!-- Liste des variantes -->
                             <div class="product-list" style="
                                 max-height: 400px; 
                                 overflow-y: auto; 
@@ -279,10 +279,10 @@
                                 background: white;
                                 padding: 10px;
                             ">
-                                @forelse ($produits as $produit)
+                                @forelse ($variants as $variant)
                                     <label class="product-row" 
-                                           data-name="{{ strtolower($produit->designation ?? '') }}"
-                                           data-ref="{{ strtolower($produit->reference_prod ?? '') }}"
+                                           data-name="{{ strtolower($variant->product->designation ?? '') }}"
+                                           data-ref="{{ strtolower($variant->reference_prod ?? '') }}"
                                            style="
                                                display: flex;
                                                align-items: center;
@@ -295,12 +295,12 @@
                                            onmouseover="this.style.background='#faf8f5'"
                                            onmouseout="this.style.background='transparent'">
                                         <input type="checkbox" 
-                                               name="product_ids[]" 
-                                               value="{{ $produit->id }}"
+                                               name="product_variant_ids[]" 
+                                               value="{{ $variant->id }}"
                                                onchange="updateSelectedCount()"
                                                style="accent-color: #2d5a27; width: 16px; height: 16px;">
                                         <div style="flex: 1;">
-                                            <div style="font-weight: 500; color: #2d5a27;">{{ $produit->designation ?? 'Sans nom' }}</div>
+                                            <div style="font-weight: 500; color: #2d5a27;">{{ $variant->product->designation ?? 'Sans nom' }} — {{ $variant->conditionnement }}</div>
                                             <div style="font-size: 0.8rem; color: #6c757d;">
                                                 <span style="
                                                     background: #e8f5e9;
@@ -310,11 +310,11 @@
                                                     font-weight: 600;
                                                     color: #2d5a27;
                                                 ">
-                                                    {{ $produit->reference_prod ?? 'N/A' }}
+                                                    {{ $variant->reference_prod ?? 'N/A' }}
                                                 </span>
                                                 <span style="margin-left: 8px;">
                                                     <i class="fas fa-cube" style="color: #b8860b;"></i>
-                                                    Stock: {{ $produit->qte_dispo ?? 0 }}
+                                                    Stock: {{ $variant->qte_dispo ?? 0 }}
                                                 </span>
                                             </div>
                                         </div>
@@ -322,11 +322,11 @@
                                 @empty
                                     <div style="padding: 20px; text-align: center; color: #6c757d;">
                                         <i class="fas fa-box-open" style="font-size: 24px; display: block; margin-bottom: 10px;"></i>
-                                        <p>Aucun produit disponible</p>
+                                        <p>Aucune variante disponible</p>
                                     </div>
                                 @endforelse
                             </div>
-                            @error('product_ids')
+                            @error('product_variant_ids')
                                 <div style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;">
                                     <i class="fas fa-exclamation-circle"></i> {{ $message }}
                                 </div>
@@ -387,7 +387,7 @@ function toggleScope() {
 }
 
 function updateSelectedCount() {
-    const checkboxes = document.querySelectorAll('input[name="product_ids[]"]:checked');
+    const checkboxes = document.querySelectorAll('input[name="product_variant_ids[]"]:checked');
     const countSpan = document.getElementById('selectedCount');
     if (countSpan) {
         countSpan.textContent = checkboxes.length;
@@ -395,16 +395,16 @@ function updateSelectedCount() {
 }
 
 function selectAllProducts() {
-    document.querySelectorAll('input[name="product_ids[]"]').forEach(cb => cb.checked = true);
+    document.querySelectorAll('input[name="product_variant_ids[]"]').forEach(cb => cb.checked = true);
     updateSelectedCount();
 }
 
 function unselectAllProducts() {
-    document.querySelectorAll('input[name="product_ids[]"]').forEach(cb => cb.checked = false);
+    document.querySelectorAll('input[name="product_variant_ids[]"]').forEach(cb => cb.checked = false);
     updateSelectedCount();
 }
 
-// Recherche de produits
+// Recherche de variantes
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('product-search');
     if (searchInput) {

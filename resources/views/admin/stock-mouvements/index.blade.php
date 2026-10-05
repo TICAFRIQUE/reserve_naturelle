@@ -106,12 +106,12 @@
                 border: 1px solid #e8e0d5;
             ">
                 <form method="GET" action="{{ route('admin.stock-mouvements.index') }}" style="display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end;">
-                    <!-- Produit -->
+                    <!-- Variante -->
                     <div style="flex: 1; min-width: 180px;">
-                        <label for="product_id" style="display: block; font-weight: 600; color: #2d5a27; font-size: 0.9rem; margin-bottom: 5px;">
-                            <i class="fas fa-box" style="color: #b8860b; margin-right: 5px;"></i> Produit
+                        <label for="product_variant_id" style="display: block; font-weight: 600; color: #2d5a27; font-size: 0.9rem; margin-bottom: 5px;">
+                            <i class="fas fa-box" style="color: #b8860b; margin-right: 5px;"></i> Variante
                         </label>
-                        <select name="product_id" id="product_id" style="
+                        <select name="product_variant_id" id="product_variant_id" style="
                             width: 100%;
                             padding: 10px 15px;
                             border: 1px solid #e8e0d5;
@@ -122,10 +122,10 @@
                             outline: none;
                             cursor: pointer;
                         " onfocus="this.style.borderColor='#2d5a27'" onblur="this.style.borderColor='#e8e0d5'">
-                            <option value="">Tous les produits</option>
-                            @foreach ($produits as $produit)
-                                <option value="{{ $produit->id }}" {{ request('product_id') == $produit->id ? 'selected' : '' }}>
-                                    {{ $produit->designation }} ({{ $produit->reference_prod ?? 'N/A' }})
+                            <option value="">Toutes les variantes</option>
+                            @foreach ($variants as $variant)
+                                <option value="{{ $variant->id }}" {{ request('product_variant_id') == $variant->id ? 'selected' : '' }}>
+                                    {{ $variant->reference_prod }}
                                 </option>
                             @endforeach
                         </select>
@@ -283,7 +283,7 @@
                                 </th>
                                 <th style="padding: 12px 15px; text-align: left; font-weight: 600; color: #2d5a27;">
                                     <i class="fas fa-box" style="color: #b8860b; margin-right: 5px;"></i>
-                                    Produit
+                                    Variante
                                 </th>
                                 <th style="padding: 12px 15px; text-align: left; font-weight: 600; color: #2d5a27;">
                                     <i class="fas fa-tag" style="color: #b8860b; margin-right: 5px;"></i>
@@ -336,7 +336,7 @@
                                             ">
                                                 <i class="fas fa-box" style="color: #b8860b; font-size: 14px;"></i>
                                             </div>
-                                            <span>{{ $mvt->product->designation ?? 'N/A' }}</span>
+                                            <span>{{ $mvt->variant->reference_prod ?? $mvt->product->designation ?? 'N/A' }}</span>
                                         </div>
                                     </td>
                                     <td style="padding: 12px 15px;">

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\ProductVariant;
 use App\Models\Zone;
 use App\Services\StockService;
 use App\Events\OrderValidated;
@@ -24,7 +25,7 @@ class CheckoutController extends Controller
             return redirect()->route('client.cart.index')->with('error', 'Votre commande est vide.');
         }
 
-        $sousTotal = $order->items->sum(fn($item) => $item->qte * $item->product->prix_vente);
+        $sousTotal = $order->items->sum(fn($item) => $item->qte * $item->variant->prix_vente);
         $zones = Zone::where('est_expedition', false)->get();
         $zoneExpedition = Zone::where('est_expedition', true)->first();
 
@@ -60,26 +61,26 @@ class CheckoutController extends Controller
             $villeExpedition = null;
         }
 
-        $sousTotal = $order->items->sum(fn($item) => $item->qte * $item->product->prix_vente);
+        $sousTotal = $order->items->sum(fn($item) => $item->qte * $item->variant->prix_vente);
         $tarifLivraison = $zone->tarif;
         $montantTtc = $sousTotal + $tarifLivraison;
 
-        $order->load('items.product');
+        $order->load('items.variant');
 
         try {
             DB::transaction(function () use ($order, $validated, $zone, $villeExpedition, $sousTotal, $tarifLivraison, $montantTtc) {
                 foreach ($order->items as $item) {
-                    $product = $item->product()->lockForUpdate()->first();
+                    $variant = ProductVariant::lockForUpdate()->find($item->product_variant_id);
 
-                    if ($item->qte > $product->qte_dispo) {
-                        $message = $product->sous_seuil
-                            ? "Stock critique pour {$product->designation} : seulement {$product->qte_dispo} disponible(s)."
-                            : "Stock insuffisant pour {$product->designation}. Disponible : {$product->qte_dispo}.";
+                    if ($item->qte > $variant->qte_dispo) {
+                        $message = $variant->sous_seuil
+                            ? "Stock critique pour {$variant->libelle} : seulement {$variant->qte_dispo} disponible(s)."
+                            : "Stock insuffisant pour {$variant->libelle}. Disponible : {$variant->qte_dispo}.";
                         throw new \RuntimeException($message);
                     }
 
                     $this->stockService->sortieStock(
-                        product: $product,
+                        variant: $variant,
                         quantite: $item->qte,
                         type: 'sortie_commande',
                         source: $order,

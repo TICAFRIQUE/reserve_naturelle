@@ -14,27 +14,27 @@ function recalculerTotaux() {
     document.getElementById('totalGeneral').textContent = formatNumber(total);
 }
 
-function buildOptions(produits) {
+function buildOptions(variants) {
     let html = '<option value="">— Choisir —</option>';
-    produits.forEach(function(p) {
-        html += '<option value="' + p.id + '" data-stock="' + p.stock + '" data-cmp="' + p.cmp + '">' + p.designation + '</option>';
+    variants.forEach(function(v) {
+        html += '<option value="' + v.id + '" data-stock="' + v.stock + '" data-cmp="' + v.cmp + '">' + v.label + '</option>';
     });
     return html;
 }
 
-function creerLigne(index, produits) {
+function creerLigne(index, variants) {
     const div = document.createElement('div');
     div.className = 'ligne-achat';
     div.style.cssText = 'display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:15px;align-items:end;padding:15px;background:#f8f5f0;border-radius:8px;margin-bottom:12px;';
 
     const col1 = document.createElement('div');
-    col1.innerHTML = '<label style="display:block;font-weight:600;color:#2d5a27;font-size:0.85rem;margin-bottom:5px;">Produit <span style="color:#dc3545;">*</span></label>';
+    col1.innerHTML = '<label style="display:block;font-weight:600;color:#2d5a27;font-size:0.85rem;margin-bottom:5px;">Variante <span style="color:#dc3545;">*</span></label>';
     const select = document.createElement('select');
-    select.name = 'lignes[' + index + '][product_id]';
+    select.name = 'lignes[' + index + '][product_variant_id]';
     select.required = true;
     select.className = 'select-produit';
     select.style.cssText = 'width:100%;padding:10px 15px;border:1px solid #e8e0d5;border-radius:8px;background:white;outline:none;';
-    select.innerHTML = buildOptions(produits);
+    select.innerHTML = buildOptions(variants);
     select.addEventListener('focus', function() { this.style.borderColor = '#2d5a27'; });
     select.addEventListener('blur',  function() { this.style.borderColor = '#e8e0d5'; });
     col1.appendChild(select);
@@ -102,7 +102,7 @@ function creerLigne(index, produits) {
     return div;
 }
 
-function initAchatCreate(produits) {
+function initAchatCreate(variants) {
     let ligneIndex = 1;
 
     // Bind sur la ligne initiale
@@ -119,7 +119,7 @@ function initAchatCreate(produits) {
 
     // Ajouter une ligne
     document.getElementById('btnAjouterLigne').addEventListener('click', function() {
-        document.getElementById('lignesContainer').appendChild(creerLigne(ligneIndex++, produits));
+        document.getElementById('lignesContainer').appendChild(creerLigne(ligneIndex++, variants));
         recalculerTotaux();
     });
 }

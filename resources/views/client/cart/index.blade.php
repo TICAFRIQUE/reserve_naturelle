@@ -35,12 +35,12 @@
                             <tr class="cart-row">
                                 <td>
                                     <div class="cart-product">
-                                        <img src="{{ $item->product?->image_path ? asset('storage/' . $item->product->image_path) : asset('images/default-product.jpg') }}"
-                                             alt="{{ $item->product?->designation ?? 'Produit indisponible' }}">
+                                        <img src="{{ $item->variant?->product?->image_path ? asset('storage/' . $item->variant->product->image_path) : asset('images/default-product.jpg') }}"
+                                             alt="{{ $item->variant?->libelle ?? 'Produit indisponible' }}">
                                         <div>
-                                            <strong>{{ $item->product?->designation ?? 'Produit indisponible' }}</strong>
-                                            @if($item->product)
-                                                <p>{{ $item->product->category->nom ?? 'Non catégorisé' }}</p>
+                                            <strong>{{ $item->variant?->libelle ?? 'Produit indisponible' }}</strong>
+                                            @if($item->variant)
+                                                <p>{{ $item->variant->product->category->nom ?? 'Non catégorisé' }}</p>
                                             @else
                                                 <p class="cart-item-warning" style="color:#dc3545;">Ce produit n'existe plus, retirez-le du panier.</p>
                                             @endif
@@ -48,9 +48,9 @@
                                     </div>
                                 </td>
 
-                                @if($item->product)
+                                @if($item->variant)
                                     <td class="cart-cell-center">
-                                        {{ number_format($item->product->prix_vente, 0, ',', ' ') }} FCFA
+                                        {{ number_format($item->variant->prix_vente, 0, ',', ' ') }} FCFA
                                     </td>
                                     <td class="cart-cell-center">
                                         <form action="{{ route('client.cart.update', $item->id) }}"
@@ -59,12 +59,12 @@
                                             @csrf
                                             @method('PATCH')
                                             <input type="number" name="qte" value="{{ $item->qte }}"
-                                                   min="1" max="{{ $item->product->qte_dispo }}">
-                                            <button type="button" class="btn-update" data-nom="{{ $item->product->designation }}">✓</button>
+                                                   min="1" max="{{ $item->variant->qte_dispo }}">
+                                            <button type="button" class="btn-update" data-nom="{{ $item->variant->libelle }}">✓</button>
                                         </form>
                                     </td>
                                     <td class="cart-cell-center cart-cell-total">
-                                        {{ number_format($item->qte * $item->product->prix_vente, 0, ',', ' ') }} FCFA
+                                        {{ number_format($item->qte * $item->variant->prix_vente, 0, ',', ' ') }} FCFA
                                     </td>
                                 @else
                                     <td class="cart-cell-center">—</td>
@@ -78,7 +78,7 @@
                                           class="delete-form cart-delete-form">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="button" class="btn-delete" data-nom="{{ $item->product?->designation ?? 'ce produit' }}">✕</button>
+                                        <button type="button" class="btn-delete" data-nom="{{ $item->variant?->libelle ?? 'ce produit' }}">✕</button>
                                     </form>
                                 </td>
                             </tr>
@@ -92,14 +92,14 @@
                 @foreach($cart->items as $item)
                     <div class="cart-mobile-item">
                         <div class="cart-mobile-top">
-                            <img src="{{ $item->product?->image_path ? asset('storage/' . $item->product->image_path) : asset('images/default-product.jpg') }}"
-                                 alt="{{ $item->product?->designation ?? 'Produit indisponible' }}">
+                            <img src="{{ $item->variant?->product?->image_path ? asset('storage/' . $item->variant->product->image_path) : asset('images/default-product.jpg') }}"
+                                 alt="{{ $item->variant?->libelle ?? 'Produit indisponible' }}">
                             <div class="cart-mobile-info">
-                                <strong>{{ $item->product?->designation ?? 'Produit indisponible' }}</strong>
-                                @if($item->product)
-                                    <p>{{ $item->product->category->nom ?? 'Non catégorisé' }}</p>
+                                <strong>{{ $item->variant?->libelle ?? 'Produit indisponible' }}</strong>
+                                @if($item->variant)
+                                    <p>{{ $item->variant->product->category->nom ?? 'Non catégorisé' }}</p>
                                     <span class="cart-mobile-unit-price">
-                                        {{ number_format($item->product->prix_vente, 0, ',', ' ') }} FCFA / unité
+                                        {{ number_format($item->variant->prix_vente, 0, ',', ' ') }} FCFA / unité
                                     </span>
                                 @else
                                     <p style="color:#dc3545;">Produit indisponible, retirez-le.</p>
@@ -108,20 +108,20 @@
                         </div>
 
                         <div class="cart-mobile-bottom">
-                            @if($item->product)
+                            @if($item->variant)
                                 <form action="{{ route('client.cart.update', $item->id) }}"
                                       method="POST"
                                       class="update-form cart-qty-form">
                                     @csrf
                                     @method('PATCH')
                                     <input type="number" name="qte" value="{{ $item->qte }}"
-                                           min="1" max="{{ $item->product->qte_dispo }}">
-                                    <button type="button" class="btn-update" data-nom="{{ $item->product->designation }}">✓</button>
+                                           min="1" max="{{ $item->variant->qte_dispo }}">
+                                    <button type="button" class="btn-update" data-nom="{{ $item->variant->libelle }}">✓</button>
                                 </form>
 
                                 <div class="cart-mobile-total">
                                     <span>Total</span>
-                                    <strong>{{ number_format($item->qte * $item->product->prix_vente, 0, ',', ' ') }} FCFA</strong>
+                                    <strong>{{ number_format($item->qte * $item->variant->prix_vente, 0, ',', ' ') }} FCFA</strong>
                                 </div>
                             @endif
 
@@ -130,7 +130,7 @@
                                   class="delete-form cart-delete-form">
                                 @csrf
                                 @method('DELETE')
-                                <button type="button" class="btn-delete" data-nom="{{ $item->product?->designation ?? 'ce produit' }}">✕</button>
+                                <button type="button" class="btn-delete" data-nom="{{ $item->variant?->libelle ?? 'ce produit' }}">✕</button>
                             </form>
                         </div>
                     </div>
@@ -188,7 +188,8 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // ===== Mise à jour de la quantité ===== (inchangé)
+
+    // ===== Mise à jour de la quantité =====
     document.querySelectorAll('.btn-update').forEach(function (button) {
         button.addEventListener('click', function () {
             const form = this.closest('.update-form');
@@ -220,7 +221,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // ===== Suppression d'un article ===== (inchangé)
+    // ===== Suppression d'un article =====
     document.querySelectorAll('.btn-delete').forEach(function (button) {
         button.addEventListener('click', function () {
             const form = this.closest('.delete-form');
@@ -239,7 +240,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // ===== Vider le panier ===== (inchangé)
+    // ===== Vider le panier =====
     const btnClear = document.getElementById('btn-clear');
     if (btnClear) {
         btnClear.addEventListener('click', function () {
@@ -256,8 +257,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     }
-    // "Passer commande" : plus de handler JS, plus de Swal — soumission directe via form="order-form"
+
 });
 </script>
-
 @endsection

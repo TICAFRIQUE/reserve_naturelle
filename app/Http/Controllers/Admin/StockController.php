@@ -3,26 +3,26 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Product;
+use App\Models\ProductVariant;
 use Illuminate\Http\Request;
 
 class StockController extends Controller
 {
     public function index(Request $request){
-        $query = Product::query();
+        $query = ProductVariant::with('product');
 
         if ($request->boolean('sous_seuil')) {
             $query->whereColumn('qte_dispo', '<=', 'stock_minimum');
         }
 
-        $products = $query->orderBy('designation')->get();
+        $variants = $query->orderBy('reference_prod')->get();
 
         $stats = [
-            'pieces_stock'   => $products->sum('qte_dispo'),
-            'valeur_stock'   => $products->sum(fn ($p) => $p->qte_dispo * $p->cmp),
-            'produits_sous_seuil' => $products->filter(fn ($p) => $p->qte_dispo <= $p->stock_minimum)->count(),
+            'pieces_stock'   => $variants->sum('qte_dispo'),
+            'valeur_stock'   => $variants->sum(fn ($v) => $v->qte_dispo * $v->cmp),
+            'produits_sous_seuil' => $variants->filter(fn ($v) => $v->qte_dispo <= $v->stock_minimum)->count(),
         ];
 
-        return view('admin.stock.index', compact('products', 'stats'));
+        return view('admin.stock.index', compact('variants', 'stats'));
     }
 }

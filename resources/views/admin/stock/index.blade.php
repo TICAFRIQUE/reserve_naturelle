@@ -96,31 +96,31 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($products as $product)
-                                @php $sousSeuil = $product->qte_dispo <= $product->stock_minimum; @endphp
+                            @forelse($variants as $variant)
+                                @php $sousSeuil = $variant->qte_dispo <= $variant->stock_minimum; @endphp
                                 <tr style="border-bottom: 1px solid #f0ebe5; {{ $sousSeuil ? 'background: #fdeeee;' : '' }}">
                                     <td style="padding: 13px 20px; color: #2d5a27; font-weight: 500;">
-                                        {{ $product->designation }}
-                                        <span style="color: #b8860b; font-size: 0.8rem; margin-left: 6px;">{{ $product->reference_prod }}</span>
+                                        {{ $variant->product->designation }} <span style="color:#6c757d;">({{ $variant->conditionnement }})</span>
+                                        <span style="color: #b8860b; font-size: 0.8rem; margin-left: 6px;">{{ $variant->reference_prod }}</span>
                                     </td>
                                     <td style="padding: 13px 20px; text-align: center;">
-                                        {{ $product->qte_dispo }} pièces
+                                        {{ $variant->qte_dispo }} pièces
                                         @if($sousSeuil)
                                             <i class="fas fa-triangle-exclamation" style="color: #dc3545; margin-left: 4px;"></i>
                                         @endif
                                     </td>
                                     <td style="padding: 13px 20px; text-align: center; color: #6c757d;">
-                                        {{ $product->stock_minimum }}
+                                        {{ $variant->stock_minimum }}
                                     </td>
                                     <td style="padding: 13px 20px; text-align: right; color: #2d5a27; font-weight: 500;">
-                                        {{ number_format($product->cmp, 0, ',', ' ') }} F
+                                        {{ number_format($variant->cmp, 0, ',', ' ') }} F
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
                                     <td colspan="4" style="padding: 40px 20px; text-align: center; color: #6c757d;">
                                         <i class="fas fa-box-open" style="font-size: 36px; display: block; margin-bottom: 12px; color: #d4c9bb;"></i>
-                                        Aucun produit trouvé
+                                        Aucune variante trouvée
                                     </td>
                                 </tr>
                             @endforelse

@@ -59,18 +59,18 @@
     <div class="order-show-items">
         @foreach($order->items as $item)
             <div class="order-show-item">
-                <img src="{{ $item->product->image_path ? asset('storage/' . $item->product->image_path) : asset('images/default-product.jpg') }}"
-                     alt="{{ $item->product->designation }}">
+                <img src="{{ $item->variant->product->image_path ? asset('storage/' . $item->variant->product->image_path) : asset('images/default-product.jpg') }}"
+                     alt="{{ $item->variant->libelle }}">
 
                 <div class="order-show-item-info">
-                    <h3>{{ $item->product->designation }}</h3>
+                    <h3>{{ $item->variant->libelle }}</h3>
                     <p>
-                        {{ $item->qte }} × {{ number_format($item->product->prix_vente, 0, ',', ' ') }} FCFA
+                        {{ $item->qte }} × {{ number_format($item->variant->prix_vente, 0, ',', ' ') }} FCFA
                     </p>
                 </div>
 
                 <p class="order-show-item-total">
-                    {{ number_format($item->qte * $item->product->prix_vente, 0, ',', ' ') }} FCFA
+                    {{ number_format($item->qte * $item->variant->prix_vente, 0, ',', ' ') }} FCFA
                 </p>
             </div>
         @endforeach

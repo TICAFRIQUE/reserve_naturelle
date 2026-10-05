@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Models\AchatProduct;
 use App\Models\Fournisseur;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Models\Achat;
 
 class AchatController extends Controller
@@ -41,8 +42,8 @@ class AchatController extends Controller
     //Formulaire de creation d'un achat
     public function create(){
         $fournisseurs = Fournisseur::orderBy('nom')->get();
-        $produits = Product::orderBy('designation')->get();
-        return view('admin.achats.create', compact('fournisseurs', 'produits'));
+        $variants = ProductVariant::where('actif', true)->orderBy('reference_prod')->get();
+        return view('admin.achats.create', compact('fournisseurs', 'variants'));
     }
 
     //Enregistrement de l'achat (Brouillon ou validation)
@@ -53,7 +54,7 @@ class AchatController extends Controller
             'date_reception_prevue'       => 'nullable|date|after_or_equal:date_achat',
             'notes'                       => 'nullable|string',
             'lignes'                      => 'required|array|min:1',
-            'lignes.*.product_id'         => 'required|exists:products,id',
+            'lignes.*.product_variant_id' => 'required|exists:product_variants,id',
             'lignes.*.qte_commandee'      => 'required|integer|min:1',
             'lignes.*.prix_unitaire'      => 'required|integer|min:0',
         ]);
@@ -72,12 +73,14 @@ class AchatController extends Controller
 
             $total = 0;
             foreach ($request->lignes as $ligne) {
+                $variant = ProductVariant::findOrFail($ligne['product_variant_id']);
                 AchatProduct::create([
-                    'achat_id'       => $achat->id,
-                    'product_id'     => $ligne['product_id'],
-                    'qte_commandee'  => $ligne['qte_commandee'],
-                    'qte_recue'      => 0,
-                    'prix_unitaire'  => $ligne['prix_unitaire'],
+                    'achat_id'           => $achat->id,
+                    'product_id'         => $variant->product_id,
+                    'product_variant_id' => $variant->id,
+                    'qte_commandee'      => $ligne['qte_commandee'],
+                    'qte_recue'          => 0,
+                    'prix_unitaire'      => $ligne['prix_unitaire'],
                 ]);
                 $total += $ligne['qte_commandee'] * $ligne['prix_unitaire'];
             }
@@ -92,6 +95,7 @@ class AchatController extends Controller
             'fournisseur',
             'user',
             'produits.product',
+            'produits.variant',
             'stockMouvements.user',
         ]);
         return view('admin.achats.show', compact('achat'));
@@ -102,7 +106,7 @@ class AchatController extends Controller
         if (!in_array($achat->statut, ['confirme', 'recu_partiel'])) {
             return redirect()->route('admin.achats.show', $achat)->with('error', 'Cet achat ne peut pas être réceptionné.');
         }
-        $achat->load('produits.product');
+        $achat->load('produits.product', 'produits.variant');
         return view('admin.achats.reception', compact('achat'));
     }
 
@@ -140,8 +144,11 @@ class AchatController extends Controller
                     'qte_recue' => $achatProduit->qte_recue + $qteAReceptionner,
                 ]);
 
+                $variant = $achatProduit->variant
+                    ?? ProductVariant::where('product_id', $achatProduit->product_id)->first();
+
                 $this->stockservice->entreeStock(
-                    product: $achatProduit->product,
+                    variant: $variant,
                     quantite: $qteAReceptionner,
                     type: 'entree_achat',
                     source: $achat,

@@ -60,16 +60,24 @@
                 <div style="margin-left: auto; display: flex; gap: 20px;">
                     <div style="text-align: center;">
                         <div style="font-weight: 600; color: #2d5a27; font-size: 0.85rem;">Prix</div>
-                        <div style="color: #2d5a27; font-weight: 700; margin-top: 2px;">{{ number_format($product->prix_vente, 0, ',', ' ') }} FCFA</div>
+                        @php $prixMin = $product->variants->min('prix_vente'); @endphp
+                        <div style="color: #2d5a27; font-weight: 700; margin-top: 2px;">
+                            @if($prixMin)
+                                À partir de {{ number_format($prixMin, 0, ',', ' ') }} FCFA
+                            @else
+                                <span style="color: #adb5bd; font-weight: 400;">—</span>
+                            @endif
+                        </div>
                     </div>
                     <div style="text-align: center;">
                         <div style="font-weight: 600; color: #2d5a27; font-size: 0.85rem;">Stock</div>
+                        @php $stockTotal = $product->variants->sum('qte_dispo'); @endphp
                         <div style="margin-top: 2px;">
                             <span style="
-                                background: {{ $product->qte_dispo > 10 ? '#d4edda' : ($product->qte_dispo > 0 ? '#fff3cd' : '#f8d7da') }};
-                                color: {{ $product->qte_dispo > 10 ? '#155724' : ($product->qte_dispo > 0 ? '#856404' : '#721c24') }};
+                                background: {{ $stockTotal > 10 ? '#d4edda' : ($stockTotal > 0 ? '#fff3cd' : '#f8d7da') }};
+                                color: {{ $stockTotal > 10 ? '#155724' : ($stockTotal > 0 ? '#856404' : '#721c24') }};
                                 padding: 4px 14px; border-radius: 20px; font-size: 0.8rem;
-                            ">{{ $product->qte_dispo }} unités</span>
+                            ">{{ $stockTotal }} unités</span>
                         </div>
                     </div>
                     <div style="text-align: center;">
@@ -155,52 +163,6 @@
                                 </select>
                                 @error('sous_category_id')<div class="field-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>@enderror
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Prix & Stock -->
-                    <div class="form-section">
-                        <h3 class="form-section-title"><i class="fas fa-warehouse"></i> Prix & Stock</h3>
-
-                        <div class="grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 25px;">
-                            <div>
-                                <label for="prix_vente" class="field-label">
-                                    <i class="fas fa-money-bill-wave" style="color: #2d5a27; margin-right: 5px;"></i>
-                                    Prix de vente <span style="color: #dc3545;">*</span>
-                                </label>
-                                <input type="number" id="prix_vente" name="prix_vente" value="{{ old('prix_vente', $product->prix_vente) }}"
-                                    step="100" min="0" class="field-input"
-                                    style="border: 2px solid {{ $errors->has('prix_vente') ? '#dc3545' : '#e8e0d5' }};"
-                                    onfocus="this.style.borderColor='#2d5a27'; this.style.background='white'"
-                                    onblur="this.style.borderColor='{{ $errors->has('prix_vente') ? '#dc3545' : '#e8e0d5' }}'; this.style.background='#faf8f5'"
-                                    required>
-                                @error('prix_vente')<div class="field-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>@enderror
-                            </div>
-                            <div>
-                                <label for="stock_minimum" class="field-label">
-                                    <i class="fas fa-triangle-exclamation" style="color: #2d5a27; margin-right: 5px;"></i>
-                                    Seuil de stock minimum
-                                </label>
-                                <input type="number" id="stock_minimum" name="stock_minimum" value="{{ old('stock_minimum', $product->stock_minimum ?? 0) }}"
-                                    min="0" class="field-input" style="max-width: 300px; border: 2px solid {{ $errors->has('stock_minimum') ? '#dc3545' : '#e8e0d5' }};"
-                                    onfocus="this.style.borderColor='#2d5a27'; this.style.background='white'"
-                                    onblur="this.style.borderColor='{{ $errors->has('stock_minimum') ? '#dc3545' : '#e8e0d5' }}'; this.style.background='#faf8f5'">
-                                <div class="field-hint"><i class="fas fa-info-circle"></i> Une alerte apparaît sur le dashboard sous ce seuil</div>
-                                @error('stock_minimum')<div class="field-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>@enderror
-                            </div>  
-                            {{-- <div>
-                                <label for="qte_dispo" class="field-label">
-                                    <i class="fas fa-cubes" style="color: #2d5a27; margin-right: 5px;"></i>
-                                    Quantité disponible <span style="color: #dc3545;">*</span>
-                                </label>
-                                <input type="number" id="qte_dispo" name="qte_dispo" value="{{ old('qte_dispo', $product->qte_dispo) }}"
-                                    min="0" class="field-input"
-                                    style="border: 2px solid {{ $errors->has('qte_dispo') ? '#dc3545' : '#e8e0d5' }};"
-                                    onfocus="this.style.borderColor='#2d5a27'; this.style.background='white'"
-                                    onblur="this.style.borderColor='{{ $errors->has('qte_dispo') ? '#dc3545' : '#e8e0d5' }}'; this.style.background='#faf8f5'"
-                                    required>
-                                @error('qte_dispo')<div class="field-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div>@enderror
-                            </div> --}}
                         </div>
                     </div>
 

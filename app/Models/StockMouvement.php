@@ -13,6 +13,7 @@ class StockMouvement extends Model
 
     protected $fillable = [
         'product_id',
+        'product_variant_id',
         'type',
         'sens',
         'quantite',
@@ -37,5 +38,10 @@ class StockMouvement extends Model
     // Relation polymorphique → source du mouvement
     public function source(){
         return $this->morphTo();
+    }
+
+    //relation product_variant
+    public function variant(){
+        return $this->belongsTo(ProductVariant::class, 'product_variant_id');
     }
 }

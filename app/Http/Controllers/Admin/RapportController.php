@@ -7,7 +7,7 @@ use App\Models\Achat;
 use App\Models\Order;
 use App\Models\User;
 use App\Models\Zone;
-use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Models\Depense;
 use App\Models\Fournisseur;
 use Illuminate\Http\Request;
@@ -98,7 +98,7 @@ class RapportController extends Controller
         // ==============================
         // VALEUR DU STOCK
         // ==============================
-        $valeurStock = (float) Product::sum(
+        $valeurStock = (float) ProductVariant::sum(
             DB::raw('qte_dispo * cmp')
         );
 
@@ -127,13 +127,13 @@ class RapportController extends Controller
         // ==============================
         // ALERTES STOCK
         // ==============================
-        $produitsAlerte = Product::whereColumn(
+        $produitsAlerte = ProductVariant::whereColumn(
             'qte_dispo',
             '<=',
             'stock_minimum'
         )->count();
 
-        $produitsRupture = Product::where(
+        $produitsRupture = ProductVariant::where(
             'qte_dispo',
             '<=',
             0
@@ -224,13 +224,17 @@ class RapportController extends Controller
         return compact('mouvements', 'mouvementsTotal');
     }
 
-    private function ongletProduits(Request $request, bool $forPdf = false): array{
-        $baseQuery = Product::when($request->filled('search'), fn ($q) => $q->search($request->search));
-        $produitsTotal = (float) (clone $baseQuery)->sum(DB::raw('qte_dispo * cmp'));
-        $query = (clone $baseQuery)->with('category')->orderByDesc(DB::raw('qte_dispo * cmp'));
-        $produits = $forPdf ? $query->get() : $query->paginate(15)->withQueryString();
-
-        return compact('produits', 'produitsTotal');
+   private function ongletProduits(Request $request, bool $forPdf = false): array{
+        $baseQuery = ProductVariant::when($request->filled('search'), function ($q) use ($request) {
+            $q->where(function ($sub) use ($request) {
+                $sub->where('reference_prod', 'like', '%' . $request->search . '%')
+                    ->orWhereHas('product', fn ($p) => $p->search($request->search));
+            });
+        });
+        $variantsTotal = (float) (clone $baseQuery)->sum(DB::raw('qte_dispo * cmp'));
+        $query = (clone $baseQuery)->with('product.category')->orderByDesc(DB::raw('qte_dispo * cmp'));
+        $variants = $forPdf ? $query->get() : $query->paginate(15)->withQueryString();
+        return compact('variants', 'variantsTotal');
     }
 
     private function ongletAchats($dateFrom, $dateTo, bool $forPdf = false): array{

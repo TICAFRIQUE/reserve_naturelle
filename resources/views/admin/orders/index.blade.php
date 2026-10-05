@@ -264,7 +264,7 @@
                                     </td>
                                     <td style="padding: 15px 20px; text-align: right;">
                                         <span style="font-weight: 700; color: #2d5a27; font-size: 1.05rem;">
-                                            {{ number_format($order->mt_total ?? $order->total ?? 0, 0, ',', ' ') }} FCFA
+                                            {{ number_format($order->montant_ttc ?? $order->mt_total ?? $order->total ?? 0, 0, ',', ' ') }} FCFA
                                         </span>
                                     </td>
                                     <td style="padding: 15px 20px; text-align: center;">

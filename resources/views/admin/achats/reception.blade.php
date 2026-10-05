@@ -109,11 +109,11 @@
                                     @endphp
                                     <tr style="border-bottom:1px solid #f0ebe5;background:{{ $complet ? '#f8fff8' : 'white' }};">
                                         <td style="padding:12px 20px;font-weight:500;color:#2d5a27;">
-                                            {{ $ligne->product->designation }}
-                                            <div style="font-size:0.8rem;color:#6c757d;">{{ $ligne->product->reference_prod }}</div>
+                                            {{ $ligne->variant->product->designation ?? $ligne->product->designation }}
+                                            <div style="font-size:0.8rem;color:#6c757d;">{{ $ligne->variant->reference_prod ?? $ligne->product->reference_prod }}</div>
                                         </td>
                                         <td style="padding:12px 20px;text-align:center;color:#6c757d;">
-                                            {{ $ligne->product->qte_dispo }}
+                                            {{ $ligne->variant->qte_dispo ?? $ligne->product->qte_dispo }}
                                         </td>
                                         <td style="padding:12px 20px;text-align:center;font-weight:600;">
                                             {{ $ligne->qte_commandee }}

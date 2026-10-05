@@ -114,54 +114,7 @@
                             <option value="in_stock" {{ request('stock_filter') == 'in_stock' ? 'selected' : '' }}>✅ En stock</option>
                             <option value="out_of_stock" {{ request('stock_filter') == 'out_of_stock' ? 'selected' : '' }}>❌ Rupture</option>
                         </select>
-                    </div>
-
-                    <div style="flex: 0 0 130px; min-width: 110px;">
-                        <label for="price_min" style="display: block; font-weight: 600; color: #2d5a27; font-size: 0.9rem; margin-bottom: 5px;">
-                            <i class="fas fa-money-bill-wave" style="color: #2d5a27; margin-right: 5px;"></i> Prix min
-                        </label>
-                        <input type="number" 
-                               name="price_min" 
-                               id="price_min"
-                               style="
-                                   width: 100%;
-                                   padding: 10px 15px;
-                                   border: 1px solid #e8e0d5;
-                                   border-radius: 8px;
-                                   font-size: 0.95rem;
-                                   transition: border-color 0.3s;
-                                   outline: none;
-                                   background: white;
-                               "
-                               onfocus="this.style.borderColor='#2d5a27'"
-                               onblur="this.style.borderColor='#e8e0d5'"
-                               placeholder="Min"
-                               value="{{ request('price_min') }}">
-                    </div>
-
-                    <div style="flex: 0 0 130px; min-width: 110px;">
-                        <label for="price_max" style="display: block; font-weight: 600; color: #2d5a27; font-size: 0.9rem; margin-bottom: 5px;">
-                            <i class="fas fa-money-bill-wave" style="color: #2d5a27; margin-right: 5px;"></i> Prix max
-                        </label>
-                        <input type="number" 
-                               name="price_max" 
-                               id="price_max"
-                               style="
-                                   width: 100%;
-                                   padding: 10px 15px;
-                                   border: 1px solid #e8e0d5;
-                                   border-radius: 8px;
-                                   font-size: 0.95rem;
-                                   transition: border-color 0.3s;
-                                   outline: none;
-                                   background: white;
-                               "
-                               onfocus="this.style.borderColor='#2d5a27'"
-                               onblur="this.style.borderColor='#e8e0d5'"
-                               placeholder="Max"
-                               value="{{ request('price_max') }}">
-                    </div>
-                    
+                    </div> 
                     <div style="flex: 0 0 auto; display: flex; gap: 10px;">
                         <button type="submit" style="
                             background: #2d5a27;
@@ -304,15 +257,17 @@
                                         @endif
                                     </td>
                                     <td style="padding: 15px 20px; text-align: right; font-weight: 600; color: #2d5a27;">
-                                        {{ number_format($product->prix_vente, 0, ',', ' ') }} FCFA
+                                        @php $prixMin = $product->variants->min('prix_vente'); @endphp
+                                        @if($prixMin)
+                                            {{ number_format($prixMin, 0, ',', ' ') }} FCFA
+                                        @else
+                                            <span style="color: #adb5bd; font-weight: 400;">—</span>
+                                        @endif
                                     </td>
                                     <td style="padding: 15px 20px; text-align: center;">
-                                        @php
-                                            $stock = $product->qte_dispo ?? 0;
-                                            $stockClass = $stock > ($product->stock_minimum ?? 5) ? '#28a745' : ($stock > 0 ? '#ffc107' : '#dc3545');
-                                        @endphp
+                                        @php $stockTotal = $product->variants->sum('qte_dispo'); @endphp
                                         <span style="
-                                            background: {{ $stockClass }};
+                                            background: {{ $stockTotal > 0 ? '#28a745' : '#dc3545' }};
                                             color: white;
                                             padding: 4px 14px;
                                             border-radius: 20px;
@@ -321,16 +276,28 @@
                                             display: inline-block;
                                             min-width: 30px;
                                         ">
-                                            {{ $stock }}
+                                            {{ $stockTotal }}
                                         </span>
-                                        @if($stock <= ($product->stock_minimum ?? 5) && $stock > 0)
-                                            <div style="color: #ffc107; font-size: 0.65rem; margin-top: 2px;">
-                                                <i class="fas fa-exclamation-triangle"></i> Stock faible
-                                            </div>
-                                        @endif
                                     </td>
                                     <td style="padding: 15px 20px; text-align: center;">
                                         <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
+                                            <a href="{{ route('admin.produits.variants.index', $product) }}" style="
+                                                background: #e3f2fd;
+                                                color: #1565c0;
+                                                padding: 6px 12px;
+                                                border-radius: 20px;
+                                                text-decoration: none;
+                                                font-size: 0.8rem;
+                                                transition: all 0.2s;
+                                                display: inline-flex;
+                                                align-items: center;
+                                                gap: 4px;
+                                                border: 1px solid #bbdefb;
+                                            " onmouseover="this.style.background='#bbdefb'" onmouseout="this.style.background='#e3f2fd'"
+                                               title="Gérer les variantes">
+                                                <i class="fas fa-layer-group"></i>
+                                            </a>
+
                                             <a href="{{ route('admin.produits.show', $product) }}" style="
                                                 background: #e8f5e9;
                                                 color: #2d5a27;

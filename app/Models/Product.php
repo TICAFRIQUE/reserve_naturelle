@@ -11,10 +11,10 @@ class Product extends Model
 
     protected $fillable = [
         'reference_prod',
-        'prix_vente',
+        // 'prix_vente',
         'designation',
         'description',
-        'qte_dispo',
+        // 'qte_dispo',
         'stock_minimum',
         'cmp',
         'image_path',
@@ -63,5 +63,9 @@ class Product extends Model
             $q->where('designation', 'like', "%{$term}%")
               ->orWhere('reference_prod', 'like', "%{$term}%");
         });
+    }
+     // ProductVariant
+    public function variants(){ 
+        return $this->hasMany(ProductVariant::class)->where('actif', true)->orderBy('prix_vente');
     }
 }

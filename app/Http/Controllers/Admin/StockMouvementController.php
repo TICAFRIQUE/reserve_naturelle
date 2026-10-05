@@ -5,16 +5,16 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 
 use App\Models\StockMouvement;
-use App\Models\Product;
+use App\Models\ProductVariant;
 use Illuminate\Http\Request;
 
 class StockMouvementController extends Controller
 {
     //
     public function index(Request $request){
-        $query = StockMouvement::with(['source','product','user'])->latest();
-         if ($request->filled('product_id')) {
-            $query->where('product_id', $request->product_id);
+        $query = StockMouvement::with(['source','product','variant','user'])->latest();
+         if ($request->filled('product_variant_id')) {
+            $query->where('product_variant_id', $request->product_variant_id);
         }
         if ($request->filled('type')) {
             $query->where('type', $request->type);
@@ -29,8 +29,8 @@ class StockMouvementController extends Controller
             $query->whereDate('created_at', '<=', $request->au);
         }
         $mouvements = $query->paginate(10)->withQueryString();
-        $produits = Product::orderBy('designation')->get(['id','designation']);
+        $variants = ProductVariant::orderBy('reference_prod')->get(['id','reference_prod']);
 
-        return view('admin.stock-mouvements.index', compact('mouvements', 'produits'));
+        return view('admin.stock-mouvements.index', compact('mouvements', 'variants'));
     }
 }

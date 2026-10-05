@@ -69,7 +69,7 @@
                                     </span>
                                 </td>
                                 <td class="orders-cell-center orders-cell-total">
-                                    {{ number_format($order->mt_total, 0, ',', ' ') }} FCFA
+                                    {{ number_format($order->montant_ttc ?? $order->mt_total, 0, ',', ' ') }} FCFA
                                 </td>
                                 <td class="orders-cell-center">
                                     <div class="orders-actions">
@@ -118,7 +118,7 @@
                             <div class="order-mobile-line">
                                 <span class="order-mobile-label">Total</span>
                                 <span class="order-mobile-total">
-                                    {{ number_format($order->mt_total, 0, ',', ' ') }} FCFA
+                                    {{ number_format($order->montant_ttc ?? $order->mt_total, 0, ',', ' ') }} FCFA
                                 </span>
                             </div>
                         </div>

@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Inventaire;
 use App\Models\InventaireProduct;
-use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Services\StockService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -37,16 +37,16 @@ class InventaireController extends Controller
 
     // Formulaire de création : snapshot du stock théorique
     public function create(){
-        $produits = Product::orderBy('designation')->get(['id', 'designation', 'reference_prod', 'qte_dispo']);
-        return view('admin.inventaires.create', compact('produits'));
+        $variants = ProductVariant::where('actif', true)->orderBy('reference_prod')->get();
+        return view('admin.inventaires.create', compact('variants'));
     }
 
-    // Crée l'inventaire + fige qte_theorique pour chaque produit
+    // Crée l'inventaire + fige qte_theorique pour chaque variante
     public function store(Request $request){
         $request->validate([
             'date_inventaire' => 'required|date',
             'notes' => 'nullable|string',
-            'product_ids' => 'nullable|array', // si vide -> tous les produits
+            'product_variant_ids' => 'nullable|array',
         ]);
 
         $inventaire = DB::transaction(function () use ($request) {
@@ -58,16 +58,17 @@ class InventaireController extends Controller
                 'notes' => $request->notes,
             ]);
 
-            $produits = $request->filled('product_ids')
-                ? Product::whereIn('id', $request->product_ids)->get()
-                : Product::all();
+            $variants = $request->filled('product_variant_ids')
+                ? ProductVariant::whereIn('id', $request->product_variant_ids)->get()
+                : ProductVariant::where('actif', true)->get();
 
-            foreach ($produits as $produit) {
+            foreach ($variants as $variant) {
                 InventaireProduct::create([
                     'inventaire_id' => $inventaire->id,
-                    'product_id' => $produit->id,
-                    'qte_theorique' => $produit->qte_dispo,
-                    'qte_reelle' => $produit->qte_dispo, // pré-rempli, ajusté à la saisie
+                    'product_id' => $variant->product_id,
+                    'product_variant_id' => $variant->id,
+                    'qte_theorique' => $variant->qte_dispo,
+                    'qte_reelle' => $variant->qte_dispo,
                     'ecart' => 0,
                 ]);
             }
@@ -80,11 +81,13 @@ class InventaireController extends Controller
     // show() — affichage live sans persister
     public function show(Inventaire $inventaire){
        
-        $inventaire->load('produits.product', 'user');
+        $inventaire->load('produits.product', 'produits.variant', 'user');
         // Calcul live pour affichage uniquement (pas de save)
         foreach ($inventaire->produits as $ligne) {
-            $ligne->qte_theorique_live = $ligne->product->qte_dispo;
-            $ligne->ecart_live = $ligne->qte_reelle - $ligne->product->qte_dispo;
+            $variant = $ligne->variant
+                ?? ProductVariant::where('product_id', $ligne->product_id)->first();
+            $ligne->qte_theorique_live = $variant?->qte_dispo ?? 0;
+            $ligne->ecart_live = $ligne->qte_reelle - ($variant?->qte_dispo ?? 0);
         }
         return view('admin.inventaires.show', compact('inventaire'));
     }
@@ -102,7 +105,7 @@ class InventaireController extends Controller
         ]);
 
         DB::transaction(function () use ($request, $inventaire) {
-            $inventaire->load('produits.product');
+            $inventaire->load('produits.product', 'produits.variant');
 
             foreach ($request->lignes as $ligneData) {
                 $ligne = $inventaire->produits->firstWhere('id', $ligneData['id']);
@@ -111,8 +114,15 @@ class InventaireController extends Controller
                     throw new \Exception("Ligne d'inventaire introuvable.");
                 }
 
+                $variant = $ligne->variant
+                    ?? ProductVariant::where('product_id', $ligne->product_id)->first();
+
+                if (!$variant) {
+                    throw new \Exception("Variante introuvable pour la ligne #{$ligne->id}.");
+                }
+
                 $qteReelle  = (int) $ligneData['qte_reelle'];
-                $stockActuel = $ligne->product->qte_dispo; // stock live
+                $stockActuel = $variant->qte_dispo;
                 $ecartReel   = $qteReelle - $stockActuel;
                 $notes = ($stockActuel !== $ligne->qte_theorique)
                     ? "Stock modifié depuis la création (théorique: {$ligne->qte_theorique}, live: {$stockActuel})"
@@ -128,7 +138,7 @@ class InventaireController extends Controller
                 }
 
                 $this->stockService->ajustementStock(
-                    product: $ligne->product,
+                    variant: $variant,
                     qteReelle: $qteReelle,
                     type: 'inventaire',
                     source: $inventaire,

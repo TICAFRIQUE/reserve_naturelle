@@ -104,7 +104,7 @@
                 </div>
             @endif
 
-            <!-- Tableau des produits -->
+            <!-- Tableau des variantes -->
             <div style="
                 background: white;
                 border-radius: 12px;
@@ -164,7 +164,10 @@
                                                 ">
                                                     <i class="fas fa-box" style="color: #b8860b;"></i>
                                                 </div>
-                                                {{ $ligne->product->designation ?? 'N/A' }}
+                                                {{ $ligne->variant->product->designation ?? $ligne->product->designation ?? 'N/A' }}
+                                                @if($ligne->variant)
+                                                    <span style="font-size:0.8rem;color:#6c757d;">({{ $ligne->variant->conditionnement }})</span>
+                                                @endif
                                             </div>
                                         </td>
                                         <td style="padding: 15px 20px;">
@@ -177,7 +180,7 @@
                                                 font-weight: 600;
                                                 display: inline-block;
                                             ">
-                                                {{ $ligne->product->reference_prod ?? 'N/A' }}
+                                                {{ $ligne->variant->reference_prod ?? $ligne->product->reference_prod ?? 'N/A' }}
                                             </span>
                                         </td>
                                         <td style="padding: 15px 20px; text-align: center; font-weight: 600; color: #2d5a27;">
@@ -286,7 +289,7 @@
                     text-align: center;
                 ">
                     <div style="font-size: 0.8rem; color: #6c757d; text-transform: uppercase; letter-spacing: 1px;">
-                        <i class="fas fa-boxes" style="color: #b8860b;"></i> Total produits
+                        <i class="fas fa-boxes" style="color: #b8860b;"></i> Total variantes
                     </div>
                     <div style="font-size: 1.8rem; font-weight: 700; color: #2d5a27;">
                         {{ $inventaire->produits->count() }}
@@ -386,7 +389,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </p>
                     <div style="background: #f8f5f0; padding: 12px; border-radius: 8px; margin: 10px 0;">
                         <p style="margin: 5px 0; font-weight: 600; color: #2d5a27;">
-                            <i class="fas fa-boxes"></i> Total produits : <strong>${totalProduits}</strong>
+                            <i class="fas fa-boxes"></i> Total variantes : <strong>${totalProduits}</strong>
                         </p>
                         <p style="margin: 5px 0; color: #28a745;">
                             <i class="fas fa-plus-circle"></i> Écarts positifs : <strong>${ecartsPositifs}</strong>

@@ -32,7 +32,7 @@
                     @endphp
                     <tr style="border-bottom: 1px solid #f0ebe5;">
                         <td style="padding: 12px 20px; color: #6c757d;">{{ $m->created_at->format('d/m/Y H:i') }}</td>
-                        <td style="padding: 12px 20px; font-weight: 500; color: #2d5a27;">{{ $m->product->designation ?? '—' }}</td>
+                        <td style="padding: 12px 20px; font-weight: 500; color: #2d5a27;">{{ $m->variant->reference_prod ?? $m->product->designation ?? '—' }}</td>
                         <td style="padding: 12px 20px;">
                             <span style="
                                 background: {{ $estEntree ? '#e8f5e9' : '#e3f2fd' }};

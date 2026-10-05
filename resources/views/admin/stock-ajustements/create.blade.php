@@ -44,18 +44,18 @@
                     @csrf
 
                     <div style="margin-bottom: 25px;">
-                        <label for="product_id" style="display: block; font-weight: 600; color: #2d5a27; font-size: 0.95rem; margin-bottom: 6px;">
+                        <label for="product_variant_id" style="display: block; font-weight: 600; color: #2d5a27; font-size: 0.95rem; margin-bottom: 6px;">
                             <i class="fas fa-box" style="color: #b8860b; margin-right: 8px;"></i>
-                            Produit <span style="color: #dc3545;">*</span>
+                            Variante <span style="color: #dc3545;">*</span>
                         </label>
-                        <select id="product_id" name="product_id" required style="
+                        <select id="product_variant_id" name="product_variant_id" required style="
                             width: 100%; max-width: 400px; padding: 12px 16px;
                             border: 2px solid #e8e0d5; border-radius: 8px; font-size: 0.95rem; background: white;
                         ">
-                            <option value="">-- Sélectionner un produit --</option>
-                            @foreach ($produits as $produit)
-                                <option value="{{ $produit->id }}" data-stock="{{ $produit->qte_dispo }}" {{ old('product_id') == $produit->id ? 'selected' : '' }}>
-                                    {{ $produit->designation }} ({{ $produit->reference_prod }}) — Stock: {{ $produit->qte_dispo }}
+                            <option value="">-- Sélectionner une variante --</option>
+                            @foreach ($variants as $variant)
+                                <option value="{{ $variant->id }}" data-stock="{{ $variant->qte_dispo }}" {{ old('product_variant_id') == $variant->id ? 'selected' : '' }}>
+                                    {{ $variant->reference_prod }} — {{ $variant->product->designation }} ({{ $variant->conditionnement }}) — Stock: {{ $variant->qte_dispo }}
                                 </option>
                             @endforeach
                         </select>
@@ -151,7 +151,7 @@ function toggleSens() {
     }
 }
 
-document.getElementById('product_id').addEventListener('change', function() {
+document.getElementById('product_variant_id').addEventListener('change', function() {
     const selected = this.options[this.selectedIndex];
     const stock = selected.dataset.stock;
     const info = document.getElementById('stock-info');

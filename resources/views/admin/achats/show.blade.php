@@ -186,8 +186,8 @@
                             @foreach($achat->produits as $ligne)
                                 <tr style="border-bottom:1px solid #f0ebe5;">
                                     <td style="padding:12px 20px;font-weight:500;color:#2d5a27;">
-                                        {{ $ligne->product->designation }}
-                                        <div style="font-size:0.8rem;color:#6c757d;">{{ $ligne->product->reference_prod }}</div>
+                                        {{ $ligne->variant->product->designation ?? $ligne->product->designation }}
+                                        <div style="font-size:0.8rem;color:#6c757d;">{{ $ligne->variant->reference_prod ?? $ligne->product->reference_prod }}</div>
                                     </td>
                                     <td style="padding:12px 20px;text-align:center;font-weight:600;">
                                         {{ $ligne->qte_commandee }}
@@ -252,7 +252,7 @@
                                 @foreach($achat->stockMouvements as $mvt)
                                     <tr style="border-bottom:1px solid #f0ebe5;">
                                         <td style="padding:12px 20px;font-weight:500;color:#2d5a27;">
-                                            {{ $mvt->product->designation }}
+                                            {{ $mvt->variant->reference_prod ?? $mvt->product->designation }}
                                         </td>
                                         <td style="padding:12px 20px;text-align:center;">
                                             <span style="background:#d4edda;color:#155724;padding:3px 12px;border-radius:20px;font-weight:600;">

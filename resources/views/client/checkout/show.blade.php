@@ -41,6 +41,25 @@
                 </div>
             </div>
         @endif
+        {{-- Lien de retour au panier --}}
+        <div style="margin-bottom: 20px;">
+            <a href="{{ route('client.cart.index') }}" 
+            style="
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                color: #2d5a27;
+                font-size: 0.9rem;
+                font-weight: 500;
+                text-decoration: none;
+                transition: gap 0.2s;
+            "
+            onmouseover="this.style.gap='12px'" 
+            onmouseout="this.style.gap='8px'">
+                <i class="fas fa-arrow-left"></i>
+                Retour au panier (modifier ou annuler)
+            </a>
+        </div>
 
         <!-- ============================================
              FORMULAIRE
@@ -69,22 +88,22 @@
 
                         @foreach($order->items as $item)
                             <div class="checkout-item {{ $loop->last ? 'last' : '' }}">
-                                <img src="{{ $item->product->image_path ? asset('storage/' . $item->product->image_path) : asset('images/default-product.jpg') }}"
-                                     alt="{{ $item->product->designation }}">
+                                <img src="{{ $item->variant->product->image_path ? asset('storage/' . $item->variant->product->image_path) : asset('images/default-product.jpg') }}"
+                                     alt="{{ $item->variant->libelle }}">
 
                                 <div class="checkout-item-info">
                                     <div class="checkout-item-name">
-                                        {{ $item->product->designation }}
+                                        {{ $item->variant->libelle }}
                                     </div>
                                     <div class="checkout-item-price">
-                                        {{ number_format($item->product->prix_vente, 0, ',', ' ') }} FCFA / unité
+                                        {{ number_format($item->variant->prix_vente, 0, ',', ' ') }} FCFA / unité
                                     </div>
                                 </div>
 
                                 <div class="checkout-item-totals">
                                     <span class="checkout-item-qty">x{{ $item->qte }}</span>
                                     <span class="checkout-item-total">
-                                        {{ number_format($item->qte * $item->product->prix_vente, 0, ',', ' ') }} FCFA
+                                        {{ number_format($item->qte * $item->variant->prix_vente, 0, ',', ' ') }} FCFA
                                     </span>
                                 </div>
                             </div>
