@@ -37,6 +37,9 @@ class OrderController extends Controller
 
     // Vérifier le stock AVANT toute modification
     foreach ($cart->items as $item) {
+        if (!$item->variant || !$item->variant->actif) {
+            return back()->with('error', 'Un article de votre panier n\'est plus disponible. Retirez-le pour continuer.');
+        }
         if ($item->qte > $item->variant->qte_dispo) {
             $message = $item->variant->sous_seuil
                 ? "Stock critique pour {$item->variant->libelle} : seulement {$item->variant->qte_dispo} disponible(s) (seuil d'alerte atteint)."

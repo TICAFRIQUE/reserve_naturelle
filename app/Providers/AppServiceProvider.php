@@ -24,8 +24,15 @@ class AppServiceProvider extends ServiceProvider
 
           // Limitation des tentatives de connexion
         RateLimiter::for('login', function (Request $request) {
-            $email = Str::transliterate(Str::lower($request->input('email')));
-            return Limit::perMinute(5)->by($email . '|' . $request->ip());
+            $input = $request->input('email');
+            $email = is_string($input) ? Str::transliterate(Str::lower($input)) : '';
+
+            return [
+                // 5 essais/min par couple email+IP, et plafond par IP contre la rotation d'emails
+                // (nécessite TrustProxies correct derrière un proxy, sinon tous les visiteurs partagent l'IP)
+                Limit::perMinute(5)->by($email . '|' . $request->ip()),
+                Limit::perMinute(30)->by($request->ip()),
+            ];
         });
 
         View::composer('layouts.admin', function ($view) {

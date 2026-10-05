@@ -43,8 +43,9 @@ class ProductController extends Controller
             $query->search($search);
         }
 
-        $sortField = $request->get('sort', 'created_at');
-        $sortDirection = $request->get('direction', 'desc');
+        $sortField = in_array($request->get('sort'), ['created_at', 'designation', 'reference_prod'], true)
+            ? $request->get('sort') : 'created_at';
+        $sortDirection = $request->get('direction') === 'asc' ? 'asc' : 'desc';
         $query->orderBy($sortField, $sortDirection);
 
         $products = $query->paginate(15)->withQueryString();

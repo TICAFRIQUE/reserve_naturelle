@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Services\CartService;
+use Illuminate\Validation\Rule;
 
 class CartController extends Controller
 {
@@ -22,16 +23,18 @@ class CartController extends Controller
         $cart = $this->cartService->getOrCreateCart();
         $cart->load('items.variant');
 
-        $total = $cart->items->sum(fn($item) => $item->qte * $item->variant->prix_vente);
-        $hasIssues = $cart->items->contains(fn($item) => !$item->variant || $item->qte > $item->variant->qte_dispo);
+        $total = $cart->items->sum(fn($item) => $item->variant ? $item->qte * $item->variant->prix_vente : 0);
+        $hasIssues = $cart->items->contains(fn($item) => !$item->variant || !$item->variant->actif || $item->qte > $item->variant->qte_dispo);
 
         return view('client.cart.index', compact('cart', 'total', 'hasIssues'));
     }
 
     public function store(Request $request){
         $validated = $request->validate([
-            'product_variant_id' => ['required', 'exists:product_variants,id'],
+            'product_variant_id' => ['required', Rule::exists('product_variants', 'id')->where('actif', true)],
             'qte' => ['required', 'integer', 'min:1'],
+        ], [
+            'product_variant_id.exists' => 'Ce produit n\'est plus disponible.',
         ]);
 
         // Restaure le panier_converti s'il existe, AVANT d'ajouter le nouvel article
@@ -76,6 +79,10 @@ class CartController extends Controller
         $this->authorizeItem($item);
         $validated = $request->validate(['qte' => ['required', 'integer', 'min:1']]);
         $variant = $item->variant;
+
+        if (!$variant || !$variant->actif) {
+            return back()->with('error', 'Ce produit n\'est plus disponible. Retirez-le de votre panier.');
+        }
 
         if ($validated['qte'] > $variant->qte_dispo) {
             $message = $variant->sous_seuil

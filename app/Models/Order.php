@@ -18,6 +18,7 @@ class Order extends Model
     'user_id',
     'zone_id',
     'adresse_precise',
+    'mode_livraison',
     'ville_expedition',
     'tarif_livraison',
     'montant_ttc',

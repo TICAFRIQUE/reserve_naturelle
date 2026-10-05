@@ -90,7 +90,7 @@ class StockService
 
             // Bloquer si stock insuffisant (sauf perte/casse)
             if ($type !== 'perte_casse' && $quantite > $stockAvant) {
-                throw new \Exception(
+                throw new \RuntimeException(
                     "Stock insuffisant pour la variante {$variant->reference_prod}."
                 );
             }

@@ -55,7 +55,7 @@
     });
 
     // Protégé : commandes + checkout (réservés aux utilisateurs connectés)
-    Route::prefix('client')->name('client.')->middleware(['auth'])->group(function () {
+    Route::prefix('client')->name('client.')->middleware(['auth', 'auth.session'])->group(function () {
 
         // Les routes commandes
         Route::prefix('commandes')->name('orders.')->group(function(){
@@ -101,7 +101,7 @@
     // LES ROUTES ADMIN
     //-------------------------------------------------
     // Back-office : auth + middleware admin
-    Route::middleware(['auth'])->group(function () {
+    Route::middleware(['auth', 'auth.session'])->group(function () {
         //pour faire une redirection sur le dashboard
         Route::prefix('admin')->middleware(['admin'])->name('admin.')->group(function () {
             Route::redirect('/', '/admin/dashboard')->name('index'); // ← ajouté

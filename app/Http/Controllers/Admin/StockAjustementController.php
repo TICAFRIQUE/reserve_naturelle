@@ -56,7 +56,7 @@ class StockAjustementController extends Controller
             return redirect()->route('admin.stock-mouvements.index')->with('success', 'Ajustement de stock enregistré.');
 
         } catch (\Exception $e) {
-            return back()->withInput()->with('error', $e->getMessage());
+            return back()->withInput()->withErrors(['quantite' => $e->getMessage()]);
         }
     }
 }

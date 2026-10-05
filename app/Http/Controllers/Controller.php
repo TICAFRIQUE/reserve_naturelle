@@ -2,41 +2,34 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-
 abstract class Controller
 {
     /**
-     * Retourne une URL "intended" sûre (même domaine), ou null.
-     * Accepte soit un Request, soit une chaîne d'URL.
+     * Retourne l'URL si elle est interne à l'application (chemin relatif ou même origine),
+     * sinon null. Empêche les open redirects (ex: https://shop.ci.evil.com).
      */
-    protected function safeIntendedUrl(Request|string|null $source): ?string
+    protected function safeIntendedUrl(mixed $url): ?string
     {
-        // Si on reçoit un Request, on lit la session
-        if ($source instanceof Request) {
-            $url = $source->session()->get('url.intended');
-        } else {
-            // Sinon on utilise directement la chaîne fournie
-            $url = $source;
-        }
-
-        if (!$url) {
+        if (!is_string($url) || $url === '' || preg_match('/[\x00-\x1F\x7F\\\\]/', $url)) {
             return null;
         }
 
-        $appUrl = config('app.url');
-
-        // Autoriser les URLs relatives (ex: /client/panier)
-        if (Str::startsWith($url, '/') && !Str::startsWith($url, '//')) {
-            return $url;
+        // Chemin relatif : "/client/panier" ok, "//evil.com" refusé
+        if (str_starts_with($url, '/') && !str_starts_with($url, '//')) {
+            return url($url);
         }
 
-        // Autoriser uniquement les URLs du même domaine
-        if (!Str::startsWith($url, $appUrl)) {
+        // URL absolue : même schéma/hôte/port que l'application, sans identifiants
+        $target = parse_url($url);
+        $self   = parse_url(url('/'));
+        if ($target === false || !isset($target['host'], $target['scheme']) || isset($target['user']) || isset($target['pass'])) {
             return null;
         }
 
-        return $url;
+        $sameOrigin = in_array($target['scheme'], ['http', 'https'], true)
+            && strcasecmp($target['host'], $self['host'] ?? '') === 0
+            && ($target['port'] ?? null) === ($self['port'] ?? null);
+
+        return $sameOrigin ? $url : null;
     }
 }
