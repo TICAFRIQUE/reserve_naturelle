@@ -135,4 +135,23 @@ class OrderController extends Controller
             );
         }
     }
+
+    /**
+     * Télécharger le ticket PDF d'une commande (régénéré s'il manque).
+     */
+    public function downloadTicket(Order $order, \App\Services\RecueCommandeService $tickets){
+        abort_if($order->statut === 'panier_converti', 404);
+
+        if (!$order->ticket_path || !\Illuminate\Support\Facades\Storage::disk('local')->exists($order->ticket_path)) {
+            try {
+                $tickets->generate($order);
+                $order->refresh();
+            } catch (\Throwable $e) {
+                report($e);
+                return back()->with('error', 'Impossible de générer le ticket pour le moment.');
+            }
+        }
+
+        return \Illuminate\Support\Facades\Storage::disk('local')->download($order->ticket_path);
+    }
 }

@@ -88,8 +88,9 @@ class StockService
             $stockAvant = $variant->qte_dispo;
             $cmpAvant = $variant->cmp;
 
-            // Bloquer si stock insuffisant (sauf perte/casse)
-            if ($type !== 'perte_casse' && $quantite > $stockAvant) {
+            // Bloquer si stock insuffisant (y compris perte/casse : on ne peut pas perdre plus que le stock
+            // physique ; si le stock est faux, corriger par un ajustement d'inventaire)
+            if ($quantite > $stockAvant) {
                 throw new \RuntimeException(
                     "Stock insuffisant pour la variante {$variant->reference_prod}."
                 );

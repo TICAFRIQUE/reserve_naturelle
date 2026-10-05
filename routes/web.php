@@ -81,7 +81,7 @@
 
     // Pages statiques
     // Route::get('/a-propos', fn () => view('client.about'))->name('client.about');
-    Route::get('/contact', fn () => view('client.contact'))->name('contact');
+    Route::view('/contact', 'client.contact')->name('contact');
 
  // Authentification
     Route::get('/login', [AuthController::class, 'create'])->name('login');
@@ -126,10 +126,7 @@
             Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
             Route::patch('/orders/{order}/status', [AdminOrderController::class, 'changeStatus'])->name('orders.status');
             Route::delete('orders/{order}', [AdminOrderController::class, 'destroy'])->name('orders.destroy');
-            Route::get('/orders/{order}/ticket', function (\App\Models\Order $order) {
-                abort_unless($order->ticket_path, 404);
-                return \Illuminate\Support\Facades\Storage::disk('local')->download($order->ticket_path);
-            })->name('orders.ticket');
+            Route::get('/orders/{order}/ticket', [AdminOrderController::class, 'downloadTicket'])->name('orders.ticket');
 
             //Routes concernant les tournées(Livraison et expedition)
             Route::prefix('tournees')->name('tournees.')->group(function(){
