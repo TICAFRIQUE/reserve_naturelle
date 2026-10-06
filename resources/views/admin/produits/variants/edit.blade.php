@@ -51,7 +51,7 @@
 
             {{-- Formulaire --}}
             <div style="background:white;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08);border:1px solid #e8e0d5;padding:30px;max-width:700px;">
-                <form action="{{ route('admin.produits.variants.update', $variant) }}" method="POST">
+                <form action="{{ route('admin.variants.update', $variant) }}" method="POST">
                     @csrf
                     @method('PUT')
 

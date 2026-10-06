@@ -11,10 +11,8 @@ class Product extends Model
 
     protected $fillable = [
         'reference_prod',
-        // 'prix_vente',
         'designation',
         'description',
-        // 'qte_dispo',
         'stock_minimum',
         'cmp',
         'image_path',

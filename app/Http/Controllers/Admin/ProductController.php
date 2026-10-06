@@ -62,7 +62,7 @@ class ProductController extends Controller
         $data = $request->validate([
             'designation' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'prix_vente' => 'required|numeric|min:0|regex:/^\d+(\.\d{1,2})?$/',
+            //'prix_vente' => 'required|numeric|min:0|regex:/^\d+(\.\d{1,2})?$/',
             // 'qte_dispo' => 'required|integer|min:0',
             'stock_minimum' => 'nullable|integer|min:0',
             'category_id' => 'required|exists:categories,id',
@@ -147,13 +147,16 @@ class ProductController extends Controller
     }
 
     public function destroy(string $id){
+
         $product = Product::findOrFail($id);
-        
         if ($product->orderItems()->exists()) {
             return redirect()->route('admin.produits.index')
                 ->with('error', 'Impossible de supprimer ce produit car il a des commandes associées.');
         }
-        
+        if ($product->achatProducts()->exists()) {
+            return redirect()->route('admin.produits.index')
+                ->with('error', 'Impossible de supprimer ce produit car il est associé à un ou plusieurs achats.');
+        }
         if ($product->image_path) {
             Storage::disk('public')->delete($product->image_path);
         }
