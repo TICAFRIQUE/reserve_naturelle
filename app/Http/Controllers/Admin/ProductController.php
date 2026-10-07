@@ -62,16 +62,16 @@ class ProductController extends Controller
         $data = $request->validate([
             'designation' => 'required|string|max:255',
             'description' => 'nullable|string',
-            //'prix_vente' => 'required|numeric|min:0|regex:/^\d+(\.\d{1,2})?$/',
-            // 'qte_dispo' => 'required|integer|min:0',
             'stock_minimum' => 'nullable|integer|min:0',
             'category_id' => 'required|exists:categories,id',
             'sous_category_id' => 'nullable|exists:sous_categories,id',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'status' => 'sometimes|in:draft,published,out_of_stock',
         ]);
-        $data['qte_dispo'] = 0;
+
+        $data['qte_dispo']      = 0;
         $data['reference_prod'] = $this->generateUniqueReference();
+        $data['slug']           = Product::generateUniqueSlug($data['designation']);
 
         if ($request->filled('sous_category_id')) {
             $sousCategory = SousCategory::find($request->sous_category_id);
@@ -81,13 +81,84 @@ class ProductController extends Controller
             $data['sous_category_id'] = null;
         }
 
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('products', 'public');
-            $data['image_path'] = $imagePath;
+       if ($request->hasFile('image')) {
+            $data['image_path'] = $this->optimizeAndStoreImage(
+                $request->file('image')
+            );
         }
 
         Product::create($data);
         return redirect()->route('admin.produits.index')->with('success', 'Produit créé avec succès.');
+    }
+
+    //Optimiser les imaghesz en les convertissants au format Webp
+    private function optimizeAndStoreImage($image, string $directory = 'products'): string{
+        $sourcePath = $image->getRealPath();
+        $mime = $image->getMimeType();
+
+        switch ($mime) {
+            case 'image/jpeg':
+                $source = imagecreatefromjpeg($sourcePath);
+                break;
+                
+            case 'image/png':
+                $source = imagecreatefrompng($sourcePath);
+                imagepalettetotruecolor($source);
+                imagealphablending($source, true);
+                imagesavealpha($source, true);
+                break;
+
+            case 'image/webp':
+                $source = imagecreatefromwebp($sourcePath);
+                break;
+
+            case 'image/gif':
+                $source = imagecreatefromgif($sourcePath);
+                break;
+
+            default:
+                throw new \InvalidArgumentException('Format d’image non pris en charge.');
+        }
+
+        $width = imagesx($source);
+        $height = imagesy($source);
+        $maxSize = 1200;
+
+        if ($width > $maxSize || $height > $maxSize) {
+            $ratio = min($maxSize / $width, $maxSize / $height);
+            $newWidth = (int) round($width * $ratio);
+            $newHeight = (int) round($height * $ratio);
+        } else {
+            $newWidth = $width;
+            $newHeight = $height;
+        }
+        $optimized = imagecreatetruecolor($newWidth, $newHeight);
+        imagealphablending($optimized, false);
+        imagesavealpha($optimized, true);
+        imagecopyresampled(
+            $optimized,
+            $source,
+            0,
+            0,
+            0,
+            0,
+            $newWidth,
+            $newHeight,
+            $width,
+            $height
+        );
+        $filename = Str::uuid() . '.webp';
+        $path = $directory . '/' . $filename;
+
+        ob_start();
+        imagewebp($optimized, null, 80);
+        $imageContent = ob_get_clean();
+
+        Storage::disk('public')->put($path, $imageContent);
+
+        imagedestroy($source);
+        imagedestroy($optimized);
+        return $path;
     }
 
     private function generateUniqueReference(): string{
@@ -113,19 +184,21 @@ class ProductController extends Controller
 
     public function update(Request $request, string $id){
         $product = Product::findOrFail($id);
-        
+
         $data = $request->validate([
             'reference_prod' => ['required', 'string', 'max:50', Rule::unique('products')->ignore($product->id)],
             'designation' => 'required|string|max:255',
             'description' => 'nullable|string',
-            // 'prix_vente' => 'required|numeric|min:0|regex:/^\d+(\.\d{1,2})?$/',
-            // 'qte_dispo' => 'required|integer|min:0',
             'stock_minimum' => 'nullable|integer|min:0',
             'category_id' => 'required|exists:categories,id',
             'sous_category_id' => 'nullable|exists:sous_categories,id',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'status' => 'sometimes|in:draft,published,out_of_stock',
         ]);
+
+        if ($product->designation !== $data['designation']) {
+            $data['slug'] = Product::generateUniqueSlug($data['designation'], $product->id);
+        }
 
         if ($request->filled('sous_category_id')) {
             $sousCategory = SousCategory::find($request->sous_category_id);
@@ -135,19 +208,20 @@ class ProductController extends Controller
             $data['sous_category_id'] = null;
         }
 
-        if ($request->hasFile('image')) {
+       if ($request->hasFile('image')) {
+            $newImagePath = $this->optimizeAndStoreImage(
+                $request->file('image')
+            );
             if ($product->image_path) {
                 Storage::disk('public')->delete($product->image_path);
             }
-            $imagePath = $request->file('image')->store('products', 'public');
-            $data['image_path'] = $imagePath;
+            $data['image_path'] = $newImagePath;
         }
         $product->update($data);
         return redirect()->route('admin.produits.index')->with('success', 'Produit mis à jour avec succès.');
     }
 
     public function destroy(string $id){
-
         $product = Product::findOrFail($id);
         if ($product->orderItems()->exists()) {
             return redirect()->route('admin.produits.index')

@@ -1,2 +1,14 @@
 User-agent: *
-Disallow:
+Allow: /
+
+Disallow: /admin/
+Disallow: /client/panier
+Disallow: /client/checkout/
+Disallow: /client/commandes/
+Disallow: /login
+Disallow: /register
+Disallow: /connexion
+Disallow: /inscription
+Disallow: /mot-de-passe
+
+Sitemap: https://reservenaturelle.maxisujets.net/sitemap.xml

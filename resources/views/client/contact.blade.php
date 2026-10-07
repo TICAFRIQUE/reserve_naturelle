@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Contact - La Réserve Naturelle')
+@section('meta_description', 'Contactez La Réserve Naturelle pour toute question concernant nos produits naturels et locaux, vos commandes ou nos services en Côte d’Ivoire.')
 
 @section('content')
 

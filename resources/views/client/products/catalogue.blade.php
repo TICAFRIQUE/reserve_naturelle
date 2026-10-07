@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Catalogue Complet - La Réserve Naturelle')
+@section('meta_description', 'Explorez le catalogue complet de La Réserve Naturelle et découvrez une sélection de produits naturels et locaux en Côte d’Ivoire : céréales, huiles, légumineuses, farines et épices.')
 
 @section('content')
 
@@ -139,7 +140,7 @@
                 @forelse($recentProducts ?? [] as $recent)
                     <div class="recent-item">
                         <img src="{{ $recent->image_path ? asset('storage/' . $recent->image_path) : asset('images/default-product.jpg') }}"
-                             alt="{{ $recent->designation }}">
+                             alt="{{ $recent->designation }}" loading="lazy">
                         <div>
                             <a href="{{ route('client.products.show', $recent->id) }}">
                                 {{ $recent->designation }}
@@ -166,7 +167,7 @@
                         @php $variant = $product->variants->first(); @endphp
                         <article class="catalogue-product-card">
 
-                            <a href="{{ route('client.products.show', $product->id) }}" class="product-link">
+                           <a href="{{ route('client.products.show', $product) }}" class="product-link">
                                 <div class="product-image"
                                      style="background-image: url('{{ $product->image_path ? asset('storage/' . $product->image_path) : asset('images/default-product.jpg') }}');">
 

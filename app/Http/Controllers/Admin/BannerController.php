@@ -28,6 +28,74 @@ class BannerController extends Controller
         return view('admin.banners.edit', compact('banner'));
     }
 
+    //Optimiser les images 
+    private function optimizeAndStoreImage($image, string $directory = 'banners'): string{
+        $sourcePath = $image->getRealPath();
+        $mime = $image->getMimeType();
+
+        switch ($mime) {
+            case 'image/jpeg':
+                $source = imagecreatefromjpeg($sourcePath);
+                break;
+
+            case 'image/png':
+                $source = imagecreatefrompng($sourcePath);
+                imagepalettetotruecolor($source);
+                imagealphablending($source, true);
+                imagesavealpha($source, true);
+                break;
+
+            case 'image/webp':
+                $source = imagecreatefromwebp($sourcePath);
+                break;
+
+            case 'image/gif':
+                $source = imagecreatefromgif($sourcePath);
+                break;
+
+            default:
+                throw new \InvalidArgumentException('Format d’image non pris en charge.');
+        }
+
+        $width = imagesx($source);
+        $height = imagesy($source);
+        $maxWidth = 1920;
+        $maxHeight = 800;
+        $ratio = min(
+            $maxWidth / $width,
+            $maxHeight / $height,
+            1
+        );
+        $newWidth = (int) round($width * $ratio);
+        $newHeight = (int) round($height * $ratio);
+        $optimized = imagecreatetruecolor($newWidth, $newHeight);
+        imagealphablending($optimized, false);
+        imagesavealpha($optimized, true);
+
+        imagecopyresampled(
+            $optimized,
+            $source,
+            0,
+            0,
+            0,
+            0,
+            $newWidth,
+            $newHeight,
+            $width,
+            $height
+        );
+        $filename = \Illuminate\Support\Str::uuid() . '.webp';
+        $path = $directory . '/' . $filename;
+        ob_start();
+        imagewebp($optimized, null, 80);
+        $imageContent = ob_get_clean();
+
+        Storage::disk('public')->put($path, $imageContent);
+
+        imagedestroy($source);
+        imagedestroy($optimized);
+        return $path;
+    }
     /**
      * Mettre à jour la bannière
      */
@@ -41,7 +109,7 @@ class BannerController extends Controller
             'sous_titre' => 'nullable|string',
             'texte_bouton' => 'nullable|string|max:100',
             'lien_bouton' => 'nullable|string|max:255',
-            'image' => 'nullable|image|max:5120',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ]);
 
         // Gestion de l'image
@@ -50,8 +118,9 @@ class BannerController extends Controller
             if ($banner->image_path && Storage::disk('public')->exists($banner->image_path)) {
                 Storage::disk('public')->delete($banner->image_path);
             }
-
-            $validated['image_path'] = $request->file('image')->store('banners', 'public');
+                $validated['image_path'] = $this->optimizeAndStoreImage(
+                    $request->file('image')
+                );
         }
 
         // Case à cocher "actif"

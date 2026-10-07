@@ -3,6 +3,7 @@
     use App\Http\Controllers\Auth\AuthController;
     use App\Http\Controllers\Auth\RegisterController;
     use App\Http\Controllers\Auth\PasswordController;
+    use App\Http\Controllers\SitemapController;
     use App\Http\Controllers\Admin\CategoryController;
     use App\Http\Controllers\Admin\FournisseurController;
     use App\Http\Controllers\Admin\SousCategoryController;
@@ -34,6 +35,8 @@
     Route::get('/', [ClientProductController::class, 'index'])->name('home');
     Route::redirect('/connexion', '/login');
     Route::redirect('/inscription', '/register');
+    //sitemap
+    Route::get('sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
     // Public (invité + connecté)
     Route::prefix('client')->name('client.')->group(function () {
@@ -41,8 +44,7 @@
         Route::get('/catalogue', [ClientProductController::class, 'catalogue'])->name('products.catalogue');
 
         Route::prefix('produits')->name('products.')->group(function () {
-            // Route::get('/recherche', [ClientProductController::class, 'search'])->name('search');
-            Route::get('/{product}', [ClientProductController::class, 'show'])->name('show');
+            Route::get('/{product:slug}', [ClientProductController::class, 'show'])->name('show');
         });
 
         Route::prefix('panier')->name('cart.')->group(function(){

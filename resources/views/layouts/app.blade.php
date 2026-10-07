@@ -4,10 +4,33 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="csrf-token" content="{{ csrf_token() }}">
-  <title>@yield('title', 'La Réserve Naturelle - Boutique')</title>
+  <title>@yield('title', 'La Réserve Naturelle - Produits naturels et locaux en Côte d’Ivoire')</title>
+
+  <meta name="description" content="@yield('meta_description', 'Découvrez La Réserve Naturelle, votre boutique de produits naturels et locaux en Côte d’Ivoire.')">
+  <meta name="robots" content="@yield('meta_robots', 'index, follow')">
+
+  {{-- Canonical (évite le duplicate content) --}}
+  <link rel="canonical" href="@yield('canonical', url()->current())">
+
+  {{-- Open Graph --}}
+  <meta property="og:type" content="@yield('og_type', 'website')">
+  <meta property="og:title" content="@yield('og_title', trim($__env->yieldContent('title') ?: 'La Réserve Naturelle - Produits naturels et locaux en Côte d’Ivoire'))">
+  <meta property="og:description" content="@yield('og_description', trim($__env->yieldContent('meta_description') ?: 'Découvrez La Réserve Naturelle, votre boutique de produits naturels et locaux en Côte d’Ivoire.'))">
+  <meta property="og:url" content="{{ url()->current() }}">
+  <meta property="og:site_name" content="La Réserve Naturelle">
+  <meta property="og:locale" content="fr_CI">
+  <meta property="og:image" content="@yield('og_image', asset('img/logo.png'))">
+  <meta property="og:image:alt" content="@yield('og_image_alt', 'La Réserve Naturelle')">
+
+  {{-- Twitter / X --}}
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="@yield('og_title', trim($__env->yieldContent('title') ?: 'La Réserve Naturelle - Produits naturels et locaux en Côte d’Ivoire'))">
+  <meta name="twitter:description" content="@yield('og_description', trim($__env->yieldContent('meta_description') ?: 'Découvrez La Réserve Naturelle, votre boutique de produits naturels et locaux en Côte d’Ivoire.'))">
+  <meta name="twitter:image" content="@yield('og_image', asset('img/logo.png'))">
 
   {{-- favicon --}}
   <link rel="icon" type="image/png" href="{{ asset('img/logo.png') }}">
+
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Dancing+Script:wght@700&family=Lato:wght@400;500;700&display=swap" rel="stylesheet">
 
@@ -19,6 +42,9 @@
 
   <!-- SweetAlert2 -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  {{-- Données structurées Schema.org (JSON-LD) --}}
+  @stack('structured_data')
 
   @stack('styles')
 </head>

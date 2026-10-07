@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'La Réserve Naturelle - Catalogue')
+@section('title', 'Catalogue de produits naturels et locaux - La Réserve Naturelle')
+@section('meta_description', 'Découvrez le catalogue de La Réserve Naturelle et commandez des produits naturels et locaux en Côte d’Ivoire : céréales, huiles, légumineuses, farines et épices.')
 
 @php
     $isPaginated = $products instanceof \Illuminate\Contracts\Pagination\Paginator;

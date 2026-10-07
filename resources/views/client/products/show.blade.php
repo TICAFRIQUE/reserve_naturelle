@@ -2,21 +2,119 @@
 
 @section('title', $product->designation . ' - La Réserve Naturelle')
 
-@section('content')
+@section('meta_description', Str::limit(
+    $product->description
+        ? $product->description . ' Découvrez ce produit naturel et local sur La Réserve Naturelle, votre boutique en Côte d’Ivoire.'
+        : 'Découvrez ' . $product->designation . ', un produit naturel et local disponible sur La Réserve Naturelle en Côte d’Ivoire.',
+    160
+))
+
+@section('og_type', 'product')
+@section('og_title', $product->designation . ' - La Réserve Naturelle')
+@section('og_description', Str::limit(
+    $product->description
+        ? $product->description . ' Découvrez ce produit naturel et local sur La Réserve Naturelle, votre boutique en Côte d’Ivoire.'
+        : 'Découvrez ' . $product->designation . ', un produit naturel et local disponible sur La Réserve Naturelle en Côte d’Ivoire.',
+    160
+))
+@section('og_image', $product->image_path
+    ? asset('storage/' . $product->image_path)
+    : asset('img/logo.png')
+)
+@section('og_image_alt', $product->designation)
 
 @php
     $variants   = $product->variants;
     $variant    = $variants->first();
     $prixMin    = $variants->min('prix_vente');
+    $prixMax    = $variants->max('prix_vente');
     $stockTotal = $variants->sum('qte_dispo');
+    $productUrl = route('client.products.show', $product);
+    $productImg = $product->image_path
+        ? asset('storage/' . $product->image_path)
+        : asset('images/default-product.jpg');
+
+    // Construction du schéma Product
+    $productSchema = [
+        '@context'    => 'https://schema.org/',
+        '@type'       => 'Product',
+        'name'        => $product->designation,
+        'description' => Str::limit(
+            $product->description ?? 'Produit naturel et local disponible sur La Réserve Naturelle en Côte d’Ivoire.',
+            300
+        ),
+        'image'       => [$productImg],
+        'sku'         => 'PROD-' . $product->id,
+        'category'    => $product->category->nom ?? 'Non catégorisé',
+        'brand'       => [
+            '@type' => 'Brand',
+            'name'  => 'La Réserve Naturelle',
+        ],
+        'url'         => $productUrl,
+    ];
+
+    if ($variants->count() > 0) {
+        $productSchema['offers'] = [
+            '@type'         => 'AggregateOffer',
+            'priceCurrency' => 'XOF',
+            'lowPrice'      => $prixMin ?? 0,
+            'highPrice'     => $prixMax ?? $prixMin ?? 0,
+            'offerCount'    => $variants->count(),
+            'availability'  => $stockTotal > 0
+                ? 'https://schema.org/InStock'
+                : 'https://schema.org/OutOfStock',
+            'url'           => $productUrl,
+            'seller'        => [
+                '@type' => 'Organization',
+                'name'  => 'La Réserve Naturelle',
+            ],
+        ];
+    }
+
+    // Construction du schéma Breadcrumb
+    $breadcrumbSchema = [
+        '@context'        => 'https://schema.org',
+        '@type'           => 'BreadcrumbList',
+        'itemListElement' => [
+            [
+                '@type'    => 'ListItem',
+                'position' => 1,
+                'name'     => 'Accueil',
+                'item'     => route('home'),
+            ],
+            [
+                '@type'    => 'ListItem',
+                'position' => 2,
+                'name'     => 'Catalogue',
+                'item'     => route('client.products.catalogue'),
+            ],
+            [
+                '@type'    => 'ListItem',
+                'position' => 3,
+                'name'     => $product->designation,
+                'item'     => $productUrl,
+            ],
+        ],
+    ];
 @endphp
+
+@push('structured_data')
+<script type="application/ld+json">
+{!! json_encode($productSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
+</script>
+<script type="application/ld+json">
+{!! json_encode($breadcrumbSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
+</script>
+@endpush
+
+@section('content')
 
 <div class="container product-show-wrapper">
 
     <!-- ============================================
          BREADCRUMB
     ============================================ -->
-    <nav class="breadcrumb">
+    <nav class="breadcrumb" aria-label="Fil d'Ariane">
         <a href="{{ route('home') }}">Accueil</a>
         <span class="breadcrumb-sep">›</span>
         <a href="{{ route('client.products.catalogue') }}">Catalogue</a>
@@ -30,8 +128,11 @@
     <div class="product-main-block">
         <!-- IMAGE -->
         <div class="product-main-image">
-            <img src="{{ $product->image_path ? asset('storage/' . $product->image_path) : asset('images/default-product.jpg') }}"
-                 alt="{{ $product->designation }}">
+            <img src="{{ $productImg }}"
+                 alt="{{ $product->designation }}"
+                 loading="eager"
+                 width="380"
+                 height="380">
         </div>
 
         <!-- INFOS -->
@@ -45,7 +146,7 @@
 
             <div class="product-main-price">
                 @if($variants->count() > 1)
-                    <span class="price-label"></span>
+                    <span class="price-label">À partir de</span>
                     <span class="price-value">{{ number_format($prixMin ?? 0, 0, ',', ' ') }} FCFA</span>
                 @else
                     <span class="price-value">{{ number_format($prixMin ?? 0, 0, ',', ' ') }} FCFA</span>
@@ -98,11 +199,12 @@
                 @foreach($similarProducts as $similar)
                     @php $similarVariant = $similar->variants->first(); @endphp
                     <article class="similar-product-card">
-                        <a href="{{ route('client.products.show', $similar->id) }}" class="similar-product-link">
+                        <a href="{{ route('client.products.show', $similar) }}" class="similar-product-link">
                             <div class="similar-product-image">
                                 @if($similar->image_path)
                                     <img src="{{ asset('storage/' . $similar->image_path) }}"
-                                         alt="{{ $similar->designation }}">
+                                         alt="{{ $similar->designation }}"
+                                         loading="lazy">
                                 @else
                                     <div class="similar-product-placeholder">
                                         <i class="fas fa-box"></i>
@@ -131,7 +233,7 @@
             <div class="variants-modal-content">
                 <div class="variants-modal-header">
                     <h3>{{ $product->designation }}</h3>
-                    <button type="button" class="variants-modal-close">&times;</button>
+                    <button type="button" class="variants-modal-close" aria-label="Fermer">&times;</button>
                 </div>
 
                 <div class="variants-modal-body">

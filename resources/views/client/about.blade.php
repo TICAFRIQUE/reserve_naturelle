@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'À propos - La Réserve Naturelle')
+@section('title', 'À propos de La Réserve Naturelle')
+@section('meta_description', 'Découvrez La Réserve Naturelle, une boutique dédiée aux produits naturels et locaux en Côte d’Ivoire, avec une sélection de céréales, huiles, légumineuses, farines et épices.')
 
 @section('content')
 
