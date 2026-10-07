@@ -8,6 +8,8 @@
 
     <title>@yield('title', 'Administration - La Réserve Naturelle')</title>
 
+    {{-- favicon --}}
+  <link rel="icon" type="image/png" href="{{ asset('img/logo.png') }}">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Dancing+Script:wght@700&family=Lato:wght@400;500;700&display=swap" rel="stylesheet">
 
