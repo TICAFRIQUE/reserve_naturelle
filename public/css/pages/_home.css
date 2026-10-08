@@ -7,12 +7,6 @@
 ============================================ */
 .home-banner {
     position: relative;
-    background-image:
-        linear-gradient(135deg,
-            rgba(5, 89, 54, 0.92) 0%,
-            rgba(11, 122, 72, 0.75) 50%,
-            rgba(215, 154, 5, 0.55) 100%),
-        url('/img/B_hero.jpeg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
