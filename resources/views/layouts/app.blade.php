@@ -9,7 +9,7 @@
   <meta name="description" content="@yield('meta_description', 'Découvrez La Réserve Naturelle, votre boutique de produits naturels et locaux en Côte d’Ivoire.')">
   <meta name="robots" content="@yield('meta_robots', 'index, follow')">
 
-  {{-- Canonical (évite le duplicate content) --}}
+  {{-- Canonical --}}
   <link rel="canonical" href="@yield('canonical', url()->current())">
 
   {{-- Open Graph --}}
@@ -28,7 +28,6 @@
   <meta name="twitter:description" content="@yield('og_description', trim($__env->yieldContent('meta_description') ?: 'Découvrez La Réserve Naturelle, votre boutique de produits naturels et locaux en Côte d’Ivoire.'))">
   <meta name="twitter:image" content="@yield('og_image', asset('img/logo.png'))">
 
-  {{-- favicon --}}
   <link rel="icon" type="image/png" href="{{ asset('img/logo.png') }}">
 
   <!-- Google Fonts -->
@@ -43,18 +42,17 @@
   <!-- SweetAlert2 -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-  {{-- Données structurées Schema.org (JSON-LD) --}}
   @stack('structured_data')
-
   @stack('styles')
 </head>
-<body  class="has-fixed-header">
+<body class="has-fixed-header">
 
 <!-- ============================================
      HEADER
 ============================================ -->
 <header class="header">
   <div class="container nav">
+
     <!-- LOGO -->
     <a class="brand" href="{{ route('home') }}">
       <div class="brand-icon">
@@ -66,23 +64,14 @@
       </div>
     </a>
 
-    <!-- HAMBURGER (Mobile) -->
-    <button class="hamburger" id="hamburger" aria-label="Menu">
-      <span class="bar"></span>
-      <span class="bar"></span>
-      <span class="bar"></span>
-    </button>
-
     <!-- NAVIGATION -->
     <nav class="navbar" id="navbar">
       <ul class="nav-links">
         <li><a href="{{ route('home') }}">Accueil</a></li>
-        {{-- <li><a href="{{ route('client.about') }}">À propos</a></li> --}}
         <li><a href="{{ route('client.products.catalogue') }}">Catalogue</a></li>
         <li><a href="{{ route('contact') }}">Contact</a></li>
 
         @auth
-          {{-- UTILISATEUR CONNECTÉ --}}
           <li class="dropdown dropdown-profile">
             <a href="#" style="display:flex;align-items:center;gap:8px;">
               <span>{{ Auth::user()->prenom }}</span>
@@ -114,18 +103,24 @@
             </ul>
           </li>
         @else
-          {{-- VISITEUR NON CONNECTÉ --}}
-        
           <li><a href="{{ route('login') }}" class="btn-connexion">Connexion</a></li>
         @endauth
       </ul>
     </nav>
 
-    <!-- PANIER -->
+    <!-- PANIER (AVANT le hamburger) -->
     <a class="cart-btn" href="{{ route('client.cart.index') }}">
       <i class="fas fa-shopping-cart"></i>
       Panier <span id="cart-badge" class="cart-badge">{{ $cartCount ?? 0 }}</span>
     </a>
+
+    <!-- HAMBURGER (APRÈS le panier) -->
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </button>
+
   </div>
 </header>
 
@@ -143,31 +138,24 @@
   <div class="footer-container">
     <div class="footer-links">
 
-      <!-- Colonne 1 : Catalogue -->
       <div>
         <h4>Catalogue</h4>
         <ul>
-          <li><a href="#">Céréales</a></li>
-          <li><a href="#">Huiles</a></li>
-          <li><a href="#">Légumineuses</a></li>
-          <li><a href="#">Farines & épices</a></li>
-          <li><a href="#">Fruits secs</a></li>
+          <li><a href="#">Condiments et épices</a></li>
+          <li><a href="#">Produits alimentaires</a></li>
+          <li><a href="#">Produits cosmétiques naturels</a></li>
         </ul>
       </div>
 
-      <!-- Colonne 2 : Informations -->
       <div>
         <h4>Informations</h4>
         <ul>
           <li><a href="#apropos">À propos</a></li>
           <li><a href="#">Livraison</a></li>
-          <li><a href="#">Paiement sécurisé</a></li>
           <li><a href="#">Conditions générales</a></li>
-          <li><a href="#">Politique de confidentialité</a></li>
         </ul>
       </div>
 
-      <!-- Colonne 3 : Contact -->
       <div>
         <h4>Contact</h4>
         <ul>
@@ -176,27 +164,22 @@
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
               <circle cx="12" cy="10" r="3"/>
             </svg>
-            Abidjan, Côte d'Ivoire
+            TICAFRIQUE – Abidjan, Côte d'Ivoire
           </li>
           <li>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
             </svg>
-            +225 01 23 45 67 89
+            <a href="tel:+2250556669299" style="color: inherit; text-decoration: none;">
+              05 56 66 92 99
+            </a>
           </li>
           <li>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="2" y="4" width="20" height="16" rx="2"/>
               <path d="M22 7l-8.97 5.7a1.94 1.94 0 01-2.06 0L2 7"/>
             </svg>
-            contact@lareservenaturelle.ci
-          </li>
-          <li>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/>
-              <polyline points="12 6 12 12 16 14"/>
-            </svg>
-            Lun - Sam : 8h - 19h
+            commercial@lareservenaturelle.ci
           </li>
         </ul>
       </div>
@@ -232,7 +215,7 @@
     }
   });
 
-  // ====== DROPDOWNS (accordéon mobile) ======
+  // ====== DROPDOWNS ======
   dropdowns.forEach(dropdown => {
     const trigger = dropdown.querySelector(':scope > a');
     if (!trigger) return;
@@ -250,7 +233,7 @@
     });
   });
 
-  // ====== FERMETURE MENU AU CLIC SUR UN LIEN ======
+  // ====== FERMETURE MENU AU CLIC LIEN ======
   document.querySelectorAll('.nav-links > li:not(.dropdown):not(.dropdown-profile) a').forEach(link => {
     link.addEventListener('click', () => {
       if (window.innerWidth <= 992) {
@@ -270,7 +253,6 @@
   });
 </script>
 
-{{-- JS ajout au panier (fichier externe) --}}
 <script src="{{ asset('js/client/client-cart.js') }}" defer></script>
 
 @if(session('success') || session('error'))

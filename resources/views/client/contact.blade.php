@@ -15,7 +15,7 @@
     <div class="contact-hero-content">
         <div class="contact-hero-icon">📞</div>
         <h1>Contactez-nous</h1>
-        <p>Nous sommes à votre écoute pour toute question ou demande</p>
+        <p>Nous sommes à votre écoute pour toute question ou commande</p>
     </div>
 </section>
 
@@ -71,56 +71,39 @@
                 <h3>Nos <span class="text-gold">coordonnées</span></h3>
 
                 <div class="contact-info-list">
+
+                    <!-- ADRESSE -->
                     <div class="info-card border-green">
                         <div class="info-icon text-green">📍</div>
                         <div>
                             <h4>Adresse</h4>
-                            <p>Abidjan, Côte d'Ivoire<br>Zone 4, Rue des Jardins</p>
+                            <p>TICAFRIQUE<br>Abidjan, Côte d'Ivoire</p>
                         </div>
                     </div>
 
+                    <!-- TÉLÉPHONE -->
                     <div class="info-card border-gold">
                         <div class="info-icon text-gold">📞</div>
                         <div>
-                            <h4>Téléphone</h4>
-                            <p>+225 01 23 45 67 89<br>+225 01 23 45 67 90</p>
+                            <h4>Téléphone / WhatsApp</h4>
+                            <p>
+                                <a href="tel:+2250556669299" style="color: inherit; text-decoration: none;">
+                                    05 56 66 92 99
+                                </a>
+                            </p>
+                            <small style="color: #6c757d; font-size: 0.85rem;">Commandes &amp; renseignements</small>
                         </div>
                     </div>
 
+                    <!-- EMAIL -->
                     <div class="info-card border-green">
                         <div class="info-icon text-green">✉️</div>
                         <div>
                             <h4>Email</h4>
-                            <p>contact@lareservenaturelle.ci<br>support@lareservenaturelle.ci</p>
+                            <p>commercial@lareservenaturelle.ci</p>
                         </div>
                     </div>
 
-                    <div class="info-card border-gold">
-                        <div class="info-icon text-gold">🕐</div>
-                        <div>
-                            <h4>Horaires</h4>
-                            <p>Lundi - Samedi : 8h - 19h<br>Dimanche : Fermé</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- RÉSEAUX SOCIAUX -->
-                <div class="social-card">
-                    <h4>Suivez-nous</h4>
-                    <div class="social-links">
-                        <a href="#" class="social-btn whatsapp" aria-label="WhatsApp">
-                            <i class="fab fa-whatsapp"></i>
-                        </a>
-                        <a href="#" class="social-btn facebook" aria-label="Facebook">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                        <a href="#" class="social-btn instagram" aria-label="Instagram">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                        <a href="#" class="social-btn twitter" aria-label="Twitter">
-                            <i class="fab fa-twitter"></i>
-                        </a>
-                    </div>
                 </div>
             </div>
 
@@ -141,14 +124,14 @@
         <div class="map-wrapper">
             <div class="map-frame">
                 <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d126914.74890170723!2d-4.06931645!3d5.35995115!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xfc1d2be6f440d8b%3A0xde4fa0755586a55c!2sAbidjan%2C%20C%C3%B4te%20d%27Ivoire!5e0!3m2!1sfr!2sfr!4v1700000000000!5m2!1sfr!2sfr"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3971.958565124782!2d-3.9934646!3d5.3960923!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xfc194a6d23e34df%3A0xb57679beb78c7b98!2sTICAFRIQUE!5e0!3m2!1sfr!2sfr!4v1700000000000!5m2!1sfr!2sfr"
                     allowfullscreen=""
                     loading="lazy"
                     referrerpolicy="no-referrer-when-downgrade">
                 </iframe>
             </div>
 
-            <a href="https://www.google.com/maps/dir//Abidjan,+C%C3%B4te+d%27Ivoire/@5.35995115,-4.06931645,12z"
+            <a href="https://www.google.com/maps/place/TICAFRIQUE/@5.3960923,-3.9934646,17z/data=!3m1!4b1!4m6!3m5!1s0xfc194a6d23e34df:0xb57679beb78c7b98!8m2!3d5.3960923!4d-3.9908897!16s%2Fg%2F11c75t9qls?entry=ttu&g_ep=EgoyMDI2MTAwNi4wIKXMDSoASAFQAw%3D%3D"
                target="_blank"
                class="map-directions-btn">
                 <i class="fas fa-directions"></i> Obtenir l'itinéraire
@@ -157,7 +140,7 @@
 
         <div class="map-address">
             <i class="fas fa-map-marker-alt text-green"></i>
-            <strong>Zone 4, Rue des Jardins</strong> - Abidjan, Côte d'Ivoire
+            <strong>TICAFRIQUE</strong> - Abidjan, Côte d'Ivoire
         </div>
     </div>
 </section>

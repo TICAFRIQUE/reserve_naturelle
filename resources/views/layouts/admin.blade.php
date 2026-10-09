@@ -230,71 +230,69 @@
         </main>
 
         <!-- FOOTER -->
-        <footer class="admin-footer" id="contact">
-            <div class="admin-footer-container">
-                <div class="admin-footer-links">
-                    <div>
-                        <h4>Catalogue</h4>
-                        <ul>
-                            <li><a href="#">Céréales</a></li>
-                            <li><a href="#">Huiles</a></li>
-                            <li><a href="#">Légumineuses</a></li>
-                            <li><a href="#">Farines & épices</a></li>
-                            <li><a href="#">Fruits secs</a></li>
-                        </ul>
-                    </div>
+<footer class="admin-footer" id="contact">
+    <div class="admin-footer-container">
+        <div class="admin-footer-links">
 
-                    <div>
-                        <h4>Informations</h4>
-                        <ul>
-                            <li><a href="#apropos">À propos</a></li>
-                            <li><a href="#">Livraison</a></li>
-                            <li><a href="#">Paiement sécurisé</a></li>
-                            <li><a href="#">Conditions générales</a></li>
-                            <li><a href="#">Politique de confidentialité</a></li>
-                        </ul>
-                    </div>
-
-                    <div>
-                        <h4>Contact</h4>
-                        <ul>
-                            <li>
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
-                                    <circle cx="12" cy="10" r="3"/>
-                                </svg>
-                                Abidjan, Côte d'Ivoire
-                            </li>
-                            <li>
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
-                                </svg>
-                                +225 01 23 45 67 89
-                            </li>
-                            <li>
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="2" y="4" width="20" height="16" rx="2"/>
-                                    <path d="M22 7l-8.97 5.7a1.94 1.94 0 01-2.06 0L2 7"/>
-                                </svg>
-                                contact@lareservenaturelle.ci
-                            </li>
-                            <li>
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="12" cy="12" r="10"/>
-                                    <polyline points="12 6 12 12 16 14"/>
-                                </svg>
-                                Lun - Sam: 8h - 19h
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="admin-footer-bottom">
-                    <p>&copy; {{ date('Y') }} <strong>La Réserve Naturelle</strong>. Tous droits réservés.</p>
-                </div>
+            <!-- Colonne 1 : Catalogue -->
+            <div>
+                <h4>Catalogue</h4>
+                <ul>
+                    <li><a href="#">Condiments et épices</a></li>
+                    <li><a href="#">Produits alimentaires</a></li>
+                    <li><a href="#">Produits cosmétiques naturels</a></li>
+                </ul>
             </div>
-        </footer>
-    </div><!-- /admin-main-wrapper -->
+
+            <!-- Colonne 2 : Informations -->
+            <div>
+                <h4>Informations</h4>
+                <ul>
+                    <li><a href="#apropos">À propos</a></li>
+                    <li><a href="#">Livraison</a></li>
+                    <li><a href="#">Conditions générales</a></li>
+                </ul>
+            </div>
+
+            <!-- Colonne 3 : Contact -->
+            <div>
+                <h4>Contact</h4>
+                <ul>
+                    <li>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+                            <circle cx="12" cy="10" r="3"/>
+                        </svg>
+                        TICAFRIQUE – Abidjan, Côte d'Ivoire
+                    </li>
+
+                    <li>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
+                        </svg>
+                        <a href="tel:+2250556669299" style="color: inherit; text-decoration: none;">
+                            05 56 66 92 99
+                        </a>
+                    </li>
+
+                    <li>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="4" width="20" height="16" rx="2"/>
+                            <path d="M22 7l-8.97 5.7a1.94 1.94 0 01-2.06 0L2 7"/>
+                        </svg>
+                        commercial@lareservenaturelle.ci
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+
+        <div class="admin-footer-bottom">
+            <p>&copy; {{ date('Y') }} <strong>La Réserve Naturelle</strong>. Tous droits réservés.</p>
+        </div>
+    </div>
+</footer>
+</div><!-- /admin-main-wrapper -->
 </div>
 
 <!-- ========================================= -->

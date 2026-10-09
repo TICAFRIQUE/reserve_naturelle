@@ -21,19 +21,22 @@
         min-width: 0;
     }
 
-    .hamburger {
-        display: flex;
+    /* Panier AVANT le hamburger */
+    .cart-btn {
         order: 1;
+        padding: 10px 16px;
+        font-size: 13px;
         margin-left: auto;
     }
 
-    .cart-btn {
+    /* Hamburger APRÈS le panier */
+    .hamburger {
+        display: flex;
         order: 2;
-        padding: 10px 16px;
-        font-size: 13px;
         margin-left: 8px;
     }
 
+    /* Navbar en dessous */
     .navbar {
         order: 3;
         flex-basis: 100%;
@@ -125,7 +128,6 @@
         padding: 10px 16px !important;
     }
 
-    /* Boutons connexion/inscription */
     .btn-connexion,
     .btn-inscription {
         display: block;
@@ -261,7 +263,6 @@
     .cart-wrapper { padding: 30px 16px; }
     .cart-title { font-size: 26px; margin-bottom: 20px; }
 
-    /* Basculer tableau → cartes */
     .cart-table-wrapper { display: none; }
     .cart-mobile-list   { display: flex; }
 
@@ -287,8 +288,6 @@
     }
 
     .checkout-summary { position: static; }
-
-    /* Résumé en premier sur mobile */
     .checkout-sidebar { order: -1; }
 
     .checkout-stepper {

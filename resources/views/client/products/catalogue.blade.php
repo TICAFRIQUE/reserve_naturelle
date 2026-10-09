@@ -274,9 +274,28 @@
                     @endforeach
                 </div>
 
+                {{-- ============================================
+                    PAGINATION
+                ============================================ --}}
                 @if(isset($products) && $products->hasPages())
-                    <div class="catalogue-pagination">
-                        {{ $products->appends(request()->query())->links() }}
+                    <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                        <div style="color: #6c757d; font-size: 0.9rem;">
+                            <i class="fas fa-info-circle" style="color: #2d5a27;"></i>
+                            @if ($products->total() > 0)
+                                Affichage de
+                                <strong>{{ $products->firstItem() }}</strong>
+                                à
+                                <strong>{{ $products->lastItem() }}</strong>
+                                sur
+                                <strong>{{ $products->total() }}</strong>
+                                produits
+                            @else
+                                Aucun produit trouvé
+                            @endif
+                        </div>
+                        <div style="display: flex; justify-content: center;">
+                            {{ $products->appends(request()->query())->links() }}
+                        </div>
                     </div>
                 @endif
 
@@ -294,9 +313,7 @@
         </div>
     </div>
 </div>
-
 @endsection
-
 @push('styles')
 <style>
     /* ============================================
@@ -354,7 +371,6 @@
     .variants-modal-close:hover {
         color: #2d5a27;
     }
-
     .variants-modal-body {
         padding: 20px 25px;
         overflow-y: auto;
@@ -365,7 +381,6 @@
         font-size: 0.9rem;
         margin-bottom: 15px;
     }
-
     .variants-modal-footer {
         display: flex;
         gap: 10px;
@@ -403,7 +418,7 @@
     }
 
     /* ============================================
-       LIGNES DE VARIANTES (dans la modal)
+       LIGNES DE VARIANTES
     ============================================ */
     .variants-list {
         display: flex;
@@ -443,7 +458,6 @@
         color: #6c757d;
         font-weight: 500;
     }
-
     .variant-col-actions {
         display: flex;
         align-items: center;
@@ -495,7 +509,7 @@
         margin: 0;
     }
 
-    /* Bouton Ajouter dans la modal */
+    /* Bouton Ajouter */
     .add-to-cart-btn {
         background: #2d5a27;
         color: white;
@@ -513,14 +527,64 @@
     .add-to-cart-btn:hover {
         background: #1e3d1a;
     }
-
     .variant-unavailable {
         color: #adb5bd;
         font-size: 0.85rem;
         font-style: italic;
     }
 
-    /* Responsive modal */
+    /* ============================================
+       PAGINATION (identique ADMIN)
+    ============================================ */
+    .pagination {
+        display: flex;
+        list-style: none;
+        gap: 5px;
+        padding: 0;
+        margin: 0;
+    }
+    .pagination li {
+        display: inline-block;
+    }
+    .pagination li a,
+    .pagination li span {
+        display: inline-block;
+        padding: 8px 16px;
+        background: white;
+        border: 1px solid #e8e0d5;
+        border-radius: 6px;
+        color: #2d5a27;
+        text-decoration: none;
+        transition: all 0.2s;
+        font-size: 0.9rem;
+    }
+    .pagination li a:hover {
+        background: #2d5a27;
+        color: white;
+        border-color: #2d5a27;
+    }
+    .pagination li.active span {
+        background: #2d5a27;
+        color: white;
+        border-color: #2d5a27;
+    }
+    .pagination li.disabled span {
+        color: #adb5bd;
+        background: #f8f5f0;
+        border-color: #e8e0d5;
+    }
+
+    /* ============================================
+       RESPONSIVE GLOBAL
+    ============================================ */
+    @media (max-width: 768px) {
+        .pagination li a,
+        .pagination li span {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+    }
+
     @media (max-width: 600px) {
         .variant-row {
             grid-template-columns: 1fr 1fr;
@@ -536,7 +600,6 @@
     }
 </style>
 @endpush
-
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
