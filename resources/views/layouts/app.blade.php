@@ -6,6 +6,7 @@
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>@yield('title', 'La Réserve Naturelle - Produits naturels et locaux en Côte d’Ivoire')</title>
 
+  <meta name="google-site-verification" content="ToZMgZcRknfbpUnu-KpdgTAyOvz6rBKQB6mZ3SzYfCA" />
   <meta name="description" content="@yield('meta_description', 'Découvrez La Réserve Naturelle, votre boutique de produits naturels et locaux en Côte d’Ivoire.')">
   <meta name="robots" content="@yield('meta_robots', 'index, follow')">
 
@@ -38,6 +39,16 @@
 
   <!-- CSS principal -->
   <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-00YHWD67YQ"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-00YHWD67YQ');
+  </script>
 
   <!-- SweetAlert2 -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -179,7 +190,9 @@
               <rect x="2" y="4" width="20" height="16" rx="2"/>
               <path d="M22 7l-8.97 5.7a1.94 1.94 0 01-2.06 0L2 7"/>
             </svg>
-            commercial@lareservenaturelle.ci
+              <a href="mailto:commercial@lareservenaturelle.ci" style="color: inherit; text-decoration: none;">
+                commercial@lareservenaturelle.ci
+              </a>
           </li>
         </ul>
       </div>

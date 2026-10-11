@@ -139,11 +139,18 @@
         <div class="product-main-info">
             <h1>{{ $product->designation }}</h1>
 
-            <p class="product-main-category">
+           <p class="product-main-category">
                 <i class="fas fa-folder" style="color:#b8860b;"></i>
-                {{ $product->category->nom ?? 'Non catégorisé' }}
-            </p>
 
+                @if($product->category)
+                    <a href="{{ route('client.products.catalogue', ['category' => $product->category->id]) }}"
+                    title="Voir les produits de la catégorie {{ $product->category->nom }}">
+                        {{ $product->category->nom }}
+                    </a>
+                @else
+                    Non catégorisé
+                @endif
+            </p>
             <div class="product-main-price">
                 @if($variants->count() > 1)
                     <span class="price-label">À partir de</span>
