@@ -37,13 +37,13 @@
     Route::redirect('/inscription', '/register');
     
     //sitemap
-    Route::get('/sitemap.xml', [SitemapController::class, 'index'])
-    ->withoutMiddleware([
+    Route::get('/sitemap.xml', [SitemapController::class, 'index'])->withoutMiddleware([
+        \Illuminate\Foundation\Http\Middleware\PreventRequestForgery::class,
         \Illuminate\Session\Middleware\StartSession::class,
         \Illuminate\View\Middleware\ShareErrorsFromSession::class,
-        \App\Http\Middleware\VerifyCsrfToken::class,
         \App\Http\Middleware\EncryptCookies::class,
         \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+        \App\Http\Middleware\ShareCartPendingOrder::class,
         \App\Http\Middleware\ShareCartCount::class,
     ])
     ->name('sitemap');
