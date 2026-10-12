@@ -35,18 +35,9 @@
     Route::get('/', [ClientProductController::class, 'index'])->name('home');
     Route::redirect('/connexion', '/login');
     Route::redirect('/inscription', '/register');
-
+    
     //sitemap
-    Route::get('/sitemap.xml', [SitemapController::class, 'index'])
-        ->withoutMiddleware([
-            \Illuminate\Session\Middleware\StartSession::class,
-            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
-            \App\Http\Middleware\VerifyCsrfToken::class,
-            \App\Http\Middleware\EncryptCookies::class,
-            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
-            \App\Http\Middleware\ShareCartCount::class,
-            \App\Http\Middleware\ShareCartPendingOrder::class,
-        ])->name('sitemap');
+    Route::get('sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
     // Public (invité + connecté)
     Route::prefix('client')->name('client.')->group(function () {
