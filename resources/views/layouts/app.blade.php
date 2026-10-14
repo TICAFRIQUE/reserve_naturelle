@@ -10,6 +10,16 @@
   <meta name="description" content="@yield('meta_description', 'Découvrez La Réserve Naturelle, votre boutique de produits naturels et locaux en Côte d’Ivoire.')">
   <meta name="robots" content="@yield('meta_robots', 'index, follow')">
 
+  {{-- ⚡ PERF: Preconnect (AVANT tout) --}}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+
+  {{-- ⚡ PERF: Preload image hero (LCP) --}}
+  <link rel="preload" as="image" href="{{ asset('img/b-hero.webp') }}" fetchpriority="high">
+
   {{-- Canonical --}}
   <link rel="canonical" href="@yield('canonical', url()->current())">
 
@@ -20,38 +30,43 @@
   <meta property="og:url" content="{{ url()->current() }}">
   <meta property="og:site_name" content="La Réserve Naturelle">
   <meta property="og:locale" content="fr_CI">
-  <meta property="og:image" content="@yield('og_image', asset('img/logo.png'))">
+  <meta property="og:image" content="@yield('og_image', asset('img/logo.webp'))">
   <meta property="og:image:alt" content="@yield('og_image_alt', 'La Réserve Naturelle')">
 
   {{-- Twitter / X --}}
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="@yield('og_title', trim($__env->yieldContent('title') ?: 'La Réserve Naturelle - Produits naturels et locaux en Côte d’Ivoire'))">
   <meta name="twitter:description" content="@yield('og_description', trim($__env->yieldContent('meta_description') ?: 'Découvrez La Réserve Naturelle, votre boutique de produits naturels et locaux en Côte d’Ivoire.'))">
-  <meta name="twitter:image" content="@yield('og_image', asset('img/logo.png'))">
+  <meta name="twitter:image" content="@yield('og_image', asset('img/logo.webp'))">
 
-  <link rel="icon" type="image/png" href="{{ asset('img/logo.png') }}">
+  <link rel="icon" type="image/webp" href="{{ asset('img/logo.webp') }}">
 
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Dancing+Script:wght@700&family=Lato:wght@400;500;700&display=swap" rel="stylesheet">
+  {{-- ⚡ PERF: Google Fonts en async (ne bloque plus le rendu) --}}
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Dancing+Script:wght@700&family=Lato:wght@400;500;700&display=swap"
+        rel="stylesheet"
+        media="print"
+        onload="this.media='all'">
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Dancing+Script:wght@700&family=Lato:wght@400;500;700&display=swap" rel="stylesheet">
+  </noscript>
 
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <!-- CSS principal -->
-  <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+  <!-- CSS principal (fusionné + minifié) -->
+  <link rel="stylesheet" href="{{ asset('css/app.min.css') }}">
 
-  <!-- Google tag (gtag.js) -->
+  <!-- ⚡ PERF: Google Analytics en async (chargement différé) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-00YHWD67YQ"></script>
   <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-
       gtag('config', 'G-00YHWD67YQ');
   </script>
 
-  <!-- SweetAlert2 -->
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- ⚡ PERF: SweetAlert2 différé -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
 
   @stack('structured_data')
   @stack('styles')
@@ -59,23 +74,18 @@
 <body class="has-fixed-header">
 
 <!-- ============================================
-     HEADER
+     HEADER  →  [LOGO]  liens centrés  [Panier]
 ============================================ -->
 <header class="header">
-  <div class="container nav">
+  {{-- "container" retiré : la largeur est gérée par .nav (évite le conflit de largeur) --}}
+  <div class="nav">
 
-    <!-- LOGO -->
+    <!-- LOGO (colonne gauche) -->
     <a class="brand" href="{{ route('home') }}">
-      <div class="brand-icon">
-        <img src="{{ asset('img/logo.png') }}" alt="La Réserve Naturelle">
-      </div>
-      <div class="brand-text">
-        <strong>La Réserve</strong>
-        <em>Naturelle</em>
-      </div>
+      <img src="{{ asset('img/logo.webp') }}" alt="La Réserve Naturelle" class="brand-logo" width="160" height="60">
     </a>
 
-    <!-- NAVIGATION -->
+    <!-- NAVIGATION (colonne centrale) -->
     <nav class="navbar" id="navbar">
       <ul class="nav-links">
         <li><a href="{{ route('home') }}">Accueil</a></li>
@@ -84,12 +94,12 @@
 
         @auth
           <li class="dropdown dropdown-profile">
-            <a href="#" style="display:flex;align-items:center;gap:8px;">
+            {{-- La flèche ▾ vient du CSS (.dropdown > a::after) --}}
+            <a href="#">
               <span>{{ Auth::user()->prenom }}</span>
               @if(Auth::user()->isAdmin())
                 <span class="badge-admin">Admin</span>
               @endif
-              <i class="fas fa-chevron-down" style="font-size:10px;"></i>
             </a>
             <ul class="dropdown-menu">
               <li>
@@ -119,18 +129,19 @@
       </ul>
     </nav>
 
-    <!-- PANIER (AVANT le hamburger) -->
-    <a class="cart-btn" href="{{ route('client.cart.index') }}">
-      <i class="fas fa-shopping-cart"></i>
-      Panier <span id="cart-badge" class="cart-badge">{{ $cartCount ?? 0 }}</span>
-    </a>
+    <!-- PANIER + HAMBURGER (colonne droite) -->
+    <div class="nav-actions">
+      <a class="cart-btn" href="{{ route('client.cart.index') }}">
+        <i class="fas fa-shopping-cart"></i>
+        Panier <span id="cart-badge" class="cart-badge">{{ $cartCount ?? 0 }}</span>
+      </a>
 
-    <!-- HAMBURGER (APRÈS le panier) -->
-    <button class="hamburger" id="hamburger" aria-label="Menu">
-      <span class="bar"></span>
-      <span class="bar"></span>
-      <span class="bar"></span>
-    </button>
+      <button class="hamburger" id="hamburger" aria-label="Menu" aria-controls="navbar" aria-expanded="false">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
+    </div>
 
   </div>
 </header>
@@ -161,7 +172,7 @@
       <div>
         <h4>Informations</h4>
         <ul>
-          <li><a href="#apropos">À propos</a></li>
+          <li><a href="#">À propos</a></li>
           <li><a href="#">Livraison</a></li>
           <li><a href="#">Conditions générales</a></li>
         </ul>
@@ -209,61 +220,55 @@
      SCRIPTS
 ============================================ -->
 <script>
-  // ====== MENU HAMBURGER ======
-  const hamburger = document.getElementById('hamburger');
-  const navbar = document.getElementById('navbar');
-  const dropdowns = document.querySelectorAll('.dropdown, .dropdown-profile');
+  (() => {
+    const MOBILE_BP = 992;
+    const hamburger = document.getElementById('hamburger');
+    const navbar = document.getElementById('navbar');
+    const dropdowns = document.querySelectorAll('.dropdown');
 
-  hamburger.addEventListener('click', function (e) {
-    e.stopPropagation();
-    this.classList.toggle('active');
-    navbar.classList.toggle('active');
-  });
-
-  document.addEventListener('click', function (e) {
-    if (!navbar.contains(e.target) && !hamburger.contains(e.target)) {
+    const closeAll = () => {
       hamburger.classList.remove('active');
+      hamburger.setAttribute('aria-expanded', 'false');
       navbar.classList.remove('active');
       dropdowns.forEach(d => d.classList.remove('active'));
-    }
-  });
+    };
 
-  // ====== DROPDOWNS ======
-  dropdowns.forEach(dropdown => {
-    const trigger = dropdown.querySelector(':scope > a');
-    if (!trigger) return;
+    hamburger.addEventListener('click', e => {
+      e.stopPropagation();
+      const open = hamburger.classList.toggle('active');
+      navbar.classList.toggle('active', open);
+      hamburger.setAttribute('aria-expanded', String(open));
+    });
 
-    trigger.addEventListener('click', function (e) {
-      if (window.innerWidth <= 992) {
+    document.addEventListener('click', e => {
+      if (!navbar.contains(e.target) && !hamburger.contains(e.target)) closeAll();
+    });
+
+    dropdowns.forEach(dropdown => {
+      const trigger = dropdown.querySelector(':scope > a');
+      if (!trigger) return;
+
+      trigger.addEventListener('click', e => {
+        if (window.innerWidth > MOBILE_BP) return;
         e.preventDefault();
         e.stopPropagation();
-        const isOpen = dropdown.classList.contains('active');
-        dropdowns.forEach(d => {
-          if (d !== dropdown) d.classList.remove('active');
-        });
-        dropdown.classList.toggle('active', !isOpen);
-      }
+        const wasOpen = dropdown.classList.contains('active');
+        dropdowns.forEach(d => d.classList.remove('active'));
+        dropdown.classList.toggle('active', !wasOpen);
+      });
     });
-  });
 
-  // ====== FERMETURE MENU AU CLIC LIEN ======
-  document.querySelectorAll('.nav-links > li:not(.dropdown):not(.dropdown-profile) a').forEach(link => {
-    link.addEventListener('click', () => {
-      if (window.innerWidth <= 992) {
-        hamburger.classList.remove('active');
-        navbar.classList.remove('active');
-      }
+    // Fermer le menu mobile après clic sur un lien (hors déclencheur de dropdown)
+    document.querySelectorAll('.nav-links a:not(.dropdown > a)').forEach(link => {
+      link.addEventListener('click', () => {
+        if (window.innerWidth <= MOBILE_BP) closeAll();
+      });
     });
-  });
 
-  // ====== RESIZE ======
-  window.addEventListener('resize', function () {
-    if (window.innerWidth > 992) {
-      hamburger.classList.remove('active');
-      navbar.classList.remove('active');
-      dropdowns.forEach(d => d.classList.remove('active'));
-    }
-  });
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > MOBILE_BP) closeAll();
+    });
+  })();
 </script>
 
 <script src="{{ asset('js/client/client-cart.js') }}" defer></script>

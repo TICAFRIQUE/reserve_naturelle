@@ -27,11 +27,7 @@
                 {{ $banner->texte_bouton ?? 'Découvrir le catalogue' }}
             </a>
         </div>
-        <div class="home-banner-icons">
-            <div class="icon-box">🌾<small>Céréales</small></div>
-            <div class="icon-box">🌿<small>Huiles</small></div>
-            <div class="icon-box">🥜<small>Légumes</small></div>
-        </div>
+        {{-- ⚠️ Bloc home-banner-icons SUPPRIMÉ --}}
     </div>
 </section>
 
@@ -57,31 +53,31 @@
                     <article class="product-card">
 
                         <a href="{{ route('client.products.show', $product) }}">
-    <div class="product-img">
-        @if($product->image_path)
-            <img src="{{ asset('storage/' . $product->image_path) }}"
-                 alt="{{ $product->designation }}">
-        @else
-            <div style="display:flex;align-items:center;justify-content:center;height:100%;color:#b8860b;font-size:48px;">
-                📦
-            </div>
-        @endif
+                            <div class="product-img">
+                                @if($product->image_path)
+                                    <img src="{{ asset('storage/' . $product->image_path) }}"
+                                         alt="{{ $product->designation }}">
+                                @else
+                                    <div style="display:flex;align-items:center;justify-content:center;height:100%;color:#b8860b;font-size:48px;">
+                                        📦
+                                    </div>
+                                @endif
 
-        {{-- Badge PROMO (produits < 1000 FCFA) --}}
-        @if($variant && $variant->prix_vente < 1000)
-            <span class="product-badge promo">🔥 Promo</span>
-        @endif
+                                {{-- Badge PROMO (produits < 1000 FCFA) --}}
+                                @if($variant && $variant->prix_vente < 1000)
+                                    <span class="product-badge promo">🔥 Promo</span>
+                                @endif
 
-        {{-- Badge STOCK (en haut à droite si pas promo, sinon en bas) --}}
-        @if($variant && $variant->qte_dispo > 10)
-            <span class="product-badge stock">✓ En stock</span>
-        @elseif($variant && $variant->qte_dispo > 0)
-            <span class="product-badge limited">⚠ Stock limité</span>
-        @else
-            <span class="product-badge out">✗ Rupture</span>
-        @endif
-    </div>
-</a>
+                                {{-- Badge STOCK --}}
+                                @if($variant && $variant->qte_dispo > 10)
+                                    <span class="product-badge stock">✓ En stock</span>
+                                @elseif($variant && $variant->qte_dispo > 0)
+                                    <span class="product-badge limited">⚠ Stock limité</span>
+                                @else
+                                    <span class="product-badge out">✗ Rupture</span>
+                                @endif
+                            </div>
+                        </a>
 
                         <div class="product-body">
                             @if($product->category)

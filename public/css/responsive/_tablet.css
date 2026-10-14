@@ -5,6 +5,7 @@
 
     /* ========================================
        NAVIGATION
+       (.nav-actions = panier + hamburger, défini dans _header.css)
     ======================================== */
     .nav {
         flex-wrap: wrap;
@@ -21,19 +22,13 @@
         min-width: 0;
     }
 
-    /* Panier AVANT le hamburger */
     .cart-btn {
-        order: 1;
         padding: 10px 16px;
         font-size: 13px;
-        margin-left: auto;
     }
 
-    /* Hamburger APRÈS le panier */
     .hamburger {
         display: flex;
-        order: 2;
-        margin-left: 8px;
     }
 
     /* Navbar en dessous */
@@ -83,10 +78,6 @@
         font-size: 16px;
         text-align: center;
         white-space: normal;
-    }
-
-    .nav-links > li > a::after {
-        display: none;
     }
 
     .dropdown-menu,

@@ -24,6 +24,42 @@
     RewriteRule ^ index.php [L]
 </IfModule>
 
+# ============================================
+# 🗜️ COMPRESSION GZIP / DEFLATE
+# Réduit le poids des fichiers texte de 60 à 80%
+# ============================================
+<IfModule mod_deflate.c>
+    # Compresser les types MIME principaux
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE text/javascript
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+    AddOutputFilterByType DEFLATE application/json
+    AddOutputFilterByType DEFLATE application/ld+json
+    AddOutputFilterByType DEFLATE application/vnd.ms-fontobject
+    AddOutputFilterByType DEFLATE font/ttf
+    AddOutputFilterByType DEFLATE font/otf
+    AddOutputFilterByType DEFLATE font/woff
+    AddOutputFilterByType DEFLATE font/woff2
+    AddOutputFilterByType DEFLATE image/svg+xml
+
+    # Ne pas compresser les images déjà compressées
+    SetEnvIfNoCase Request_URI \.(?:gif|jpe?g|png|webp|ico|zip|gz)$ no-gzip dont-vary
+    SetEnvIfNoCase Request_URI \.(?:exe|t?gz|zip|bz2|sit|rar)$ no-gzip dont-vary
+
+    # Gérer les proxys défaillants
+    Header append Vary User-Agent env=!dont-vary
+</IfModule>
+
+# ============================================
+# 📦 CACHE NAVIGATEUR (1 an pour les assets)
+# ============================================
 <IfModule mod_expires.c>
     ExpiresActive On
 
@@ -46,7 +82,16 @@
 </IfModule>
 
 <IfModule mod_headers.c>
+    # Cache long pour les assets statiques
     <FilesMatch "\.(webp|jpg|jpeg|png|gif|svg|ico|css|js|woff|woff2)$">
         Header set Cache-Control "public, max-age=31536000, immutable"
     </FilesMatch>
+
+    # Sécurité basique
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # Nettoyer le header Server (masquer la version PHP)
+    Header unset X-Powered-By
 </IfModule>

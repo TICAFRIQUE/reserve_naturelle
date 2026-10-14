@@ -7,9 +7,6 @@
        NAVIGATION
     ======================================== */
     .nav { padding: 8px 0; }
-    .brand-icon { width: 44px; height: 44px; }
-    .brand-text strong,
-    .brand-text em { font-size: 15px; }
 
     .hamburger { padding: 4px; }
     .hamburger .bar { width: 24px; height: 2.5px; }

@@ -1,5 +1,6 @@
 /* ============================================
    HEADER / NAVBAR
+   [LOGO]   Accueil  Catalogue  Contact  Connexion   [Panier]
 ============================================ */
 .header {
     background: rgba(250, 246, 235, 0.96);
@@ -12,89 +13,54 @@
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--line);
 }
+
 body.has-fixed-header {
     padding-top: 86px;
 }
 
-@media (max-width: 992px) {
-    body.has-fixed-header {
-        padding-top: 70px;
-    }
-}
-
+/* Flex + space-between : l'espace libre est réparti à l'identique
+   entre logo ↔ liens et liens ↔ panier (gaps égaux de part et d'autre).
+   `gap` garantit un minimum si l'écran est étroit. */
 .nav {
     min-height: 86px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 28px;
-    width: min(1180px, 92%);
-    margin: auto;
+    gap: clamp(16px, 3vw, 40px);
+    width: min(1280px, 94%);
+    margin: 0 auto;
+    padding: 0;
     position: relative;
 }
 
 /* --- LOGO / BRAND --- */
 .brand {
-    order: 0;
+    flex: 0 0 auto;
     display: flex;
     align-items: center;
+    justify-content: flex-start;
     gap: 14px;
     text-decoration: none;
-    min-width: 200px;
 }
 
-.brand-icon {
-    width: 54px;
-    height: 54px;
-    border-radius: 50%;
-    overflow: hidden;
-    flex-shrink: 0;
-    border: 2px solid var(--gold);
-    padding: 4px;
-    background: var(--white);
-    box-shadow: 0 2px 12px rgba(11, 122, 72, 0.15);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.brand:hover .brand-icon {
-    transform: scale(1.05);
-    box-shadow: 0 4px 20px rgba(11, 122, 72, 0.25);
-}
-
-.brand-icon img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 50%;
+.brand-logo {
+    height: 55px;
+    width: auto;
+    max-width: 200px;
+    object-fit: contain;
     display: block;
+    transition: transform 0.3s ease;
+    transform-origin: left center;
 }
 
-.brand-text {
-    display: flex;
-    flex-direction: column;
-    line-height: 1.1;
+.brand:hover .brand-logo {
+    transform: scale(1.03);
 }
 
-.brand-text strong {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-size: clamp(15px, 2.5vw, 20px);
-    color: var(--brown);
-    font-weight: 900;
-    letter-spacing: -0.5px;
-}
-
-.brand-text em {
-    font-family: 'Dancing Script', cursive;
-    font-size: clamp(15px, 2.5vw, 21px);
-    color: var(--green);
-    font-style: normal;
-    font-weight: 700;
-    margin-top: -2px;
-}
-
-/* --- NAVBAR --- */
+/* --- NAVBAR (liens, colonne centrale) --- */
 .navbar {
-    order: 1;
+    flex: 1 1 auto;          /* occupe toute la largeur entre logo et panier */
+    min-width: 0;
     display: flex;
     align-items: center;
 }
@@ -103,9 +69,12 @@ body.has-fixed-header {
     list-style: none;
     display: flex;
     align-items: center;
-    gap: 1.8rem;
-    flex-wrap: wrap;
-    padding: 0.8rem 0;
+    justify-content: space-evenly;   /* liens répartis sur toute la largeur */
+    width: 100%;
+    max-width: 640px;        /* resserre les liens vers le centre : ajuste cette valeur */
+    gap: 1rem;
+    padding: 0;
+    margin: 0 auto;
 }
 
 .nav-links li {
@@ -113,28 +82,22 @@ body.has-fixed-header {
 }
 
 .nav-links a {
+    position: relative;
     color: var(--text);
     text-decoration: none;
     font-weight: 500;
     font-size: clamp(14px, 1.2vw, 1.05rem);
-    padding: 0.5rem 0.2rem;
+    padding: 8px 4px;
     transition: color 0.25s ease;
     white-space: nowrap;
 }
 
 .nav-links a:hover {
-    color: var(--success);
+    color: var(--green);
 }
 
-.nav-links > li > a {
-    position: relative;
-    padding: 8px 4px;
-    font-weight: 500;
-    color: var(--text);
-    transition: color 0.3s ease;
-}
-
-.nav-links > li > a::after {
+/* Soulignement animé sur ::before (::after réservé à la flèche dropdown) */
+.nav-links > li > a::before {
     content: '';
     position: absolute;
     bottom: 0;
@@ -142,19 +105,44 @@ body.has-fixed-header {
     width: 0;
     height: 2px;
     background: var(--green);
-    transition: all 0.3s ease;
+    transition: width 0.3s ease;
     transform: translateX(-50%);
 }
 
-.nav-links > li > a:hover::after {
+.nav-links > li > a:hover::before {
     width: 100%;
 }
 
-.nav-links > li > a:hover {
-    color: var(--green);
+/* --- ACTIONS (panier + hamburger, colonne de droite) --- */
+.nav-actions {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 15px;
 }
 
 /* --- DROPDOWN --- */
+.dropdown > a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dropdown > a::after {
+    content: "▾";
+    font-size: 0.75rem;
+    color: #94a3b8;
+    transition: transform 0.2s, color 0.2s;
+    display: inline-block;
+}
+
+.nav-links li.dropdown:hover > a::after,
+.nav-links li.dropdown.active > a::after {
+    transform: rotate(180deg);
+    color: #facc15;
+}
+
 .dropdown-menu {
     display: none;
     position: absolute;
@@ -164,6 +152,7 @@ body.has-fixed-header {
     min-width: 200px;
     list-style: none;
     padding: 0.6rem 0;
+    margin: 0;
     border-radius: 0 0 10px 10px;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
     flex-direction: column;
@@ -189,22 +178,9 @@ body.has-fixed-header {
 }
 
 .nav-links li.dropdown:hover .dropdown-menu,
-.nav-links li.dropdown:focus-within .dropdown-menu {
+.nav-links li.dropdown:focus-within .dropdown-menu,
+.nav-links li.dropdown.active .dropdown-menu {
     display: flex;
-}
-
-.dropdown > a::after {
-    content: " ▾";
-    font-size: 0.75rem;
-    color: #94a3b8;
-    transition: transform 0.2s;
-    display: inline-block;
-    margin-left: 4px;
-}
-
-.nav-links li.dropdown:hover > a::after {
-    transform: rotate(180deg);
-    color: #facc15;
 }
 
 /* --- DROPDOWN PROFIL --- */
@@ -304,7 +280,6 @@ body.has-fixed-header {
 
 /* --- BOUTON PANIER --- */
 .cart-btn {
-    order: 2;
     background: var(--green);
     color: var(--white);
     padding: 12px 18px;
@@ -316,6 +291,8 @@ body.has-fixed-header {
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    flex-shrink: 0;
+    text-decoration: none;
 }
 
 .cart-btn:hover {
@@ -325,7 +302,6 @@ body.has-fixed-header {
 
 /* --- HAMBURGER --- */
 .hamburger {
-    order: 3;
     display: none;
     flex-direction: column;
     gap: 5px;
@@ -362,4 +338,48 @@ body.has-fixed-header {
 
 .hamburger:hover .bar {
     background: var(--green);
+}
+
+/* ============================================
+   RESPONSIVE : complète responsive/_tablet.css et _mobile.css
+   (qui gèrent déjà .nav wrap, .navbar order:3, hamburger, dropdowns)
+   Ici : uniquement ce qui concerne les nouveaux éléments
+   (.nav-actions, .brand-logo, soulignement ::before, nav-links centrés)
+============================================ */
+@media (max-width: 992px) {
+    .nav-actions {
+        gap: 8px;
+        margin-left: auto;
+    }
+
+    .nav-actions .cart-btn {
+        margin-left: 0;          /* le margin-left:auto est porté par .nav-actions */
+    }
+
+    .nav-actions .hamburger {
+        margin-left: 0;
+    }
+
+    .brand-logo {
+        height: 46px;
+        max-width: 170px;
+    }
+
+    /* Menu déroulant : liens en colonne, pleine largeur */
+    .nav-links {
+        max-width: none;
+        margin: 0;
+        justify-content: flex-start;
+    }
+
+    .nav-links > li > a::before {
+        display: none;
+    }
+}
+
+@media (max-width: 600px) {
+    .brand-logo {
+        height: 40px;
+        max-width: 140px;
+    }
 }

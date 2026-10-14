@@ -4,8 +4,7 @@
 @media (max-width: 380px) {
 
     /* NAVIGATION */
-    .brand-text strong,
-    .brand-text em { font-size: 13px; }
+    .brand-logo { height: 36px; max-width: 120px; }
     .cart-btn { font-size: 11px; padding: 6px 10px; }
     .nav-links > li > a { font-size: 14px; padding: 10px 6px; }
 
