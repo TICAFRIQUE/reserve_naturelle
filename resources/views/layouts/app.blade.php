@@ -20,6 +20,9 @@
   {{-- ⚡ PERF: Preload image hero (LCP) --}}
   <link rel="preload" as="image" href="{{ asset('img/b-hero.webp') }}" fetchpriority="high">
 
+  {{-- ⚡ PERF: Preload Google Fonts --}}
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Dancing+Script:wght@700&family=Lato:wght@400;500;700&display=swap">
+
   {{-- Canonical --}}
   <link rel="canonical" href="@yield('canonical', url()->current())">
 
@@ -41,7 +44,7 @@
 
   <link rel="icon" type="image/webp" href="{{ asset('img/logo.webp') }}">
 
-  {{-- ⚡ PERF: Google Fonts en async (ne bloque plus le rendu) --}}
+  {{-- ⚡ PERF: Google Fonts en async --}}
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Dancing+Script:wght@700&family=Lato:wght@400;500;700&display=swap"
         rel="stylesheet"
         media="print"
@@ -50,13 +53,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Dancing+Script:wght@700&family=Lato:wght@400;500;700&display=swap" rel="stylesheet">
   </noscript>
 
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  {{-- ⚡ PERF: Font Awesome en async --}}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        media="print"
+        onload="this.media='all'">
+  <noscript>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  </noscript>
 
   <!-- CSS principal (fusionné + minifié) -->
   <link rel="stylesheet" href="{{ asset('css/app.min.css') }}">
 
-  <!-- ⚡ PERF: Google Analytics en async (chargement différé) -->
+  <!-- ⚡ PERF: Google Analytics en async -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-00YHWD67YQ"></script>
   <script>
       window.dataLayer = window.dataLayer || [];
