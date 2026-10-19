@@ -24,7 +24,7 @@
                 border: 1px solid #e8e0d5;
                 padding: 35px;
             ">
-                <form action="{{ route('admin.categories.store') }}" method="POST">
+                <form action="{{ route('admin.categories.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
                     <!-- Champ Nom -->
@@ -114,7 +114,7 @@
                     </div>
 
                     <!-- Champ Ordre -->
-                    <div style="margin-bottom: 25px;">
+                    <div style="margin-bottom: 20px;">
                         <label for="ordre" style="display: block; font-weight: 600; color: #2d5a27; margin-bottom: 6px;">
                             <i class="fas fa-sort" style="color: #b8860b; margin-right: 6px;"></i>
                             Ordre d'affichage
@@ -138,6 +138,34 @@
                             <i class="fas fa-info-circle"></i> Les catégories avec un ordre plus petit s'affichent en premier
                         </small>
                         @error('ordre')
+                            <div style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;">
+                                <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+
+                    <!-- ⚡ Image de la catégorie -->
+                    <div style="margin-bottom: 25px; padding: 20px; background: #f8f5f0; border-radius: 10px; border: 2px dashed #e8e0d5;">
+                        <label for="image" style="display: block; font-weight: 600; color: #2d5a27; margin-bottom: 10px;">
+                            <i class="fas fa-image" style="color: #b8860b; margin-right: 6px;"></i>
+                            Image de la catégorie
+                        </label>
+
+                        <p style="font-size: 13px; color: #6c757d; margin: 0 0 12px;">
+                            Cette image apparaîtra dans le <strong>slider de catégories</strong>.<br>
+                            <strong>Recommandé :</strong> carré (600×600), WebP, &lt; 100 Ko.
+                        </p>
+
+                        <input type="file" name="image" id="image" accept="image/*"
+                               style="width: 100%; padding: 10px; border: 1px solid #e8e0d5; border-radius: 8px; background: white; cursor: pointer;"
+                               onchange="previewImage(event)">
+
+                        <div id="image-preview" style="display: none; margin-top: 15px; text-align: center;">
+                            <img id="preview-img" src="" alt="Aperçu"
+                                 style="max-width: 200px; max-height: 200px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                        </div>
+
+                        @error('image')
                             <div style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;">
                                 <i class="fas fa-exclamation-circle"></i> {{ $message }}
                             </div>
@@ -183,3 +211,24 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+function previewImage(event) {
+    const file = event.target.files[0];
+    const preview = document.getElementById('image-preview');
+    const img = document.getElementById('preview-img');
+
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            img.src = e.target.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    } else {
+        preview.style.display = 'none';
+    }
+}
+</script>
+@endpush

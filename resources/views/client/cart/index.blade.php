@@ -3,6 +3,8 @@
 @section('title', 'Mon Panier')
 
 @section('content')
+{{-- ⚠️ CACHE LE SLIDER GLOBAL SUR CETTE PAGE --}}
+@section('hide_slider', true)
 
 <div class="container cart-wrapper">
     <h1 class="cart-title">🛒 Mon Panier</h1>

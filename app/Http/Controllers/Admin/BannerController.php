@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Banner;
+use App\Models\BannerSlide;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class BannerController extends Controller
 {
@@ -15,7 +17,6 @@ class BannerController extends Controller
      */
     public function edit()
     {
-        // Crée une bannière par défaut si aucune n'existe
         $banner = Banner::firstOrCreate([], [
             'titre' => 'Le meilleur de la',
             'titre_span' => 'terre ivoirienne',
@@ -25,11 +26,84 @@ class BannerController extends Controller
             'actif' => true,
         ]);
 
-        return view('admin.banners.edit', compact('banner'));
+        $slides = $banner->slides()->get();
+
+        return view('admin.banners.edit', compact('banner', 'slides'));
     }
 
-    //Optimiser les images 
-    private function optimizeAndStoreImage($image, string $directory = 'banners'): string{
+    /**
+     * Upload multiple de slides (pour le slider)
+     */
+    public function storeSlides(Request $request)
+    {
+        $request->validate([
+            'images.*' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+        ]);
+
+        $banner = Banner::first();
+
+        if ($request->hasFile('images')) {
+            $ordre = $banner->slides()->max('ordre') + 1;
+
+            foreach ($request->file('images') as $image) {
+                $path = $this->optimizeAndStoreImage($image, 'banners');
+
+                BannerSlide::create([
+                    'banner_id' => $banner->id,
+                    'image_path' => $path,
+                    'actif' => true,
+                    'ordre' => $ordre++,
+                ]);
+            }
+
+            Cache::forget('banner.active');
+
+            return redirect()
+                ->route('admin.banner.edit')
+                ->with('success', count($request->file('images')) . ' slide(s) ajouté(s)');
+        }
+
+        return redirect()
+            ->route('admin.banner.edit')
+            ->with('error', 'Aucune image détectée');
+    }
+
+    /**
+     * Supprimer un slide
+     */
+    public function destroySlide(BannerSlide $slide)
+    {
+        if ($slide->image_path && Storage::disk('public')->exists($slide->image_path)) {
+            Storage::disk('public')->delete($slide->image_path);
+        }
+
+        $slide->delete();
+
+        Cache::forget('banner.active');
+
+        return redirect()
+            ->route('admin.banner.edit')
+            ->with('success', 'Slide supprimé');
+    }
+
+    /**
+     * Toggle actif/inactif un slide
+     */
+    public function toggleSlide(BannerSlide $slide)
+    {
+        $slide->update(['actif' => !$slide->actif]);
+        Cache::forget('banner.active');
+
+        return redirect()
+            ->route('admin.banner.edit')
+            ->with('success', 'Slide ' . ($slide->actif ? 'activé' : 'désactivé'));
+    }
+
+    /**
+     * Optimiser et stocker une image
+     */
+    private function optimizeAndStoreImage($image, string $directory = 'banners'): string
+    {
         $sourcePath = $image->getRealPath();
         $mime = $image->getMimeType();
 
@@ -37,22 +111,18 @@ class BannerController extends Controller
             case 'image/jpeg':
                 $source = imagecreatefromjpeg($sourcePath);
                 break;
-
             case 'image/png':
                 $source = imagecreatefrompng($sourcePath);
                 imagepalettetotruecolor($source);
                 imagealphablending($source, true);
                 imagesavealpha($source, true);
                 break;
-
             case 'image/webp':
                 $source = imagecreatefromwebp($sourcePath);
                 break;
-
             case 'image/gif':
                 $source = imagecreatefromgif($sourcePath);
                 break;
-
             default:
                 throw new \InvalidArgumentException('Format d’image non pris en charge.');
         }
@@ -61,31 +131,18 @@ class BannerController extends Controller
         $height = imagesy($source);
         $maxWidth = 1920;
         $maxHeight = 800;
-        $ratio = min(
-            $maxWidth / $width,
-            $maxHeight / $height,
-            1
-        );
+        $ratio = min($maxWidth / $width, $maxHeight / $height, 1);
         $newWidth = (int) round($width * $ratio);
         $newHeight = (int) round($height * $ratio);
         $optimized = imagecreatetruecolor($newWidth, $newHeight);
         imagealphablending($optimized, false);
         imagesavealpha($optimized, true);
 
-        imagecopyresampled(
-            $optimized,
-            $source,
-            0,
-            0,
-            0,
-            0,
-            $newWidth,
-            $newHeight,
-            $width,
-            $height
-        );
-        $filename = \Illuminate\Support\Str::uuid() . '.webp';
+        imagecopyresampled($optimized, $source, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+
+        $filename = Str::uuid() . '.webp';
         $path = $directory . '/' . $filename;
+
         ob_start();
         imagewebp($optimized, null, 80);
         $imageContent = ob_get_clean();
@@ -94,10 +151,12 @@ class BannerController extends Controller
 
         imagedestroy($source);
         imagedestroy($optimized);
+
         return $path;
     }
+
     /**
-     * Mettre à jour la bannière
+     * Mettre à jour la bannière (textes + image principale)
      */
     public function update(Request $request)
     {
@@ -112,23 +171,18 @@ class BannerController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ]);
 
-        // Gestion de l'image
+        // Image principale (1er slide)
         if ($request->hasFile('image')) {
-            // Supprimer l'ancienne image si elle existe
             if ($banner->image_path && Storage::disk('public')->exists($banner->image_path)) {
                 Storage::disk('public')->delete($banner->image_path);
             }
-                $validated['image_path'] = $this->optimizeAndStoreImage(
-                    $request->file('image')
-                );
+            $validated['image_path'] = $this->optimizeAndStoreImage($request->file('image'));
         }
 
-        // Case à cocher "actif"
         $validated['actif'] = $request->has('actif');
 
         $banner->update($validated);
 
-        // Vider le cache
         Cache::forget('banner.active');
 
         return redirect()

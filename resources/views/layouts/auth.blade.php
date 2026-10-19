@@ -6,7 +6,7 @@
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>@yield('title', 'Connexion - La Réserve Naturelle')</title>
 
-  <link rel="icon" type="image/png" href="{{ asset('img/logo.png') }}">
+  <link rel="icon" type="image/webp" href="{{ asset('img/logo.webp') }}">
 
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Dancing+Script:wght@700&family=Lato:wght@400;500;700&display=swap" rel="stylesheet">
@@ -60,15 +60,15 @@
     }
 
     .auth-brand img {
-      width: 64px;
-      height: 64px;
+      width: 90px;
+      height: 90px;
       border-radius: 50%;
-      object-fit: cover;
+      object-fit: contain;
       background: #fff;
-      padding: 4px;
-      border: 2px solid rgba(255,255,255,0.3);
+      padding: 8px;
+      border: 3px solid #f5c878;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
-
     .auth-brand-text {
       display: flex;
       flex-direction: column;
@@ -102,7 +102,7 @@
     }
 
     .auth-title-bar {
-      width: 55px;
+      width: 175px;
       height: 4px;
       background: #b8860b;
       border-radius: 4px;
@@ -341,7 +341,7 @@
 
       <!-- Logo -->
       <div class="auth-brand">
-        <img src="{{ asset('img/logo.png') }}" alt="La Réserve Naturelle">
+        <img src="{{ asset('img/logo.webp') }}" alt="La Réserve Naturelle">
         <div class="auth-brand-text">
           <strong>La Réserve</strong>
           <em>Naturelle</em>
@@ -350,8 +350,8 @@
 
       <!-- Titre -->
       <h1 class="auth-title">
-        Plaisir d'Offrir,<br>
-        Joie de Recevoir
+        Des produits naturels,<br>
+        du cœur du pays
       </h1>
       <div class="auth-title-bar"></div>
 

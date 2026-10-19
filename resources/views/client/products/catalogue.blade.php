@@ -1,233 +1,200 @@
 @extends('layouts.app')
 
-@section('title', 'Catalogue Complet - La Réserve Naturelle')
-@section('meta_description', 'Explorez le catalogue complet de La Réserve Naturelle et découvrez une sélection de produits naturels et locaux en Côte d’Ivoire : céréales, huiles, légumineuses, farines et épices.')
+@section('title', 'Catalogue - La Réserve Naturelle')
+@section('meta_description', 'Découvrez tous nos produits naturels et locaux en Côte d’Ivoire : céréales, huiles, légumineuses, farines, épices et cosmétiques naturels.')
+
+{{-- Cache le slider global (celui de la page d'accueil) --}}
+@section('hide_slider', true)
 
 @section('content')
 
-<!-- ============================================
-     EN-TÊTE CATALOGUE
-============================================ -->
-<div class="catalogue-header">
-    <div class="container">
-        <h1>📦 Catalogue Complet</h1>
-        <p class="catalogue-subtitle">
-            Découvrez l'ensemble de nos produits naturels soigneusement sélectionnés
-        </p>
+{{-- Partagé (variables, modale) puis spécifique boutique --}}
+<link rel="stylesheet" href="{{ asset('css/pages/_shop-common.css') }}">
+<link rel="stylesheet" href="{{ asset('css/pages/_catalogue.css') }}">
 
-        <div class="catalogue-stats">
-            <div class="stat">
-                <span class="stat-value">{{ $totalProducts ?? 0 }}</span>
-                <span class="stat-label">Produits</span>
+@php
+    // Sections affichables (catégories ayant au moins un produit) ; l'index sert à alterner les couleurs
+    $sections = ($categoriesWithProducts ?? collect())
+        ->filter(fn ($c) => $c->products->isNotEmpty())
+        ->values();
+@endphp
+
+<div class="cp bq">
+            {{-- ============ FIL D'ARIANE ============ --}}
+    <div class="cp-breadcrumb-bar">
+        <nav class="cp-container cp-breadcrumb" aria-label="Fil d'Ariane">
+            <a href="{{ url('/') }}" class="cp-back" aria-label="Retour"
+               onclick="if (history.length > 1) { history.back(); return false; }">
+                <i class="fas fa-arrow-left" aria-hidden="true"></i><span>Retour</span>
+            </a>
+            <span class="cp-sep" aria-hidden="true">›</span>
+            <span class="cp-current" aria-current="page">Catalogue</span>
+
+            <div class="cp-meta">
+                <span class="cp-pill"><i class="far fa-clock" aria-hidden="true"></i><time id="cpClock">--:--</time></span>
             </div>
-            <div class="stat">
-                <span class="stat-value">{{ $totalCategories ?? 0 }}</span>
-                <span class="stat-label">Catégories</span>
-            </div>
-            <div class="stat">
-                <span class="stat-value">{{ $totalInStock ?? 0 }}</span>
-                <span class="stat-label">En stock</span>
-            </div>
-        </div>
+        </nav>
     </div>
-</div>
-
-<div class="container catalogue-wrapper">
-
-    <!-- ============================================
-         BARRE DE FILTRES
-    ============================================ -->
-    <div class="catalogue-filters">
-        <form action="{{ route('client.products.catalogue') }}" method="GET" id="catalogueForm">
-
-            <div class="filters-grid">
-                <div class="filter-field">
-                    <label>🔍 Rechercher</label>
-                    <input type="text" name="search" placeholder="Nom du produit..."
-                           value="{{ request('search') }}">
-                </div>
-
-                <div class="filter-field">
-                    <label>📂 Catégorie</label>
-                    <select name="category">
-                        <option value="">Toutes les catégories</option>
-                        @foreach($categories ?? [] as $category)
-                            <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>
-                                {{ $category->nom ?? $category->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="filter-field">
-                    <label>📊 Trier par</label>
-                    <select name="sort">
-                        <option value="designation" {{ request('sort') == 'designation' ? 'selected' : '' }}>Nom (A-Z)</option>
-                        <option value="prix_asc" {{ request('sort') == 'prix_asc' ? 'selected' : '' }}>Prix croissant</option>
-                        <option value="prix_desc" {{ request('sort') == 'prix_desc' ? 'selected' : '' }}>Prix décroissant</option>
-                        <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Plus récents</option>
-                        <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Plus anciens</option>
-                        <option value="stock_desc" {{ request('sort') == 'stock_desc' ? 'selected' : '' }}>Stock décroissant</option>
-                        <option value="stock_asc" {{ request('sort') == 'stock_asc' ? 'selected' : '' }}>Stock croissant</option>
-                    </select>
-                </div>
-
-                <div class="filter-field filter-submit">
-                    <button type="submit" class="btn-apply">Appliquer</button>
-                </div>
-            </div>
-
-            <div class="filters-extra">
-                <div class="filter-inline">
-                    <label>💰 Prix :</label>
-                    <input type="number" name="prix_min" placeholder="Min"
-                           value="{{ request('prix_min') }}" class="input-mini">
-                    <span class="separator">-</span>
-                    <input type="number" name="prix_max" placeholder="Max"
-                           value="{{ request('prix_max') }}" class="input-mini">
-                </div>
-
-                <div class="filter-inline">
-                    <label>📦 Disponibilité :</label>
-                    <select name="disponible">
-                        <option value="">Tous</option>
-                        <option value="oui" {{ request('disponible') == 'oui' ? 'selected' : '' }}>En stock</option>
-                        <option value="non" {{ request('disponible') == 'non' ? 'selected' : '' }}>Rupture</option>
-                    </select>
-                </div>
-
-                @if(request()->hasAny(['search', 'category', 'sort', 'prix_min', 'prix_max', 'disponible']))
-                    <a href="{{ route('client.products.catalogue') }}" class="btn-reset">
-                        ✕ Réinitialiser
-                    </a>
-                @endif
-            </div>
-        </form>
-    </div>
-
-    <!-- ============================================
-         RÉSULTATS
-    ============================================ -->
-    <div class="catalogue-layout">
-
-        <!-- SIDEBAR -->
-        <aside class="catalogue-sidebar">
-
-            <div class="sidebar-card">
-                <h3>📂 Catégories</h3>
-                <ul class="sidebar-list">
-                    <li>
-                        <a href="{{ route('client.products.catalogue') }}"
-                           class="{{ !request('category') ? 'active' : '' }}">
-                            Tous les produits
-                            <span class="count">({{ $totalProducts ?? 0 }})</span>
-                        </a>
-                    </li>
-                    @foreach($categories ?? [] as $category)
-                        <li>
-                            <a href="{{ route('client.products.catalogue', ['category' => $category->id]) }}"
-                               class="{{ request('category') == $category->id ? 'active' : '' }}">
-                                {{ $category->nom ?? $category->name }}
-                                <span class="count">({{ $category->products->count() ?? 0 }})</span>
+    {{-- ============ BANNIÈRES (optionnel : $banners) / repli : bannière texte ============ --}}
+    @if(isset($banners) && $banners->isNotEmpty())
+        <section class="bq-banner" aria-roledescription="carrousel" aria-label="À la une">
+            <div class="bq-banner-track" id="bqBannerTrack" tabindex="0">
+                @foreach($banners as $banner)
+                    <div class="bq-banner-slide" role="group" aria-roledescription="diapositive"
+                         aria-label="{{ $loop->iteration }} sur {{ $loop->count }}">
+                        @if(!empty($banner->lien))
+                            <a href="{{ $banner->lien }}" aria-label="{{ $banner->titre ?? 'En savoir plus' }}">
+                        @endif
+                            <img src="{{ $banner->image_url }}" alt="{{ $banner->titre ?? '' }}"
+                                 @if($loop->first) fetchpriority="high" @else loading="lazy" @endif>
+                        @if(!empty($banner->lien))
                             </a>
-                        </li>
-                    @endforeach
-                </ul>
-            </div>
-
-            <div class="sidebar-card">
-                <h3>🆕 Nouveautés</h3>
-                @forelse($recentProducts ?? [] as $recent)
-                    <div class="recent-item">
-                        <img src="{{ $recent->image_path ? asset('storage/' . $recent->image_path) : asset('images/default-product.jpg') }}"
-                             alt="{{ $recent->designation }}" loading="lazy">
-                        <div>
-                            <a href="{{ route('client.products.show', $recent->id) }}">
-                                {{ $recent->designation }}
-                            </a>
-                            <p>{{ number_format($recent->prix_vente ?? 0, 0, ',', ' ') }} FCFA</p>
-                        </div>
+                        @endif
                     </div>
-                @empty
-                    <p class="empty-text">Aucun produit récent</p>
-                @endforelse
+                @endforeach
             </div>
-        </aside>
-
-        <!-- LISTE PRODUITS -->
-        <div class="catalogue-main">
-
-            <div class="results-header">
-                <p>{{ $products->total() ?? 0 }} produit(s) trouvé(s)</p>
+            <div class="bq-dots" id="bqBannerDots" hidden></div>
+        </section>
+    @else
+        <section class="bq-hero">
+            <div class="bq-hero-pattern"></div>
+            <div class="bq-hero-content">
+                <div class="bq-hero-icon"><i class="fas fa-store" aria-hidden="true"></i></div>
+                <h1>Notre Catalogue</h1>
+                <p>
+                    Découvrez tous nos produits naturels et locaux en Côte d'Ivoire :
+                    céréales, huiles, légumineuses, farines, épices et cosmétiques naturels.
+                </p>
             </div>
+            <div class="bq-hero-fade"></div>
+        </section>
+    @endif
 
-            @if(($products ?? collect())->count() > 0)
-                <div class="catalogue-products-grid">
-                    @foreach($products as $product)
-                        @php $variant = $product->variants->first(); @endphp
-                        <article class="catalogue-product-card">
+    {{-- ============ CATÉGORIES ============ --}}
+    @if(isset($categories) && $categories->isNotEmpty())
+        <section class="bq-cats" aria-labelledby="bqCatsTitle">
+            <div class="bq-heading"><h2 id="bqCatsTitle">Nos catégories</h2></div>
 
-                           <a href="{{ route('client.products.show', $product) }}" class="product-link">
-                                <div class="product-image"
-                                     style="background-image: url('{{ $product->image_path ? asset('storage/' . $product->image_path) : asset('images/default-product.jpg') }}');">
+            <div class="bq-cats-wrap">
+                <button type="button" class="bq-arrow bq-arrow--prev" id="bqCatsPrev" aria-label="Catégories précédentes" hidden>
+                    <i class="fas fa-chevron-left" aria-hidden="true"></i>
+                </button>
 
-                                    @if($variant && $variant->prix_vente < 1000)
-                                        <span class="badge badge-promo">PROMO</span>
-                                    @endif
-
-                                    @if($variant && $variant->qte_dispo > 10)
-                                        <span class="badge badge-stock">En stock</span>
-                                    @elseif($variant && $variant->qte_dispo > 0)
-                                        <span class="badge badge-limited">Stock limité</span>
-                                    @else
-                                        <span class="badge badge-out">Rupture</span>
-                                    @endif
-                                </div>
-
-                                <div class="product-info">
-                                    <p class="product-category">
-                                        {{ $product->category->nom ?? $product->category->name ?? 'Non catégorisé' }}
-                                    </p>
-                                    <h3>{{ $product->designation }}</h3>
-                                    <p class="product-desc">
-                                        {{ Str::limit($product->description ?? 'Aucune description', 80) }}
-                                    </p>
-                                </div>
-                            </a>
-
-                            <div class="product-footer">
-                                <span class="product-price">
-                                    @if($product->variants->count() > 1)
-                                         {{ number_format($product->variants->min('prix_vente'), 0, ',', ' ') }} FCFA
-                                    @else
-                                        {{ number_format($variant->prix_vente ?? 0, 0, ',', ' ') }} FCFA
-                                    @endif
-                                </span>
-                                @if($product->variants->sum('qte_dispo') > 0)
-                                    <button type="button"
-                                            class="open-variants-modal-btn"
-                                            data-product-id="{{ $product->id }}"
-                                            data-cart-url="{{ route('client.cart.store') }}"
-                                            style="background: var(--green); color: white; padding: 6px 15px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px;">
-                                        🛒 Ajouter
-                                    </button>
+                <div class="bq-cats-track" id="bqCatsTrack">
+                    @foreach($categories as $cat)
+                        <a href="{{ route('client.products.category', $cat) }}" class="bq-cat">
+                            <span class="bq-cat-media">
+                                @if($cat->image_path)
+                                    <img src="{{ $cat->image_url }}" alt="" loading="lazy">
                                 @else
-                                    <span class="unavailable">Indisponible</span>
+                                    <i class="fas fa-folder" aria-hidden="true"></i>
                                 @endif
-                            </div>
-                        </article>
+                            </span>
+                            <span class="bq-cat-name">{{ $cat->nom }}</span>
+                        </a>
+                    @endforeach
+                </div>
 
-                        {{-- Modal variantes --}}
+                <button type="button" class="bq-arrow bq-arrow--next" id="bqCatsNext" aria-label="Catégories suivantes" hidden>
+                    <i class="fas fa-chevron-right" aria-hidden="true"></i>
+                </button>
+            </div>
+        </section>
+    @endif
+
+    {{-- ============ SECTIONS PAR CATÉGORIE ============ --}}
+    <div class="bq-page">
+        <div class="cp-container">
+
+            @if($sections->isNotEmpty())
+                <div class="bq-sections">
+                    @foreach($sections as $i => $cat)
+                        <section class="bq-section bq-section--c{{ $i % 4 }}" aria-labelledby="bq-sec-{{ $cat->id }}">
+
+                            <div class="bq-side">
+                                @if($cat->image_path)
+                                    <img src="{{ $cat->image_url }}" alt="" class="bq-side-bg" loading="lazy">
+                                @endif
+                                <div class="bq-side-content">
+                                    <span class="bq-side-title" aria-hidden="true">{{ $cat->nom }}</span>
+                                    <a href="{{ route('client.products.category', $cat) }}"
+                                       class="bq-side-btn" aria-label="Découvrir {{ $cat->nom }}">
+                                        <i class="fas fa-arrow-right" aria-hidden="true"></i> Découvrir
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="bq-main">
+                                <div class="bq-head">
+                                    <h2 id="bq-sec-{{ $cat->id }}">{{ $cat->nom }}</h2>
+                                    <a href="{{ route('client.products.category', $cat) }}" class="bq-all">
+                                        <i class="fas fa-th" aria-hidden="true"></i> Voir tout
+                                    </a>
+                                </div>
+
+                                <div class="bq-grid">
+                                    @foreach($cat->products as $product)
+                                        @php
+                                            $variant = $product->variants->first();
+                                            $inStock = $product->variants->sum('qte_dispo') > 0;
+                                            $price   = $product->variants->count() > 1
+                                                ? $product->variants->min('prix_vente')
+                                                : ($variant->prix_vente ?? 0);
+                                            $url     = route('client.products.show', $product);
+                                        @endphp
+
+                                        <article class="bq-card">
+                                            <span class="bq-badge {{ $inStock ? 'is-in' : 'is-out' }}">
+                                                {{ $inStock ? 'En stock' : 'Rupture' }}
+                                            </span>
+
+                                            <a href="{{ $url }}" class="bq-card-media" tabindex="-1" aria-hidden="true">
+                                                <img src="{{ $product->image_path ? asset('storage/' . $product->image_path) : asset('images/default-product.jpg') }}"
+                                                     alt="" loading="lazy">
+                                            </a>
+
+                                            <h3 class="bq-card-name">
+                                                <a href="{{ $url }}">{{ $product->designation }}</a>
+                                            </h3>
+
+                                            <p class="bq-card-price">{{ number_format($price, 0, ',', ' ') }} FCFA</p>
+
+                                            <div class="bq-card-action">
+                                                @if($inStock)
+                                                    <button type="button"
+                                                            class="open-variants-modal-btn bq-btn bq-btn--add"
+                                                            data-product-id="{{ $product->id }}"
+                                                            data-cart-url="{{ route('client.cart.store') }}">
+                                                        <i class="fas fa-shopping-cart" aria-hidden="true"></i> Ajouter
+                                                    </button>
+                                                @else
+                                                    <button type="button" class="bq-btn bq-btn--reserve" disabled>
+                                                        <i class="far fa-clock" aria-hidden="true"></i> Réserver
+                                                    </button>
+                                                @endif
+                                            </div>
+                                        </article>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </section>
+                    @endforeach
+                </div>
+
+                {{-- Modales variantes (hors des grilles) --}}
+                @foreach($sections as $cat)
+                    @foreach($cat->products as $product)
                         <div class="variants-modal" id="variants-modal-{{ $product->id }}" style="display:none;">
                             <div class="variants-modal-overlay"></div>
-                            <div class="variants-modal-content">
+                            <div class="variants-modal-content" role="dialog" aria-modal="true"
+                                 aria-label="Options pour {{ $product->designation }}">
                                 <div class="variants-modal-header">
                                     <h3>{{ $product->designation }}</h3>
-                                    <button type="button" class="variants-modal-close">&times;</button>
+                                    <button type="button" class="variants-modal-close" aria-label="Fermer">&times;</button>
                                 </div>
 
                                 <div class="variants-modal-body">
-                                    <p class="variants-modal-subtitle">Veuillez sélectionner une option</p>
+                                    <p class="variants-modal-subtitle">Choisissez une option</p>
 
                                     <div class="variants-list">
                                         @foreach($product->variants as $v)
@@ -243,10 +210,10 @@
                                                 <div class="variant-col-actions">
                                                     @if($v->qte_dispo > 0)
                                                         <div class="qty-controls" data-variant-id="{{ $v->id }}">
-                                                            <button type="button" class="qty-btn-minus">−</button>
+                                                            <button type="button" class="qty-btn-minus" aria-label="Diminuer">−</button>
                                                             <input type="number" min="1" max="{{ $v->qte_dispo }}" value="1"
                                                                    class="qty-input" data-variant-id="{{ $v->id }}">
-                                                            <button type="button" class="qty-btn-plus">+</button>
+                                                            <button type="button" class="qty-btn-plus" aria-label="Augmenter">+</button>
                                                         </div>
 
                                                         <button type="button"
@@ -267,398 +234,28 @@
 
                                 <div class="variants-modal-footer">
                                     <button type="button" class="btn-modal-close">Poursuivre mes achats</button>
-                                    <a href="{{ route('client.cart.index') }}" class="btn-modal-cart">Accéder au panier</a>
+                                    <a href="{{ route('client.cart.index') }}" class="btn-modal-cart">Voir le panier</a>
                                 </div>
                             </div>
                         </div>
                     @endforeach
-                </div>
-
-                {{-- ============================================
-                    PAGINATION
-                ============================================ --}}
-                @if(isset($products) && $products->hasPages())
-                    <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-                        <div style="color: #6c757d; font-size: 0.9rem;">
-                            <i class="fas fa-info-circle" style="color: #2d5a27;"></i>
-                            @if ($products->total() > 0)
-                                Affichage de
-                                <strong>{{ $products->firstItem() }}</strong>
-                                à
-                                <strong>{{ $products->lastItem() }}</strong>
-                                sur
-                                <strong>{{ $products->total() }}</strong>
-                                produits
-                            @else
-                                Aucun produit trouvé
-                            @endif
-                        </div>
-                        <div style="display: flex; justify-content: center;">
-                            {{ $products->appends(request()->query())->links() }}
-                        </div>
-                    </div>
-                @endif
+                @endforeach
 
             @else
-                <div class="empty-state">
-                    <div class="empty-icon">🔍</div>
-                    <h3>Aucun produit trouvé</h3>
-                    <p>Aucun produit ne correspond à vos critères de recherche.</p>
-                    <a href="{{ route('client.products.catalogue') }}" class="btn-primary">
-                        Voir tous les produits
-                    </a>
+                <div class="cp-empty">
+                    <div class="cp-empty-icon" aria-hidden="true">📦</div>
+                    <h2>Aucun produit disponible</h2>
+                    <p>Les produits seront bientôt de retour.</p>
                 </div>
             @endif
 
         </div>
     </div>
+
+
 </div>
 @endsection
-@push('styles')
-<style>
-    /* ============================================
-       MODAL VARIANTES
-    ============================================ */
-    .variants-modal {
-        position: fixed;
-        inset: 0;
-        z-index: 9999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-    }
-    .variants-modal-overlay {
-        position: absolute;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.5);
-    }
-    .variants-modal-content {
-        position: relative;
-        background: white;
-        border-radius: 12px;
-        width: 100%;
-        max-width: 550px;
-        max-height: 90vh;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    }
-    .variants-modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 20px 25px;
-        border-bottom: 1px solid #e8e0d5;
-    }
-    .variants-modal-header h3 {
-        margin: 0;
-        font-family: 'Playfair Display', serif;
-        color: #2d5a27;
-        font-size: 1.2rem;
-    }
-    .variants-modal-close {
-        background: none;
-        border: none;
-        font-size: 28px;
-        color: #6c757d;
-        cursor: pointer;
-        line-height: 1;
-        padding: 0 5px;
-        transition: color 0.2s;
-    }
-    .variants-modal-close:hover {
-        color: #2d5a27;
-    }
-    .variants-modal-body {
-        padding: 20px 25px;
-        overflow-y: auto;
-        flex: 1;
-    }
-    .variants-modal-subtitle {
-        color: #6c757d;
-        font-size: 0.9rem;
-        margin-bottom: 15px;
-    }
-    .variants-modal-footer {
-        display: flex;
-        gap: 10px;
-        padding: 15px 25px;
-        border-top: 1px solid #e8e0d5;
-        background: #f8f5f0;
-    }
-    .btn-modal-close,
-    .btn-modal-cart {
-        flex: 1;
-        padding: 12px 20px;
-        border-radius: 8px;
-        font-weight: 600;
-        font-size: 0.9rem;
-        cursor: pointer;
-        text-align: center;
-        text-decoration: none;
-        transition: all 0.2s;
-    }
-    .btn-modal-close {
-        background: white;
-        color: #2d5a27;
-        border: 1px solid #2d5a27;
-    }
-    .btn-modal-close:hover {
-        background: #e8f5e9;
-    }
-    .btn-modal-cart {
-        background: #2d5a27;
-        color: white;
-        border: 1px solid #2d5a27;
-    }
-    .btn-modal-cart:hover {
-        background: #1e3d1a;
-    }
 
-    /* ============================================
-       LIGNES DE VARIANTES
-    ============================================ */
-    .variants-list {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-    .variant-row {
-        display: grid;
-        grid-template-columns: 1.3fr 1fr 1.4fr;
-        gap: 15px;
-        align-items: center;
-        padding: 14px 16px;
-        background: white;
-        border: 1px solid #e8e0d5;
-        border-radius: 10px;
-        transition: all 0.2s;
-    }
-    .variant-row:hover {
-        border-color: #c8e6c9;
-    }
-    .variant-row.is-out {
-        background: #f8f5f0;
-        opacity: 0.6;
-    }
-    .variant-condition {
-        font-weight: 700;
-        color: #2d5a27;
-        font-size: 1rem;
-    }
-    .variant-price {
-        font-weight: 700;
-        color: #2d5a27;
-        font-size: 1rem;
-    }
-    .variant-price small {
-        font-size: 0.75rem;
-        color: #6c757d;
-        font-weight: 500;
-    }
-    .variant-col-actions {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        justify-content: flex-end;
-    }
-
-    /* Contrôles quantité */
-    .qty-controls {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        border: 1px solid #e8e0d5;
-        border-radius: 8px;
-        padding: 3px;
-        background: white;
-    }
-    .qty-btn-minus,
-    .qty-btn-plus {
-        width: 28px;
-        height: 28px;
-        border: none;
-        background: #f8f5f0;
-        border-radius: 6px;
-        cursor: pointer;
-        font-weight: bold;
-        color: #2d5a27;
-        font-size: 1rem;
-        transition: background 0.2s;
-    }
-    .qty-btn-minus:hover,
-    .qty-btn-plus:hover {
-        background: #e8e0d5;
-    }
-    .qty-input {
-        width: 40px;
-        padding: 4px;
-        text-align: center;
-        border: none;
-        background: transparent;
-        outline: none;
-        font-weight: 600;
-        color: #2d5a27;
-        -moz-appearance: textfield;
-    }
-    .qty-input::-webkit-outer-spin-button,
-    .qty-input::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-    }
-
-    /* Bouton Ajouter */
-    .add-to-cart-btn {
-        background: #2d5a27;
-        color: white;
-        padding: 8px 16px;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: 600;
-        font-size: 0.85rem;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        transition: background 0.2s;
-    }
-    .add-to-cart-btn:hover {
-        background: #1e3d1a;
-    }
-    .variant-unavailable {
-        color: #adb5bd;
-        font-size: 0.85rem;
-        font-style: italic;
-    }
-
-    /* ============================================
-       PAGINATION (identique ADMIN)
-    ============================================ */
-    .pagination {
-        display: flex;
-        list-style: none;
-        gap: 5px;
-        padding: 0;
-        margin: 0;
-    }
-    .pagination li {
-        display: inline-block;
-    }
-    .pagination li a,
-    .pagination li span {
-        display: inline-block;
-        padding: 8px 16px;
-        background: white;
-        border: 1px solid #e8e0d5;
-        border-radius: 6px;
-        color: #2d5a27;
-        text-decoration: none;
-        transition: all 0.2s;
-        font-size: 0.9rem;
-    }
-    .pagination li a:hover {
-        background: #2d5a27;
-        color: white;
-        border-color: #2d5a27;
-    }
-    .pagination li.active span {
-        background: #2d5a27;
-        color: white;
-        border-color: #2d5a27;
-    }
-    .pagination li.disabled span {
-        color: #adb5bd;
-        background: #f8f5f0;
-        border-color: #e8e0d5;
-    }
-
-    /* ============================================
-       RESPONSIVE GLOBAL
-    ============================================ */
-    @media (max-width: 768px) {
-        .pagination li a,
-        .pagination li span {
-            padding: 6px 12px;
-            font-size: 0.8rem;
-        }
-    }
-
-    @media (max-width: 600px) {
-        .variant-row {
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-        .variant-col-actions {
-            grid-column: span 2;
-            justify-content: space-between;
-        }
-        .variants-modal-footer {
-            flex-direction: column;
-        }
-    }
-</style>
-@endpush
 @push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    // ===== Soumission auto du formulaire de filtre =====
-    document.querySelectorAll('#catalogueForm select').forEach(select => {
-        select.addEventListener('change', function () {
-            document.getElementById('catalogueForm').submit();
-        });
-    });
-
-    // ===== Ouvrir la modal variantes =====
-    document.querySelectorAll('.open-variants-modal-btn').forEach(btn => {
-        btn.addEventListener('click', function () {
-            const modal = document.getElementById('variants-modal-' + this.dataset.productId);
-            if (modal) {
-                modal.style.display = 'flex';
-                document.body.style.overflow = 'hidden';
-                initQtyControls(modal);
-            }
-        });
-    });
-
-    // ===== Fermer la modal =====
-    document.querySelectorAll('.variants-modal-overlay, .variants-modal-close, .btn-modal-close').forEach(el => {
-        el.addEventListener('click', function () {
-            const modal = this.closest('.variants-modal');
-            if (modal) {
-                modal.style.display = 'none';
-                document.body.style.overflow = '';
-            }
-        });
-    });
-
-    // ===== Contrôles quantité (+ / −) =====
-    function initQtyControls(container) {
-        container.querySelectorAll('.variant-row').forEach(row => {
-            const input = row.querySelector('.qty-input');
-            const btnMinus = row.querySelector('.qty-btn-minus');
-            const btnPlus  = row.querySelector('.qty-btn-plus');
-
-            if (!input) return;
-
-            // Éviter de re-binder sur un input déjà traité
-            if (input.dataset.bound === '1') return;
-            input.dataset.bound = '1';
-
-            input.id = 'qty-input-' + input.dataset.variantId;
-
-            btnMinus?.addEventListener('click', () => {
-                let v = parseInt(input.value) || 1;
-                if (v > 1) input.value = v - 1;
-            });
-            btnPlus?.addEventListener('click', () => {
-                let v = parseInt(input.value) || 1;
-                let max = parseInt(input.max) || 999;
-                if (v < max) input.value = v + 1;
-            });
-        });
-    }
-});
-</script>
+<script src="{{ asset('js/client/catalogue.js') }}" defer></script>
 @endpush

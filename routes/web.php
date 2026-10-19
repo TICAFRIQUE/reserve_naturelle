@@ -53,6 +53,9 @@
         Route::get('/produits', [ClientProductController::class, 'index'])->name('products.index');
         Route::get('/catalogue', [ClientProductController::class, 'catalogue'])->name('products.catalogue');
 
+        // ROUTE : page dédiée à une catégorie
+        Route::get('/categorie/{category:slug}', [ClientProductController::class, 'category'])->name('products.category');
+
         Route::prefix('produits')->name('products.')->group(function () {
             Route::get('/{product:slug}', [ClientProductController::class, 'show'])->name('show');
         });
@@ -201,5 +204,10 @@
             // Bannière
             Route::get('/banner', [BannerController::class, 'edit'])->name('banner.edit');
             Route::put('/banner', [BannerController::class, 'update'])->name('banner.update');
+
+            // Slides de la bannière
+            Route::post('/banner/slides', [BannerController::class, 'storeSlides'])->name('banner.slides.store');
+            Route::delete('/banner/slides/{slide}', [BannerController::class, 'destroySlide'])->name('banner.slides.destroy');
+            Route::patch('/banner/slides/{slide}/toggle', [BannerController::class, 'toggleSlide'])->name('banner.slides.toggle');
         });
     });

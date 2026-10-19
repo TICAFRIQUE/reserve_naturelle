@@ -1,84 +1,427 @@
 /* ============================================
-   FOOTER
+   FOOTER — Style moderne
+   Fond : --green (#0B7A48) — identique au header
+   Logo : 76px — identique au .brand-circle du header
 ============================================ */
 .footer {
-    background: var(--green-dark);
-    color: rgba(255, 255, 255, 0.8);
-    padding: 50px 0 0;
-    margin-top: 40px;
+    background: var(--green);
+    color: rgba(255, 255, 255, 0.85);
+    padding: 70px 0 0;
+    margin-top: 60px;
+    position: relative;
 }
 
 .footer-container {
-    max-width: 1180px;
+    max-width: 1280px;
+    width: min(1280px, 96%);
     margin: 0 auto;
-    width: 92%;
-    padding: 0 20px;
+    padding: 0;
 }
 
-.footer-links {
+/* --- LAYOUT PRINCIPAL --- */
+.footer-main {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: clamp(24px, 4vw, 40px);
-    padding: 40px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    grid-template-columns: 1.4fr 1fr 1.2fr;
+    gap: clamp(30px, 4vw, 60px);
+    padding: 0 0 50px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-.footer-links h4 {
-    color: var(--gold-light);
-    font-size: clamp(14px, 1.2vw, 16px);
-    font-weight: 700;
-    margin-bottom: 16px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.footer-links ul {
-    list-style: none;
+/* --- COLONNE 1 : LOGO + CTA + RÉSEAUX --- */
+.footer-brand {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 22px;
+    padding: 0;
+    margin: 0;
+    align-items: flex-start;
 }
 
-.footer-links ul li {
+/* Logo + CTA sur la même ligne */
+.footer-brand-top {
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: clamp(13px, 1vw, 14px);
-    transition: all 0.3s ease;
+    gap: 20px;
+    padding: 0;
+    margin: 0;
 }
 
-.footer-links ul li a {
-    color: rgba(255, 255, 255, 0.7);
-    transition: all 0.3s ease;
-}
-
-.footer-links ul li a:hover {
-    color: var(--gold-light);
-    padding-left: 4px;
-}
-
-.footer-links ul li svg {
-    color: var(--gold);
-    flex-shrink: 0;
-    opacity: 0.6;
-    width: clamp(16px, 1.3vw, 18px);
-    height: clamp(16px, 1.3vw, 18px);
-}
-
-.footer-links ul li:hover svg {
-    opacity: 1;
-}
-
-.footer-bottom {
+/* Logo — identique au header (76px, padding 6px, overflow hidden) */
+.footer-logo-circle {
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    background: #ffffff;
     display: flex;
+    align-items: center;
     justify-content: center;
+    overflow: hidden;
+    padding: 6px;
+    box-sizing: border-box;
+    border: 3px solid var(--gold-light);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    flex-shrink: 0;
+}
+
+.footer-logo-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+/* CTA — Bouton dégradé or */
+.footer-cta {
+    display: inline-flex;
     align-items: center;
-    padding: 20px 0;
+    gap: 10px;
+    padding: 14px 26px;
+    border-radius: 50px;
+    background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
+    color: var(--green-dark);
+    font-weight: 800;
+    font-size: 0.95rem;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 14px rgba(242, 184, 50, 0.3);
+    white-space: nowrap;
+}
+
+.footer-cta:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(242, 184, 50, 0.45);
+    filter: brightness(1.05);
+}
+
+.footer-cta i {
+    font-size: 1rem;
+}
+
+/* Réseaux sociaux */
+.footer-socials {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.footer-socials a {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.footer-socials a:hover {
+    background: var(--gold-light);
+    color: var(--green-dark);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(242, 184, 50, 0.4);
+}
+
+/* --- COLONNES 2 & 3 --- */
+.footer-col h4 {
+    color: var(--gold-light);
+    font-size: 1rem;
+    font-weight: 800;
+    margin: 0 0 22px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    position: relative;
+    padding-bottom: 12px;
+}
+
+.footer-col h4::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 40px;
+    height: 3px;
+    background: var(--gold-light);
+    border-radius: 3px;
+}
+
+.footer-col ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.footer-col ul li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.5;
+}
+
+.footer-col ul li i {
+    color: var(--gold-light);
+    font-size: 1rem;
+    margin-top: 3px;
+    flex-shrink: 0;
+    width: 18px;
     text-align: center;
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.5);
+}
+
+.footer-col ul li a {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: all 0.25s ease;
+    display: inline-block;
+}
+
+.footer-col ul li a:hover {
+    color: var(--gold-light);
+    padding-left: 5px;
+}
+
+/* --- BAS DE PAGE --- */
+.footer-bottom {
+    padding: 26px 0;
+    text-align: center;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 1.7;
 }
 
 .footer-bottom strong {
     color: var(--gold-light);
+    font-weight: 700;
+}
+
+.footer-dev {
+    display: inline-block;
+    margin-left: 6px;
+}
+
+.footer-dev a {
+    color: var(--gold-light);
+    text-decoration: none;
+    font-weight: 700;
+    transition: all 0.25s ease;
+}
+
+.footer-dev a:hover {
+    color: #ffffff;
+    text-decoration: underline;
+}
+
+/* --- BOUTON RETOUR EN HAUT --- */
+.back-to-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--gold-light);
+    color: var(--green-dark);
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: all 0.35s ease;
+    z-index: 999;
+}
+
+.back-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.back-to-top:hover {
+    background: #ffffff;
+    transform: translateY(-4px);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.3);
+}
+
+/* --- BOUTON WHATSAPP FLOTTANT --- */
+.whatsapp-float {
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #25D366;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    text-decoration: none;
+    box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+    z-index: 999;
+    transition: all 0.3s ease;
+    animation: whatsapp-pulse 2s infinite;
+}
+
+.whatsapp-float:hover {
+    transform: translateY(-4px) scale(1.08);
+    box-shadow: 0 10px 28px rgba(37, 211, 102, 0.6);
+    background: #1ebe5b;
+}
+
+/* Animation pulse */
+@keyframes whatsapp-pulse {
+    0% {
+        box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4),
+                    0 0 0 0 rgba(37, 211, 102, 0.6);
+    }
+    70% {
+        box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4),
+                    0 0 0 15px rgba(37, 211, 102, 0);
+    }
+    100% {
+        box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4),
+                    0 0 0 0 rgba(37, 211, 102, 0);
+    }
+}
+
+.whatsapp-float::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+/* ============================================
+   RESPONSIVE
+============================================ */
+@media (max-width: 992px) {
+    .footer-main {
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+    }
+
+    /* Bloc 1 : centré sur toute la largeur */
+    .footer-brand {
+        grid-column: span 2;
+        align-items: center;
+        text-align: center;
+    }
+
+    .footer-brand-top {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .footer-logo-circle {
+        width: 60px;
+        height: 60px;
+    }
+
+    .footer-socials {
+        justify-content: center;
+    }
+
+    /* Bloc 2 & 3 : centrés chacun dans leur colonne */
+    .footer-col {
+        text-align: center;
+    }
+
+    .footer-col h4::after {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .footer-col ul li {
+        justify-content: center;
+        text-align: left;
+    }
+}
+
+@media (max-width: 600px) {
+    .footer {
+        padding: 50px 0 0;
+        margin-top: 40px;
+    }
+
+    .footer-main {
+        grid-template-columns: 1fr;
+        gap: 35px;
+        padding-bottom: 35px;
+    }
+
+    .footer-brand {
+        grid-column: span 1;
+    }
+
+    .footer-brand-top {
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .footer-logo-circle {
+        width: 52px;
+        height: 52px;
+        border-width: 2px;
+    }
+
+    .footer-cta {
+        padding: 12px 22px;
+        font-size: 0.85rem;
+    }
+
+    .footer-socials a {
+        width: 38px;
+        height: 38px;
+        font-size: 0.95rem;
+    }
+
+    /* Colonnes centrées */
+    .footer-col {
+        text-align: center;
+    }
+
+    .footer-col h4 {
+        margin-bottom: 18px;
+        font-size: 0.95rem;
+    }
+
+    .footer-col ul li {
+        font-size: 0.9rem;
+        justify-content: center;
+    }
+
+    .back-to-top {
+        width: 44px;
+        height: 44px;
+        bottom: 20px;
+        right: 20px;
+        font-size: 1rem;
+    }
+
+    .whatsapp-float {
+        width: 44px;
+        height: 44px;
+        font-size: 1.4rem;
+        bottom: 85px;
+        right: 20px;
+    }
 }

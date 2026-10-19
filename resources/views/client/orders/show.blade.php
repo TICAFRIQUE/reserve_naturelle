@@ -2,6 +2,8 @@
 
 @section('title', 'Commande ' . $order->num_order . ' - La Réserve Naturelle')
 
+{{-- ⚠️ CACHE LE SLIDER GLOBAL SUR CETTE PAGE --}}
+@section('hide_slider', true)
 @section('content')
 
 @php

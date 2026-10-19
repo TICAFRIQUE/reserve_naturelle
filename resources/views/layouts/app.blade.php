@@ -82,73 +82,98 @@
 <body class="has-fixed-header">
 
 <!-- ============================================
-     HEADER  →  [LOGO]  liens centrés  [Panier]
+     HEADER
 ============================================ -->
 <header class="header">
-  {{-- "container" retiré : la largeur est gérée par .nav (évite le conflit de largeur) --}}
   <div class="nav">
 
-    <!-- LOGO (colonne gauche) -->
     <a class="brand" href="{{ route('home') }}">
-      <img src="{{ asset('img/logo.webp') }}" alt="La Réserve Naturelle" class="brand-logo" width="160" height="60">
+      <div class="brand-circle">
+        <img src="{{ asset('img/logo.webp') }}" alt="La Réserve Naturelle">
+      </div>
     </a>
 
-    <!-- NAVIGATION (colonne centrale) -->
     <nav class="navbar" id="navbar">
       <ul class="nav-links">
-        <li><a href="{{ route('home') }}">Accueil</a></li>
-        <li><a href="{{ route('client.products.catalogue') }}">Catalogue</a></li>
-        <li><a href="{{ route('contact') }}">Contact</a></li>
 
-        @auth
-          <li class="dropdown dropdown-profile">
-            {{-- La flèche ▾ vient du CSS (.dropdown > a::after) --}}
-            <a href="#">
-              <span>{{ Auth::user()->prenom }}</span>
-              @if(Auth::user()->isAdmin())
-                <span class="badge-admin">Admin</span>
-              @endif
-            </a>
-            <ul class="dropdown-menu">
-              <li>
-                <a href="{{ route('client.orders.index') }}">
-                  <i class="fas fa-shopping-bag"></i> Mes commandes
-                </a>
-              </li>
-              <li>
-                <a href="{{ route('password.edit') }}">
-                  <i class="fas fa-key"></i> Changer mot de passe
-                </a>
-              </li>
-              <li><hr class="dropdown-divider"></li>
-              <li>
-                <form action="{{ route('logout') }}" method="POST" style="margin:0;">
-                  @csrf
-                  <button type="submit" class="btn-logout-dropdown">
-                    <i class="fas fa-sign-out-alt"></i> Déconnexion
-                  </button>
-                </form>
-              </li>
-            </ul>
-          </li>
-        @else
-          <li><a href="{{ route('login') }}" class="btn-connexion">Connexion</a></li>
-        @endauth
+        <li>
+          <a href="{{ route('home') }}"
+             class="nav-pill {{ request()->routeIs('home') ? 'active' : '' }}">
+            <i class="fas fa-home"></i> Accueil
+          </a>
+        </li>
+
+        <li>
+          <a href="{{ route('client.products.catalogue') }}"
+             class="nav-pill {{ request()->routeIs('client.products.*') ? 'active' : '' }}">
+            <i class="fas fa-shopping-bag"></i> Catalogue
+          </a>
+        </li>
+
+        <li>
+          <a href="{{ route('contact') }}"
+             class="nav-pill {{ request()->routeIs('contact') ? 'active' : '' }}">
+            <i class="fas fa-phone"></i> Contact
+          </a>
+        </li>
+
       </ul>
     </nav>
 
-    <!-- PANIER + HAMBURGER (colonne droite) -->
     <div class="nav-actions">
-      <a class="cart-btn" href="{{ route('client.cart.index') }}">
+
+      <a class="cart-icon-btn" href="{{ route('client.cart.index') }}" aria-label="Panier">
         <i class="fas fa-shopping-cart"></i>
-        Panier <span id="cart-badge" class="cart-badge">{{ $cartCount ?? 0 }}</span>
+        <span id="cart-badge" class="cart-badge">{{ $cartCount ?? 0 }}</span>
       </a>
 
-      <button class="hamburger" id="hamburger" aria-label="Menu" aria-controls="navbar" aria-expanded="false">
+      @auth
+        <div class="account-dropdown">
+          <button class="account-btn" aria-haspopup="true" aria-expanded="false">
+            <i class="fas fa-user-circle"></i>
+            {{ Auth::user()->prenom }}
+            @if(Auth::user()->isAdmin())
+              <span class="badge-admin">Admin</span>
+            @endif
+            <i class="fas fa-chevron-down"></i>
+          </button>
+
+          <ul class="dropdown-menu">
+            <li>
+              <a href="{{ route('client.orders.index') }}">
+                <i class="fas fa-shopping-bag"></i> Mes commandes
+              </a>
+            </li>
+            <li>
+              <a href="{{ route('password.edit') }}">
+                <i class="fas fa-key"></i> Changer mot de passe
+              </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <form action="{{ route('logout') }}" method="POST" style="margin:0;">
+                @csrf
+                <button type="submit" class="btn-logout-dropdown">
+                  <i class="fas fa-sign-out-alt"></i> Déconnexion
+                </button>
+              </form>
+            </li>
+          </ul>
+        </div>
+      @else
+        <a href="{{ route('login') }}" class="account-btn">
+          <i class="fas fa-user-circle"></i>
+          Profil
+        </a>
+      @endauth
+
+      <button class="hamburger" id="hamburger" aria-label="Menu"
+              aria-controls="navbar" aria-expanded="false">
         <span class="bar"></span>
         <span class="bar"></span>
         <span class="bar"></span>
       </button>
+
     </div>
 
   </div>
@@ -158,6 +183,58 @@
      MAIN
 ============================================ -->
 <main>
+
+  {{-- SLIDER GLOBAL --}}
+  @if(isset($sliderImages) && count($sliderImages) > 0 && !View::hasSection('hide_slider'))
+    <section class="global-slider" id="globalSlider">
+      @foreach($sliderImages as $index => $imageUrl)
+        <div class="slide {{ $index === 0 ? 'active' : '' }}"
+             style="background-image: url('{{ $imageUrl }}');"
+             data-index="{{ $index }}">
+
+          {{-- Overlay + contenu : UNIQUEMENT sur la 1ère image --}}
+          @if($index === 0)
+            <div class="slider-overlay">
+              <div class="slider-content">
+                <span class="eyebrow">Expérience Nature &amp; Terroir</span>
+                <h1>
+                  {{ $bannerGlobal->titre ?? 'Le meilleur de la' }}<br>
+                  <span>{{ $bannerGlobal->titre_span ?? 'terre ivoirienne' }}</span>
+                </h1>
+                <p>{{ $bannerGlobal->sous_titre ?? 'Des produits naturels sélectionnés...' }}</p>
+                <a href="{{ $bannerGlobal->lien_bouton ?? '#catalogue' }}" class="btn-slider">
+                  {{ $bannerGlobal->texte_bouton ?? 'Découvrir le catalogue' }}
+                </a>
+              </div>
+            </div>
+          @endif
+
+        </div>
+      @endforeach
+
+      @if(count($sliderImages) > 1)
+        {{-- Flèche précédente --}}
+        <button class="slider-arrow slider-arrow-prev" id="sliderPrev" aria-label="Slide précédent">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+
+        {{-- Flèche suivante --}}
+        <button class="slider-arrow slider-arrow-next" id="sliderNext" aria-label="Slide suivant">
+          <i class="fas fa-chevron-right"></i>
+        </button>
+
+        {{-- Dots --}}
+        <div class="slider-dots">
+          @foreach($sliderImages as $index => $imageUrl)
+            <button class="dot {{ $index === 0 ? 'active' : '' }}"
+                    data-index="{{ $index }}"
+                    aria-label="Slide {{ $index + 1 }}"></button>
+          @endforeach
+        </div>
+      @endif
+    </section>
+  @endif
+
   @yield('content')
 </main>
 
@@ -166,52 +243,59 @@
 ============================================ -->
 <footer class="footer" id="contact">
   <div class="footer-container">
-    <div class="footer-links">
 
-      <div>
-        <h4>Catalogue</h4>
+    <div class="footer-main">
+
+      <div class="footer-brand">
+        <div class="footer-brand-top">
+          <div class="footer-logo-circle">
+            <img src="{{ asset('img/logo.webp') }}" alt="La Réserve Naturelle">
+          </div>
+
+          <a href="{{ route('client.products.catalogue') }}" class="footer-cta">
+            <i class="fas fa-shopping-bag"></i>
+            Voir notre boutique
+          </a>
+        </div>
+        <div class="footer-socials">
+          <a href="https://facebook.com/lareservenaturelle" target="_blank" rel="noopener" aria-label="Facebook">
+            <i class="fab fa-facebook-f"></i>
+          </a>
+          <a href="https://instagram.com/lareservenaturelle" target="_blank" rel="noopener" aria-label="Instagram">
+            <i class="fab fa-instagram"></i>
+          </a>
+          <a href="https://wa.me/2250556669299" target="_blank" rel="noopener" aria-label="WhatsApp">
+            <i class="fab fa-whatsapp"></i>
+          </a>
+          <a href="https://tiktok.com/@lareservenaturelle" target="_blank" rel="noopener" aria-label="TikTok">
+            <i class="fab fa-tiktok"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4>Navigation</h4>
         <ul>
-          <li><a href="#">Condiments et épices</a></li>
-          <li><a href="#">Produits alimentaires</a></li>
-          <li><a href="#">Produits cosmétiques naturels</a></li>
+          <li><a href="{{ route('home') }}">Accueil</a></li>
+          <li><a href="{{ route('client.products.catalogue') }}">Catalogue</a></li>
+          <li><a href="{{ route('contact') }}">Contact</a></li>
         </ul>
       </div>
 
-      <div>
-        <h4>Informations</h4>
-        <ul>
-          <li><a href="#">À propos</a></li>
-          <li><a href="#">Livraison</a></li>
-          <li><a href="#">Conditions générales</a></li>
-        </ul>
-      </div>
-
-      <div>
+      <div class="footer-col">
         <h4>Contact</h4>
         <ul>
           <li>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
-              <circle cx="12" cy="10" r="3"/>
-            </svg>
+            <i class="fas fa-map-marker-alt"></i>
             TICAFRIQUE – Abidjan, Côte d'Ivoire
           </li>
           <li>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
-            </svg>
-            <a href="tel:+2250556669299" style="color: inherit; text-decoration: none;">
-              05 56 66 92 99
-            </a>
+            <i class="fas fa-phone"></i>
+            <a href="tel:+2250556669299">05 56 66 92 99</a>
           </li>
           <li>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="2" y="4" width="20" height="16" rx="2"/>
-              <path d="M22 7l-8.97 5.7a1.94 1.94 0 01-2.06 0L2 7"/>
-            </svg>
-              <a href="mailto:commercial@lareservenaturelle.ci" style="color: inherit; text-decoration: none;">
-                commercial@lareservenaturelle.ci
-              </a>
+            <i class="fas fa-envelope"></i>
+            <a href="mailto:commercial@lareservenaturelle.ci">commercial@lareservenaturelle.ci</a>
           </li>
         </ul>
       </div>
@@ -219,15 +303,48 @@
     </div>
 
     <div class="footer-bottom">
-      <p>&copy; {{ date('Y') }} <strong>La Réserve Naturelle</strong>. Tous droits réservés.</p>
+      <p>
+        &copy; {{ date('Y') }} <strong>La Réserve Naturelle</strong>. Tous droits réservés.
+        <span class="footer-dev">
+          Développé par <a href="https://ticafrique.com" target="_blank" rel="noopener">TICAFRIQUE</a>
+        </span>
+      </p>
     </div>
+
   </div>
+
+  <a href="https://wa.me/2250556669299?text=Bonjour%20La%20R%C3%A9serve%20Naturelle%2C%20je%20souhaite%20avoir%20des%20informations."
+     class="whatsapp-float"
+     target="_blank"
+     rel="noopener"
+     aria-label="Contacter sur WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+
+  <button class="back-to-top" id="backToTop" aria-label="Retour en haut">
+    <i class="fas fa-arrow-up"></i>
+  </button>
 </footer>
 
 <!-- ============================================
      SCRIPTS
 ============================================ -->
 <script>
+  // Bouton retour en haut
+  (function () {
+    const btn = document.getElementById('backToTop');
+    if (!btn) return;
+
+    window.addEventListener('scroll', () => {
+      btn.classList.toggle('visible', window.scrollY > 300);
+    });
+
+    btn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  })();
+
+  // Menu mobile + dropdowns
   (() => {
     const MOBILE_BP = 992;
     const hamburger = document.getElementById('hamburger');
@@ -266,7 +383,6 @@
       });
     });
 
-    // Fermer le menu mobile après clic sur un lien (hors déclencheur de dropdown)
     document.querySelectorAll('.nav-links a:not(.dropdown > a)').forEach(link => {
       link.addEventListener('click', () => {
         if (window.innerWidth <= MOBILE_BP) closeAll();
@@ -276,6 +392,68 @@
     window.addEventListener('resize', () => {
       if (window.innerWidth > MOBILE_BP) closeAll();
     });
+  })();
+
+  // ⚡ SLIDER GLOBAL
+  (function() {
+    const slider = document.getElementById('globalSlider');
+    if (!slider) return;
+
+    const slides = slider.querySelectorAll('.slide');
+    const dots = slider.querySelectorAll('.dot');
+    const btnPrev = document.getElementById('sliderPrev');
+    const btnNext = document.getElementById('sliderNext');
+
+    if (slides.length <= 1) return;
+
+    let current = 0;
+    const duration = 5000;
+    let timer;
+
+    function goTo(index) {
+      slides[current].classList.remove('active');
+      if (dots[current]) dots[current].classList.remove('active');
+
+      current = (index + slides.length) % slides.length;
+
+      slides[current].classList.add('active');
+      if (dots[current]) dots[current].classList.add('active');
+    }
+
+    function next() { goTo(current + 1); }
+    function prev() { goTo(current - 1); }
+
+    function start() { timer = setInterval(next, duration); }
+    function stop() { clearInterval(timer); }
+
+    dots.forEach((dot, i) => {
+      dot.addEventListener('click', () => {
+        stop();
+        goTo(i);
+        start();
+      });
+    });
+
+    if (btnNext) {
+      btnNext.addEventListener('click', () => {
+        stop();
+        next();
+        start();
+      });
+    }
+
+    if (btnPrev) {
+      btnPrev.addEventListener('click', () => {
+        stop();
+        prev();
+        start();
+      });
+    }
+
+    slider.addEventListener('mouseenter', stop);
+    slider.addEventListener('mouseleave', start);
+
+    start();
   })();
 </script>
 

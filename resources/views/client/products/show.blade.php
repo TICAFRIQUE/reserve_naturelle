@@ -19,37 +19,40 @@
 ))
 @section('og_image', $product->image_path
     ? asset('storage/' . $product->image_path)
-    : asset('img/logo.png')
+    : asset('img/logo.webp')
 )
 @section('og_image_alt', $product->designation)
 
 @php
-    $variants   = $product->variants;
-    $variant    = $variants->first();
-    $prixMin    = $variants->min('prix_vente');
-    $prixMax    = $variants->max('prix_vente');
-    $stockTotal = $variants->sum('qte_dispo');
-    $productUrl = route('client.products.show', $product);
-    $productImg = $product->image_path
+    // $product->variants : variantes ACTIVES, triées par prix croissant (cf. ProductController::show)
+    $variants    = $product->variants;
+    $prixMin     = $variants->min('prix_vente');
+    $prixMax     = $variants->max('prix_vente');
+    $stockTotal  = $variants->sum('qte_dispo');
+    $hasStock    = $variants->count() > 0 && $stockTotal > 0;
+    $category    = $product->category;
+    $categoryUrl = $category ? route('client.products.category', $category) : route('client.products.catalogue');
+    $productUrl  = route('client.products.show', $product);
+    $productImg  = $product->image_path
         ? asset('storage/' . $product->image_path)
         : asset('images/default-product.jpg');
+    $isNew       = (bool) $product->created_at?->gt(now()->subDays(7));
+    $descText    = trim((string) $product->description);
+    $shareUrl    = 'https://wa.me/?text=' . rawurlencode($product->designation . ' - ' . $productUrl);
 
-    // Construction du schéma Product
+    // Schéma Product
     $productSchema = [
         '@context'    => 'https://schema.org/',
         '@type'       => 'Product',
         'name'        => $product->designation,
         'description' => Str::limit(
-            $product->description ?? 'Produit naturel et local disponible sur La Réserve Naturelle en Côte d’Ivoire.',
+            $descText !== '' ? $descText : 'Produit naturel et local disponible sur La Réserve Naturelle en Côte d’Ivoire.',
             300
         ),
         'image'       => [$productImg],
         'sku'         => 'PROD-' . $product->id,
-        'category'    => $product->category->nom ?? 'Non catégorisé',
-        'brand'       => [
-            '@type' => 'Brand',
-            'name'  => 'La Réserve Naturelle',
-        ],
+        'category'    => $category->nom ?? 'Non catégorisé',
+        'brand'       => ['@type' => 'Brand', 'name' => 'La Réserve Naturelle'],
         'url'         => $productUrl,
     ];
 
@@ -60,41 +63,31 @@
             'lowPrice'      => $prixMin ?? 0,
             'highPrice'     => $prixMax ?? $prixMin ?? 0,
             'offerCount'    => $variants->count(),
-            'availability'  => $stockTotal > 0
-                ? 'https://schema.org/InStock'
-                : 'https://schema.org/OutOfStock',
+            'availability'  => $hasStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
             'url'           => $productUrl,
-            'seller'        => [
-                '@type' => 'Organization',
-                'name'  => 'La Réserve Naturelle',
-            ],
+            'seller'        => ['@type' => 'Organization', 'name' => 'La Réserve Naturelle'],
         ];
     }
 
-    // Construction du schéma Breadcrumb
+    // Schéma Breadcrumb : Accueil > Boutique > Catégorie > Produit
+    $crumbs = [
+        ['name' => 'Accueil',  'item' => route('home')],
+        ['name' => 'Boutique', 'item' => route('client.products.catalogue')],
+    ];
+    if ($category) {
+        $crumbs[] = ['name' => $category->nom, 'item' => $categoryUrl];
+    }
+    $crumbs[] = ['name' => $product->designation, 'item' => $productUrl];
+
     $breadcrumbSchema = [
         '@context'        => 'https://schema.org',
         '@type'           => 'BreadcrumbList',
-        'itemListElement' => [
-            [
-                '@type'    => 'ListItem',
-                'position' => 1,
-                'name'     => 'Accueil',
-                'item'     => route('home'),
-            ],
-            [
-                '@type'    => 'ListItem',
-                'position' => 2,
-                'name'     => 'Catalogue',
-                'item'     => route('client.products.catalogue'),
-            ],
-            [
-                '@type'    => 'ListItem',
-                'position' => 3,
-                'name'     => $product->designation,
-                'item'     => $productUrl,
-            ],
-        ],
+        'itemListElement' => collect($crumbs)->values()->map(fn ($c, $i) => [
+            '@type'    => 'ListItem',
+            'position' => $i + 1,
+            'name'     => $c['name'],
+            'item'     => $c['item'],
+        ])->all(),
     ];
 @endphp
 
@@ -107,144 +100,161 @@
 </script>
 @endpush
 
+{{-- ⚠️ CACHE LE SLIDER GLOBAL SUR CETTE PAGE --}}
+@section('hide_slider', true)
+
 @section('content')
 
-<div class="container product-show-wrapper">
+<div class="cp pd">
 
-    <!-- ============================================
-         BREADCRUMB
-    ============================================ -->
-    <nav class="breadcrumb" aria-label="Fil d'Ariane">
-        <a href="{{ route('home') }}">Accueil</a>
-        <span class="breadcrumb-sep">›</span>
-        <a href="{{ route('client.products.catalogue') }}">Catalogue</a>
-        <span class="breadcrumb-sep">›</span>
-        <span class="breadcrumb-current">{{ $product->designation }}</span>
-    </nav>
-
-    <!-- ============================================
-         BLOC PRINCIPAL : IMAGE + INFOS
-    ============================================ -->
-    <div class="product-main-block">
-        <!-- IMAGE -->
-        <div class="product-main-image">
-            <img src="{{ $productImg }}"
-                 alt="{{ $product->designation }}"
-                 loading="eager"
-                 width="380"
-                 height="380">
-        </div>
-
-        <!-- INFOS -->
-        <div class="product-main-info">
-            <h1>{{ $product->designation }}</h1>
-
-           <p class="product-main-category">
-                <i class="fas fa-folder" style="color:#b8860b;"></i>
-
-                @if($product->category)
-                    <a href="{{ route('client.products.catalogue', ['category' => $product->category->id]) }}"
-                    title="Voir les produits de la catégorie {{ $product->category->nom }}">
-                        {{ $product->category->nom }}
-                    </a>
-                @else
-                    Non catégorisé
-                @endif
-            </p>
-            <div class="product-main-price">
-                @if($variants->count() > 1)
-                    <span class="price-label">À partir de</span>
-                    <span class="price-value">{{ number_format($prixMin ?? 0, 0, ',', ' ') }} FCFA</span>
-                @else
-                    <span class="price-value">{{ number_format($prixMin ?? 0, 0, ',', ' ') }} FCFA</span>
-                @endif
-            </div>
-
-            <!-- ⚡ Bouton Ajouter → ouvre la modal des variantes -->
-            @if($variants->count() > 0 && $stockTotal > 0)
-                <button type="button"
-                        class="open-variants-modal-btn"
-                        data-product-id="{{ $product->id }}"
-                        style="background: #2d5a27; color: white; padding: 14px 22px; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 1rem; display: inline-flex; align-items: center; gap: 10px; margin-bottom: 25px;">
-                    <i class="fas fa-shopping-cart"></i>
-                    Ajouter au panier
-                </button>
+    {{-- ============ FIL D'ARIANE ============ --}}
+    <div class="cp-breadcrumb-bar">
+        <nav class="cp-container cp-breadcrumb" aria-label="Fil d'Ariane">
+            {{-- Retour : page précédente si elle existe, sinon la catégorie --}}
+            <a href="{{ $categoryUrl }}" class="cp-back" aria-label="Retour"
+               onclick="if (history.length > 1) { history.back(); return false; }">
+                <i class="fas fa-arrow-left" aria-hidden="true"></i><span>Retour</span>
+            </a>
+            <span class="cp-sep" aria-hidden="true">›</span>
+            <a href="{{ route('client.products.catalogue') }}" class="cp-crumb">Boutique</a>
+            @if($category)
+                <span class="cp-sep" aria-hidden="true">›</span>
+                <a href="{{ $categoryUrl }}" class="cp-crumb">{{ $category->nom }}</a>
             @endif
-
-            <div class="product-main-description">
-                <h3>Description</h3>
-                <p>{{ $product->description ?? 'Aucune description disponible pour ce produit.' }}</p>
+            <span class="cp-sep" aria-hidden="true">›</span>
+            <span class="cp-current" aria-current="page">{{ $product->designation }}</span>
+            <div class="cp-meta">
+                <span class="cp-pill"><i class="far fa-clock" aria-hidden="true"></i><time id="cpClock">--:--</time></span>
             </div>
-
-            <!-- Badges -->
-            <div class="product-main-badges">
-                @if($variant && $variant->prix_vente < 1000)
-                    <span class="badge badge-promo">🔥 Promo</span>
-                @endif
-                @if($product->created_at->diffInDays(now()) < 7)
-                    <span class="badge badge-new">🆕 Nouveau</span>
-                @endif
-                @if($stockTotal > 10)
-                    <span class="badge badge-stock">✓ En stock</span>
-                @elseif($stockTotal > 0)
-                    <span class="badge badge-limited">⚠ Stock limité</span>
-                @else
-                    <span class="badge badge-out">✗ Rupture</span>
-                @endif
-            </div>
-        </div>
+        </nav>
     </div>
 
-    <!-- ============================================
-         PRODUITS SIMILAIRES
-    ============================================ -->
-    @if(isset($similarProducts) && $similarProducts->count() > 0)
-        <div class="similar-products">
-            <h2>Produits similaires</h2>
+    <main class="pd-page">
+        <div class="cp-container">
 
-            <div class="similar-products-grid">
-                @foreach($similarProducts as $similar)
-                    @php $similarVariant = $similar->variants->first(); @endphp
-                    <article class="similar-product-card">
-                        <a href="{{ route('client.products.show', $similar) }}" class="similar-product-link">
-                            <div class="similar-product-image">
-                                @if($similar->image_path)
-                                    <img src="{{ asset('storage/' . $similar->image_path) }}"
-                                         alt="{{ $similar->designation }}"
-                                         loading="lazy">
-                                @else
-                                    <div class="similar-product-placeholder">
-                                        <i class="fas fa-box"></i>
-                                    </div>
-                                @endif
-                            </div>
-                            <div class="similar-product-info">
-                                <h3>{{ $similar->designation }}</h3>
-                                <div class="similar-product-price">
-                                    {{ number_format($similarVariant->prix_vente ?? 0, 0, ',', ' ') }} FCFA
-                                </div>
-                            </div>
+            {{-- ============ PRODUIT ============ --}}
+            <article class="pd-card">
+
+                <div class="pd-media">
+                    <div class="pd-image">
+                        <img src="{{ $productImg }}" alt="{{ $product->designation }}"
+                             width="520" height="520" fetchpriority="high">
+
+                        @if(! $hasStock)
+                            <span class="pd-status is-out"><i class="fas fa-times-circle" aria-hidden="true"></i>Rupture</span>
+                        @elseif($stockTotal > 10)
+                            <span class="pd-status is-in"><i class="fas fa-check-circle" aria-hidden="true"></i>En stock</span>
+                        @else
+                            <span class="pd-status is-low"><i class="fas fa-exclamation-circle" aria-hidden="true"></i>Stock limité</span>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="pd-info">
+                    @if($category)
+                        <a href="{{ $categoryUrl }}" class="pd-category"
+                           title="Voir les produits de la catégorie {{ $category->nom }}">
+                            <i class="fas fa-folder" aria-hidden="true"></i>{{ $category->nom }}
                         </a>
-                    </article>
-                @endforeach
-            </div>
-        </div>
-    @endif
+                    @endif
 
-    {{-- ============================================
-         MODAL VARIANTES
-    ============================================ --}}
-    @if($variants->count() > 0 && $stockTotal > 0)
+                    <h1>{{ $product->designation }}</h1>
+
+                    @if($isNew)
+                        <span class="pd-new">Nouveau</span>
+                    @endif
+
+                    <div class="pd-price">
+                        @if($variants->count() > 1)
+                            <span class="pd-price-label">À partir de</span>
+                        @endif
+                        <span class="pd-price-value">{{ number_format($prixMin ?? 0, 0, ',', ' ') }} FCFA</span>
+                    </div>
+
+                    <div class="pd-actions">
+                        @if($hasStock)
+                            <button type="button"
+                                    class="open-variants-modal-btn pd-btn pd-btn--add"
+                                    data-product-id="{{ $product->id }}"
+                                    data-cart-url="{{ route('client.cart.store') }}">
+                                <i class="fas fa-shopping-cart" aria-hidden="true"></i> Ajouter au panier
+                            </button>
+                        @else
+                            <button type="button" class="pd-btn pd-btn--reserve" disabled>
+                                <i class="far fa-clock" aria-hidden="true"></i> Réserver
+                            </button>
+                        @endif
+
+                        <a href="{{ $shareUrl }}" target="_blank" rel="noopener" class="pd-btn pd-btn--share">
+                            <i class="fab fa-whatsapp" aria-hidden="true"></i> Partager
+                        </a>
+                    </div>
+
+                    @if($variants->count() > 1)
+                        <section class="pd-options" aria-labelledby="pdOptionsTitle">
+                            <h2 id="pdOptionsTitle">Conditionnements</h2>
+                            <ul>
+                                @foreach($variants as $v)
+                                    <li class="{{ $v->qte_dispo <= 0 ? 'is-out' : '' }}">
+                                        <span class="pd-opt-name">{{ $v->conditionnement }}</span>
+                                        <span class="pd-opt-price">{{ number_format($v->prix_vente, 0, ',', ' ') }} FCFA</span>
+                                        <span class="pd-opt-state">{{ $v->qte_dispo > 0 ? 'En stock' : 'Indisponible' }}</span>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </section>
+                    @endif
+
+                    <section class="pd-description">
+                        <h2>Description</h2>
+                        @if($descText !== '')
+                            <p>{!! nl2br(e($descText)) !!}</p>
+                        @else
+                            <p class="is-empty">Aucune description disponible pour ce produit.</p>
+                        @endif
+                    </section>
+                </div>
+            </article>
+
+            {{-- ============ PRODUITS SIMILAIRES ============ --}}
+            @if(isset($similarProducts) && $similarProducts->isNotEmpty())
+                <section class="pd-similar" aria-labelledby="pdSimilarTitle">
+                    <div class="pd-heading"><h2 id="pdSimilarTitle">Produits similaires</h2></div>
+
+                    <div class="pd-similar-grid">
+                        @foreach($similarProducts as $similar)
+                            <a href="{{ route('client.products.show', $similar) }}" class="pd-sim-card">
+                                <span class="pd-sim-media">
+                                    @if($similar->image_path)
+                                        <img src="{{ asset('storage/' . $similar->image_path) }}" alt="" loading="lazy">
+                                    @else
+                                        <i class="fas fa-box" aria-hidden="true"></i>
+                                    @endif
+                                </span>
+                                <span class="pd-sim-name">{{ $similar->designation }}</span>
+                                <span class="pd-sim-price">{{ number_format($similar->variants->min('prix_vente') ?? 0, 0, ',', ' ') }} FCFA</span>
+                            </a>
+                        @endforeach
+                    </div>
+                </section>
+            @endif
+
+        </div>
+    </main>
+
+    {{-- ============ MODALE VARIANTES (logique : catalogue.js) ============ --}}
+    @if($hasStock)
         <div class="variants-modal" id="variants-modal-{{ $product->id }}" style="display:none;">
             <div class="variants-modal-overlay"></div>
-            <div class="variants-modal-content">
+            <div class="variants-modal-content" role="dialog" aria-modal="true"
+                 aria-label="Options pour {{ $product->designation }}">
                 <div class="variants-modal-header">
                     <h3>{{ $product->designation }}</h3>
                     <button type="button" class="variants-modal-close" aria-label="Fermer">&times;</button>
                 </div>
 
                 <div class="variants-modal-body">
-                    <p class="variants-modal-subtitle">Veuillez sélectionner une option</p>
+                    <p class="variants-modal-subtitle">Choisissez une option</p>
 
                     <div class="variants-list">
                         @foreach($variants as $v)
@@ -260,10 +270,10 @@
                                 <div class="variant-col-actions">
                                     @if($v->qte_dispo > 0)
                                         <div class="qty-controls" data-variant-id="{{ $v->id }}">
-                                            <button type="button" class="qty-btn-minus">−</button>
+                                            <button type="button" class="qty-btn-minus" aria-label="Diminuer">−</button>
                                             <input type="number" min="1" max="{{ $v->qte_dispo }}" value="1"
                                                    class="qty-input" data-variant-id="{{ $v->id }}">
-                                            <button type="button" class="qty-btn-plus">+</button>
+                                            <button type="button" class="qty-btn-plus" aria-label="Augmenter">+</button>
                                         </div>
 
                                         <button type="button"
@@ -284,7 +294,7 @@
 
                 <div class="variants-modal-footer">
                     <button type="button" class="btn-modal-close">Poursuivre mes achats</button>
-                    <a href="{{ route('client.cart.index') }}" class="btn-modal-cart">Accéder au panier</a>
+                    <a href="{{ route('client.cart.index') }}" class="btn-modal-cart">Voir le panier</a>
                 </div>
             </div>
         </div>
@@ -295,406 +305,10 @@
 @endsection
 
 @push('styles')
-<style>
-    /* ============================================
-       CONTENEUR PRINCIPAL
-    ============================================ */
-    .product-show-wrapper {
-        padding: 30px 0 60px;
-    }
-
-    /* ============================================
-       BLOC IMAGE + INFOS
-    ============================================ */
-    .product-main-block {
-        display: grid;
-        grid-template-columns: 380px 1fr;
-        gap: 40px;
-        margin-bottom: 40px;
-        align-items: flex-start;
-    }
-
-    .product-main-image {
-        background: #f8f5f0;
-        border: 1px solid #e8e0d5;
-        border-radius: 14px;
-        overflow: hidden;
-        aspect-ratio: 1 / 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .product-main-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .product-main-info h1 {
-        font-family: 'Playfair Display', serif;
-        color: #2d5a27;
-        font-size: 2rem;
-        margin: 0 0 8px;
-        line-height: 1.2;
-    }
-
-    .product-main-category {
-        color: #6c757d;
-        font-size: 0.9rem;
-        margin-bottom: 20px;
-    }
-
-    .product-main-price {
-        background: #e8f5e9;
-        padding: 16px 20px;
-        border-radius: 10px;
-        margin-bottom: 15px;
-        display: flex;
-        align-items: baseline;
-        gap: 10px;
-    }
-    .product-main-price .price-label {
-        color: #6c757d;
-        font-size: 0.9rem;
-    }
-    .product-main-price .price-value {
-        color: #2d5a27;
-        font-size: 1.8rem;
-        font-weight: 700;
-    }
-
-    .product-main-description h3 {
-        font-size: 1.05rem;
-        color: #2d5a27;
-        margin-bottom: 8px;
-    }
-    .product-main-description p {
-        color: #6c757d;
-        font-size: 0.92rem;
-        line-height: 1.7;
-    }
-
-    .product-main-badges {
-        margin-top: 20px;
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-    }
-    .product-main-badges .badge {
-        padding: 5px 12px;
-        border-radius: 20px;
-        font-size: 0.75rem;
-        font-weight: 600;
-    }
-    .badge-promo   { background: #fdecea; color: #c62828; }
-    .badge-new     { background: #e3f2fd; color: #1565c0; }
-    .badge-stock   { background: #d4edda; color: #155724; }
-    .badge-limited { background: #fff3cd; color: #856404; }
-    .badge-out     { background: #f8d7da; color: #721c24; }
-
-    /* ============================================
-       MODAL VARIANTES
-    ============================================ */
-    .variants-modal {
-        position: fixed;
-        inset: 0;
-        z-index: 9999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-    }
-    .variants-modal-overlay {
-        position: absolute;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.5);
-    }
-    .variants-modal-content {
-        position: relative;
-        background: white;
-        border-radius: 12px;
-        width: 100%;
-        max-width: 550px;
-        max-height: 90vh;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    }
-    .variants-modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 20px 25px;
-        border-bottom: 1px solid #e8e0d5;
-    }
-    .variants-modal-header h3 {
-        margin: 0;
-        font-family: 'Playfair Display', serif;
-        color: #2d5a27;
-        font-size: 1.2rem;
-    }
-    .variants-modal-close {
-        background: none;
-        border: none;
-        font-size: 28px;
-        color: #6c757d;
-        cursor: pointer;
-        line-height: 1;
-        padding: 0 5px;
-        transition: color 0.2s;
-    }
-    .variants-modal-close:hover {
-        color: #2d5a27;
-    }
-
-    .variants-modal-body {
-        padding: 20px 25px;
-        overflow-y: auto;
-        flex: 1;
-    }
-    .variants-modal-subtitle {
-        color: #6c757d;
-        font-size: 0.9rem;
-        margin-bottom: 15px;
-    }
-
-    .variants-modal-footer {
-        display: flex;
-        gap: 10px;
-        padding: 15px 25px;
-        border-top: 1px solid #e8e0d5;
-        background: #f8f5f0;
-    }
-    .btn-modal-close,
-    .btn-modal-cart {
-        flex: 1;
-        padding: 12px 20px;
-        border-radius: 8px;
-        font-weight: 600;
-        font-size: 0.9rem;
-        cursor: pointer;
-        text-align: center;
-        text-decoration: none;
-        transition: all 0.2s;
-    }
-    .btn-modal-close {
-        background: white;
-        color: #2d5a27;
-        border: 1px solid #2d5a27;
-    }
-    .btn-modal-close:hover {
-        background: #e8f5e9;
-    }
-    .btn-modal-cart {
-        background: #2d5a27;
-        color: white;
-        border: 1px solid #2d5a27;
-    }
-    .btn-modal-cart:hover {
-        background: #1e3d1a;
-    }
-
-    /* Lignes de variantes dans la modal */
-    .variants-list {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-    .variant-row {
-        display: grid;
-        grid-template-columns: 1.3fr 1fr 1.4fr;
-        gap: 15px;
-        align-items: center;
-        padding: 14px 16px;
-        background: white;
-        border: 1px solid #e8e0d5;
-        border-radius: 10px;
-        transition: all 0.2s;
-    }
-    .variant-row:hover {
-        border-color: #c8e6c9;
-    }
-    .variant-row.is-out {
-        background: #f8f5f0;
-        opacity: 0.6;
-    }
-    .variant-condition {
-        font-weight: 700;
-        color: #2d5a27;
-        font-size: 1rem;
-    }
-    .variant-price {
-        font-weight: 700;
-        color: #2d5a27;
-        font-size: 1rem;
-    }
-    .variant-price small {
-        font-size: 0.75rem;
-        color: #6c757d;
-        font-weight: 500;
-    }
-
-    .variant-col-actions {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        justify-content: flex-end;
-    }
-
-    /* Contrôles quantité */
-    .qty-controls {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        border: 1px solid #e8e0d5;
-        border-radius: 8px;
-        padding: 3px;
-        background: white;
-    }
-    .qty-btn-minus,
-    .qty-btn-plus {
-        width: 28px;
-        height: 28px;
-        border: none;
-        background: #f8f5f0;
-        border-radius: 6px;
-        cursor: pointer;
-        font-weight: bold;
-        color: #2d5a27;
-        font-size: 1rem;
-        transition: background 0.2s;
-    }
-    .qty-btn-minus:hover,
-    .qty-btn-plus:hover {
-        background: #e8e0d5;
-    }
-    .qty-input {
-        width: 40px;
-        padding: 4px;
-        text-align: center;
-        border: none;
-        background: transparent;
-        outline: none;
-        font-weight: 600;
-        color: #2d5a27;
-        -moz-appearance: textfield;
-    }
-    .qty-input::-webkit-outer-spin-button,
-    .qty-input::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-    }
-
-    .add-to-cart-btn {
-        background: #2d5a27;
-        color: white;
-        padding: 8px 16px;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: 600;
-        font-size: 0.85rem;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        transition: background 0.2s;
-    }
-    .add-to-cart-btn:hover {
-        background: #1e3d1a;
-    }
-
-    .variant-unavailable {
-        color: #adb5bd;
-        font-size: 0.85rem;
-        font-style: italic;
-    }
-
-    /* ============================================
-       RESPONSIVE
-    ============================================ */
-    @media (max-width: 900px) {
-        .product-main-block {
-            grid-template-columns: 1fr;
-            gap: 25px;
-        }
-        .product-main-image {
-            max-width: 380px;
-            margin: 0 auto;
-        }
-        .product-main-info h1 {
-            font-size: 1.5rem;
-        }
-    }
-
-    @media (max-width: 600px) {
-        .variant-row {
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-        .variant-col-actions {
-            grid-column: span 2;
-            justify-content: space-between;
-        }
-        .variants-modal-footer {
-            flex-direction: column;
-        }
-    }
-</style>
+<link rel="stylesheet" href="{{ asset('css/pages/_shop-common.css') }}">
+<link rel="stylesheet" href="{{ asset('css/pages/_product.css') }}">
 @endpush
 
 @push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    // ===== Ouvrir la modal variantes =====
-    document.querySelectorAll('.open-variants-modal-btn').forEach(btn => {
-        btn.addEventListener('click', function () {
-            const modal = document.getElementById('variants-modal-' + this.dataset.productId);
-            if (modal) {
-                modal.style.display = 'flex';
-                document.body.style.overflow = 'hidden';
-                initQtyControls(modal);
-            }
-        });
-    });
-
-    // ===== Fermer la modal =====
-    document.querySelectorAll('.variants-modal-overlay, .variants-modal-close, .btn-modal-close').forEach(el => {
-        el.addEventListener('click', function () {
-            const modal = this.closest('.variants-modal');
-            if (modal) {
-                modal.style.display = 'none';
-                document.body.style.overflow = '';
-            }
-        });
-    });
-
-    // ===== Contrôles quantité (+ / −) =====
-    function initQtyControls(container) {
-        container.querySelectorAll('.variant-row').forEach(row => {
-            const input = row.querySelector('.qty-input');
-            const btnMinus = row.querySelector('.qty-btn-minus');
-            const btnPlus  = row.querySelector('.qty-btn-plus');
-
-            if (!input) return;
-
-            // Éviter de re-binder sur un input déjà traité
-            if (input.dataset.bound === '1') return;
-            input.dataset.bound = '1';
-
-            input.id = 'qty-input-' + input.dataset.variantId;
-
-            btnMinus?.addEventListener('click', () => {
-                let v = parseInt(input.value) || 1;
-                if (v > 1) input.value = v - 1;
-            });
-            btnPlus?.addEventListener('click', () => {
-                let v = parseInt(input.value) || 1;
-                let max = parseInt(input.max) || 999;
-                if (v < max) input.value = v + 1;
-            });
-        });
-    }
-});
-</script>
+<script src="{{ asset('js/client/catalogue.js') }}" defer></script>
 @endpush

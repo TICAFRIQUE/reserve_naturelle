@@ -2,6 +2,8 @@
 
 @section('title', 'Checkout - La Réserve Naturelle')
 
+{{-- ⚠️ CACHE LE SLIDER GLOBAL SUR CETTE PAGE --}}
+@section('hide_slider', true)
 @section('content')
 
 <div class="checkout-wrapper">

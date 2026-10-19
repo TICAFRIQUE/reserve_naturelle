@@ -10,7 +10,7 @@
 
         e.preventDefault();
 
-        const variantId  = btn.dataset.productVariantId;   // ✅ corrigé
+        const variantId  = btn.dataset.productVariantId;  
         const qteInputId = btn.dataset.qteInput;
         const qte        = qteInputId
             ? (parseInt(document.getElementById(qteInputId)?.value) || 1)

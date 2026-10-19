@@ -152,20 +152,35 @@
                             @forelse($categories as $category)
                                 <tr style="border-bottom: 1px solid #f0ebe5; transition: background 0.2s;" onmouseover="this.style.background='#faf8f5'" onmouseout="this.style.background='transparent'">
                                     <td style="padding: 15px 20px; font-weight: 500; color: #2d5a27;">
-                                        <div style="display: flex; align-items: center; gap: 10px;">
-                                            <!-- Icône de catégorie -->
-                                            <div style="
-                                                width: 36px;
-                                                height: 36px;
-                                                border-radius: 8px;
-                                                background: #e8f5e9;
-                                                display: flex;
-                                                align-items: center;
-                                                justify-content: center;
-                                                flex-shrink: 0;
-                                            ">
-                                                <i class="fas fa-folder" style="color: #b8860b; font-size: 16px;"></i>
-                                            </div>
+                                        <div style="display: flex; align-items: center; gap: 12px;">
+                                            <!-- ⚡ Image de la catégorie (au lieu de l'icône fixe) -->
+                                            @if($category->image_path)
+                                                <img src="{{ $category->image_url }}"
+                                                     alt="{{ $category->nom }}"
+                                                     style="
+                                                         width: 46px;
+                                                         height: 46px;
+                                                         border-radius: 10px;
+                                                         object-fit: cover;
+                                                         flex-shrink: 0;
+                                                         border: 2px solid #e8e0d5;
+                                                         box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+                                                     ">
+                                            @else
+                                                <div style="
+                                                    width: 46px;
+                                                    height: 46px;
+                                                    border-radius: 10px;
+                                                    background: #e8f5e9;
+                                                    display: flex;
+                                                    align-items: center;
+                                                    justify-content: center;
+                                                    flex-shrink: 0;
+                                                    border: 2px solid #e8e0d5;
+                                                ">
+                                                    <i class="fas fa-folder" style="color: #b8860b; font-size: 18px;"></i>
+                                                </div>
+                                            @endif
                                             <span>{{ $category->nom }}</span>
                                         </div>
                                     </td>

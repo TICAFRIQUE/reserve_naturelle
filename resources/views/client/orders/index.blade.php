@@ -2,6 +2,8 @@
 
 @section('title', 'Mes Commandes')
 
+{{-- ⚠️ CACHE LE SLIDER GLOBAL SUR CETTE PAGE --}}
+@section('hide_slider', true)
 @section('content')
 
 <div class="container orders-wrapper">
