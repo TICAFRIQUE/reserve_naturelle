@@ -163,7 +163,7 @@
       @else
         <a href="{{ route('login') }}" class="account-btn">
           <i class="fas fa-user-circle"></i>
-          Profil
+          Connexion
         </a>
       @endauth
 
