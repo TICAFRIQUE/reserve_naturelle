@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 
 class TourneeController extends Controller
 {
-        public function index(Request $request){
+    public function index(Request $request){
         $tournees = Tournee::with(['livreur', 'zone', 'orders'])
             ->when($request->filled('search'), fn($q) =>
                 $q->whereHas('livreur', fn($q) =>
@@ -83,7 +83,8 @@ class TourneeController extends Controller
             ]);
 
             $tournee->orders()->attach($orders->pluck('id'));
-            Order::whereIn('id', $orders->pluck('id'))->update(['statut' => 'en_livraison']);
+            // On ne passe plus le statut de la commande à 'en_livraison' pour ne pas bloquer OrderController.
+            // L'ordre reste 'validee' mais est rattaché à une tournée.
             $livreur->update(['statut' => 'indisponible']);
         });
         return redirect()->route('admin.tournees.index')->with('success', 'Tournée créée avec succès.');
@@ -95,25 +96,18 @@ class TourneeController extends Controller
     }
 
     /**
-     * Marquer une commande de la tournée comme livrée
+     * Supprimé car ne dépendait que du statut 'livree' de la commande.
+     * L'aboutissement des commandes est géré de manière centralisée par OrderController.
      */
-    public function markOrderDelivered(Tournee $tournee, Order $order){
-        abort_unless($tournee->orders->contains($order->id), 404);
-        abort_if($order->statut !== 'en_livraison', 403, 'Commande déjà traitée.');
-
-        $order->update(['statut' => 'livree']);
-        return back()->with('success', "Commande {$order->num_order} marquée comme livrée.");
-    }
 
     /**
-     * Clôturer la tournée (uniquement si toutes les commandes sont livrées)
+     * Clôturer la tournée (indépendante du statut des commandes)
      */
     public function close(Tournee $tournee){
         abort_if($tournee->statut !== 'en_cours', 403, 'Tournée déjà clôturée.');
 
-        if (!$tournee->toutesLivrees()) {
-            return back()->with('error', 'Toutes les commandes doivent être livrées avant de clôturer la tournée.');
-        }
+        // On ne vérifie plus si toutes les commandes sont livrées.
+        // La tournée peut être clôturée dès que le livreur a terminé sa journée.
 
         DB::transaction(function () use ($tournee) {
             $tournee->update(['statut' => 'terminee']);
@@ -121,20 +115,21 @@ class TourneeController extends Controller
         });
         return redirect()->route('admin.tournees.index')->with('success', 'Tournée clôturée avec succès.');
     }
-   /**
- * Supprimer une tournée non commencée (statut 'en_cours' sans livraisons effectuées, ou 'terminee' obsolète)
- */
+
+    /**
+     * Supprimer une tournée (on libère simplement les commandes, sans dépendre de 'livree')
+     */
     public function destroy(Tournee $tournee){
-        if ($tournee->statut === 'en_cours' && $tournee->orders()->where('statut', 'livree')->exists()) {
-            return back()->with('error', 'Impossible de supprimer : des commandes de cette tournée ont déjà été livrées.');
+        // On empêche de supprimer une tournée une fois clôturée (terminee) par sécurité
+        if ($tournee->statut === 'terminee') {
+            return back()->with('error', 'Impossible de supprimer une tournée déjà terminée.');
         }
 
         DB::transaction(function () use ($tournee) {
-            // Remettre les commandes non livrées en statut "validee" et détacher
-            $tournee->orders()->where('statut', '!=', 'livree')->update(['statut' => 'validee']);
+            // On détache toutes les commandes sans toucher à leur statut (elles resteront 'validee')
             $tournee->orders()->detach();
 
-            // Rendre le livreur disponible si la tournée était en cours
+            // Rendre le livreur disponible
             if ($tournee->statut === 'en_cours') {
                 $tournee->livreur->update(['statut' => 'disponible']);
             }

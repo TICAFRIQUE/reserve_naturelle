@@ -506,11 +506,15 @@
                     </h5>
                 </div>
                <div style="padding: 20px 25px;">
-                    @if($order->statut === 'en_livraison')
+                    @if(in_array($order->statut, ['en_livraison', 'livree', 'annulee']))
                         <div style="background:#e2e3e5;color:#383d41;padding:12px 16px;border-radius:8px;">
-                            <i class="fas fa-truck-loading"></i>
-                            Cette commande est actuellement en tournée. Rendez-vous sur la
-                            <a href="{{ route('admin.tournees.index') }}">page des tournées</a> pour suivre sa livraison.
+                            <i class="fas fa-lock"></i>
+                            @if($order->statut === 'en_livraison')
+                                Cette commande est actuellement en tournée (ancien système). Terminez-la depuis la 
+                                <a href="{{ route('admin.tournees.index') }}" style="color: #2d5a27; text-decoration: underline;">page des tournées</a>.
+                            @else
+                                Cette commande est <strong>{{ $order->statut === 'livree' ? 'livrée' : 'annulée' }}</strong>. Elle ne peut plus être modifiée.
+                            @endif
                         </div>
                     @else
                         <form action="{{ route('admin.orders.status', $order) }}" method="POST" style="display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end;">
@@ -542,9 +546,13 @@
                                     <option value="validee" {{ $order->statut == 'validee' ? 'selected' : '' }}>
                                         ✅ Validée
                                     </option>
+                                    <option value="livree" {{ $order->statut == 'livree' ? 'selected' : '' }}>
+                                        🚚 Livrée
+                                    </option>
                                     <option value="annulee" {{ $order->statut == 'annulee' ? 'selected' : '' }}>
                                         ❌ Annulée
                                     </option>
+                                    {{-- Option "en_livraison" masquée --}}
                                 </select>
                             </div>
                             <div style="flex: 0 0 auto;">

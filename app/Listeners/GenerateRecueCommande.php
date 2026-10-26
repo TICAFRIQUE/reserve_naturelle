@@ -1,27 +1,24 @@
 <?php
+// app/Services/RecueCommandeService.php
 
-namespace App\Listeners;
+namespace App\Services;
 
-use App\Events\OrderValidated;
-use App\Services\RecueCommandeService;
-use Illuminate\Support\Facades\Log;
+use App\Models\Order;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Storage;
 
-class GenerateRecueCommande
+class RecueCommandeService
 {
-    public function __construct(private RecueCommandeService $ticketService) {}
-
-    public function handle(OrderValidated $event): void
+    public function generate(Order $order): string
     {
-        try {
-            $this->ticketService->generate($event->order);
-        } catch (\Throwable $e) {
-            // La commande est déjà validée et le stock débité : un échec de PDF ne doit pas
-            // la faire échouer. Le ticket est régénéré au premier téléchargement (voir downloadTicket).
-            Log::error('Échec de génération du ticket PDF', [
-                'order_id'  => $event->order->id,
-                'num_order' => $event->order->num_order,
-                'erreur'    => $e->getMessage(),
-            ]);
-        }
+        $order->load(['items.product', 'items.variant', 'user']);
+
+        $pdf = Pdf::loadView('admin.tickets.recue_commande', ['order' => $order]);
+        $path = "tickets/ticket-{$order->num_order}.pdf";
+
+        Storage::disk('local')->put($path, $pdf->output());
+        $order->update(['ticket_path' => $path]);
+
+        return $path;
     }
 }

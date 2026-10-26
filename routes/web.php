@@ -29,6 +29,9 @@
     use App\Http\Controllers\Client\OrderController as ClientOrderController;
     use App\Http\Controllers\Client\CartController;
     use App\Http\Controllers\Client\CheckoutController;
+    use App\Notifications\OrderValidatedNotification;
+    use App\Models\Order;
+
     use Illuminate\Support\Facades\Route;
 
     // Accueil = catalogue produit (public)
@@ -47,6 +50,10 @@
         \App\Http\Middleware\ShareCartCount::class,
     ])
     ->name('sitemap');
+
+    Route::get('/preview-mail/{order}', function (Order $order) {
+    return (new OrderValidatedNotification($order))->toMail($order->user)->render();
+})->middleware('auth'); 
 
     // Public (invité + connecté)
     Route::prefix('client')->name('client.')->group(function () {

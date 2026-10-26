@@ -78,7 +78,7 @@
                                         <a href="{{ route('client.orders.show', $order) }}" class="btn-order-view">
                                             Voir détails
                                         </a>
-                                        @if($order->ticket_path)
+                                        @if(in_array($order->statut, ['payee', 'validee', 'livree']))
                                             <a href="{{ route('client.orders.ticket', $order) }}" class="btn-order-ticket">
                                                 <i class="fas fa-file-pdf"></i> Reçu
                                             </a>

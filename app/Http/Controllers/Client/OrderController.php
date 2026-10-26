@@ -5,27 +5,28 @@ namespace App\Http\Controllers\Client;
 use App\Http\Controllers\Controller;
 use App\Models\Cart;
 use App\Models\Order;
-use App\Models\ProductVariant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Services\StockService;
-use App\Events\OrderValidated;
+use App\Services\RecueCommandeService;
 use Illuminate\Support\Str;
 
-class OrderController extends Controller 
+class OrderController extends Controller
 {
     public function __construct(protected StockService $stockService) {}
 
     public function index(){
-        $orders = Order::where('user_id', auth()->id())->where('statut', '!=', 'panier_converti')
-                ->latest('date_order')->paginate(10);
+        $orders = Order::where('user_id', auth()->id())
+            ->where('statut', '!=', 'panier_converti')
+            ->latest('date_order')
+            ->paginate(10);
         return view('client.orders.index', compact('orders'));
     }
 
     public function show(Order $order){
         abort_unless($order->user_id === auth()->id(), 403);
-        $order->load('items.variant');
+        $order->load('items.variant', 'items.product');
         return view('client.orders.show', compact('order'));
     }
 
@@ -47,12 +48,11 @@ class OrderController extends Controller
                 return back()->with('error', $message);
             }
         }
-
         $order = DB::transaction(function () use ($cart) {
-            // Chercher une commande en cours
-            $order = Order::where('user_id', auth()->id())->where('statut', 'panier_converti')->first();
+            $order = Order::where('user_id', auth()->id())
+                ->where('statut', 'panier_converti')
+                ->first();
 
-            // Si pas de commande en cours → en créer une
             if (!$order) {
                 $order = Order::create([
                     'num_order'  => 'CMD-' . strtoupper(Str::random(8)),
@@ -63,49 +63,55 @@ class OrderController extends Controller
                 ]);
             }
 
-            // Fusionner les articles du panier dans la commande
+            // Fusionner les articles du panier en figeant le prix
             foreach ($cart->items as $item) {
-                $existing = $order->items()->where('product_variant_id', $item->product_variant_id)->first();
+                $pu = $item->variant->prix_vente;
+                $existing = $order->items()
+                    ->where('product_variant_id', $item->product_variant_id)
+                    ->first();
+
                 if ($existing) {
-                    $existing->increment('qte', $item->qte);
+                    $qte = $existing->qte + $item->qte;
+                    $existing->update([
+                        'qte'           => $qte,
+                        'prix_unitaire' => $pu,
+                        'sous_total'    => $pu * $qte,
+                    ]);
                 } else {
                     $order->items()->create([
                         'product_id'         => $item->product_id,
                         'product_variant_id' => $item->product_variant_id,
                         'qte'                => $item->qte,
+                        'prix_unitaire'      => $pu,
+                        'sous_total'         => $pu * $item->qte,
                     ]);
                 }
             }
 
-            // Recalculer le total de la commande
-            $order->load('items.variant');
-            $order->update([
-                'mt_total' => $order->items->sum(fn($i) => $i->qte * $i->variant->prix_vente),
-            ]);
+            $order->load('items');
+            $order->update(['mt_total' => $order->items->sum('sous_total')]);
 
-            // Vider le panier
             $cart->items()->delete();
+
             return $order;
         });
+
         session()->put('panier_converti_order_id', $order->id);
-        return redirect()->route('client.checkout.show', $order)->with('success', 'Articles ajoutés à votre commande en cours.');
+        return redirect()
+            ->route('client.checkout.show', $order)->with('success', 'Articles ajoutés à votre commande en cours.');
     }
 
-    public function downloadTicket(Order $order, \App\Services\RecueCommandeService $tickets){
+    public function downloadTicket(Order $order, RecueCommandeService $tickets){
         abort_unless($order->user_id === auth()->id(), 403);
-        abort_if($order->statut === 'panier_converti', 404);
+        abort_if(in_array($order->statut, ['panier_converti', 'en_attente', 'annulee']), 404);
 
-        // Régénère le ticket s'il manque (échec de génération initial, fichier supprimé…)
-        if (!$order->ticket_path || !Storage::disk('local')->exists($order->ticket_path)) {
-            try {
-                $tickets->generate($order);
-                $order->refresh();
-            } catch (\Throwable $e) {
-                report($e);
-                abort(503, 'Le ticket est momentanément indisponible. Réessayez plus tard.');
-            }
+        try {
+            // Régénération systématique (temporaire, voir note ci-dessous)
+            $path = $tickets->generate($order);
+        } catch (\Throwable $e) {
+            report($e);
+            abort(503, 'Le ticket est momentanément indisponible. Réessayez plus tard.');
         }
-
-        return Storage::disk('local')->download($order->ticket_path);
+        return Storage::disk('local')->download($path, "recu-{$order->num_order}.pdf");
     }
 }

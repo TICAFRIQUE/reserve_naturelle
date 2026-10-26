@@ -9,12 +9,10 @@
 <div class="checkout-wrapper">
     <div class="checkout-container">
 
-        <!-- ============================================
-             STEPPER
-        ============================================ -->
+        <!-- STEPPER -->
         <div class="checkout-stepper">
             @php
-                $steps = ['Panier' => true, 'Livraison' => true, 'Confirmation' => false];
+                $steps = ['Panier' => true, 'Confirmation' => false];
             @endphp
             @foreach($steps as $label => $done)
                 <div class="step">
@@ -27,9 +25,14 @@
             @endforeach
         </div>
 
-        <!-- ============================================
-             ERREURS
-        ============================================ -->
+        <!-- ERREURS -->
+        @if(session('error'))
+            <div class="checkout-errors">
+                <i class="fas fa-exclamation-circle"></i>
+                <div>{{ session('error') }}</div>
+            </div>
+        @endif
+
         @if($errors->any())
             <div class="checkout-errors">
                 <i class="fas fa-exclamation-circle"></i>
@@ -43,37 +46,34 @@
                 </div>
             </div>
         @endif
+
         {{-- Lien de retour au panier --}}
         <div style="margin-bottom: 20px;">
-            <a href="{{ route('client.cart.index') }}" 
-            style="
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-                color: #2d5a27;
-                font-size: 0.9rem;
-                font-weight: 500;
-                text-decoration: none;
-                transition: gap 0.2s;
-            "
-            onmouseover="this.style.gap='12px'" 
-            onmouseout="this.style.gap='8px'">
+            <a href="{{ route('client.cart.index') }}"
+               style="
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    color: #2d5a27;
+                    font-size: 0.9rem;
+                    font-weight: 500;
+                    text-decoration: none;
+                    transition: gap 0.2s;
+               "
+               onmouseover="this.style.gap='12px'"
+               onmouseout="this.style.gap='8px'">
                 <i class="fas fa-arrow-left"></i>
                 Retour au panier (modifier ou annuler)
             </a>
         </div>
 
-        <!-- ============================================
-             FORMULAIRE
-        ============================================ -->
+        <!-- FORMULAIRE -->
         <form method="POST" action="{{ route('client.checkout.store', $order) }}" id="checkout-form">
             @csrf
 
             <div class="checkout-layout">
 
-                <!-- ========================================
-                     COLONNE GAUCHE
-                ======================================== -->
+                <!-- COLONNE GAUCHE -->
                 <div class="checkout-main">
 
                     <!-- Articles -->
@@ -112,74 +112,6 @@
                         @endforeach
                     </div>
 
-                    <!-- Livraison -->
-                    <div class="checkout-card">
-                        <h2 class="checkout-card-title">
-                            <i class="fas fa-truck"></i>
-                            Livraison
-                        </h2>
-
-                        <!-- Mode de livraison -->
-                        <div class="form-group-checkout">
-                            <label>
-                                Mode de livraison <span class="required">*</span>
-                            </label>
-                            <div class="delivery-modes">
-                                <label class="delivery-option">
-                                    <input type="radio" name="mode_livraison" value="domicile"
-                                           class="mode-livraison-radio"
-                                           {{ old('mode_livraison', 'domicile') == 'domicile' ? 'checked' : '' }}
-                                           required>
-                                    <span><i class="fas fa-home"></i> Livraison à domicile</span>
-                                </label>
-
-                                <label class="delivery-option">
-                                    <input type="radio" name="mode_livraison" value="expedition"
-                                           class="mode-livraison-radio"
-                                           {{ old('mode_livraison') == 'expedition' ? 'checked' : '' }}
-                                           required>
-                                    <span><i class="fas fa-shipping-fast"></i> Expédition</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- Zone -->
-                        <div class="form-group-checkout" id="zone-wrapper">
-                            <label for="zone_id">
-                                Zone <span class="required">*</span>
-                            </label>
-                            <select name="zone_id" id="zone_id">
-                                <option value="">-- Sélectionnez --</option>
-                                @foreach($zones as $zone)
-                                    <option value="{{ $zone->id }}"
-                                            data-tarif="{{ $zone->tarif }}"
-                                            {{ old('zone_id') == $zone->id ? 'selected' : '' }}>
-                                        {{ $zone->nom }} — {{ number_format($zone->tarif, 0, ',', ' ') }} FCFA
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <!-- Ville expédition -->
-                        <div class="form-group-checkout" id="ville-expedition-wrapper" style="display: none;">
-                            <label for="ville_expedition">
-                                Ville (expédition) <span class="required">*</span>
-                            </label>
-                            <input type="text" name="ville_expedition" id="ville_expedition"
-                                   value="{{ old('ville_expedition') }}"
-                                   placeholder="Ex: Bouaké">
-                        </div>
-
-                        <!-- Adresse précise -->
-                        <div class="form-group-checkout">
-                            <label for="adresse_precise">
-                                Adresse précise / repère <span class="required">*</span>
-                            </label>
-                            <textarea name="adresse_precise" id="adresse_precise" rows="2" required
-                                      placeholder="Ex: Rue des jardins, non loin de la pharmacie">{{ old('adresse_precise') }}</textarea>
-                        </div>
-                    </div>
-
                     <!-- Prochaine étape -->
                     <div class="checkout-card">
                         <h2 class="checkout-card-title">
@@ -190,17 +122,15 @@
                         <div class="checkout-info-box">
                             <i class="fas fa-info-circle"></i>
                             <div>
-                                <strong>Vous serez redirigé vers un récapitulatif de votre commande.</strong><br>
-                                <span>Les frais de livraison sont à régler en espèces directement au livreur, à la réception de votre commande.</span>
+                                <strong>Votre commande sera enregistrée après validation.</strong><br>
+                                <span>Elle sera ensuite traitée par notre équipe.</span>
                             </div>
                         </div>
                     </div>
 
                 </div>
 
-                <!-- ========================================
-                     COLONNE DROITE : RÉSUMÉ
-                ======================================== -->
+                <!-- COLONNE DROITE : RÉSUMÉ -->
                 <aside class="checkout-sidebar">
                     <div class="checkout-summary">
 
@@ -214,16 +144,10 @@
                                 <span>Sous-total articles</span>
                                 <span>{{ number_format($sousTotal, 0, ',', ' ') }} FCFA</span>
                             </div>
-                            <div class="summary-line">
-                                <span>Frais de livraison</span>
-                                <span id="tarif-display">—</span>
-                            </div>
 
                             <div class="summary-total">
                                 <span>Total à payer</span>
-                                <span id="total-general">
-                                    {{ number_format($sousTotal, 0, ',', ' ') }} FCFA
-                                </span>
+                                <span>{{ number_format($sousTotal, 0, ',', ' ') }} FCFA</span>
                             </div>
                         </div>
 
@@ -231,13 +155,6 @@
                             <i class="fas fa-arrow-right"></i>
                             Valider votre commande
                         </button>
-
-                        <div class="checkout-delivery-info">
-                            <div>
-                                <i class="fas fa-truck"></i>
-                                <span>Livraison estimée : 1-2 jours ouvrables</span>
-                            </div>
-                        </div>
                     </div>
                 </aside>
 
@@ -245,66 +162,4 @@
         </form>
     </div>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const zoneSelect = document.getElementById('zone_id');
-    const villeWrapper = document.getElementById('ville-expedition-wrapper');
-    const villeInput = document.getElementById('ville_expedition');
-    const tarifDisplay = document.getElementById('tarif-display');
-    const totalGeneral = document.getElementById('total-general');
-    const modeLivraisonRadios = document.querySelectorAll('.mode-livraison-radio');
-    const zoneWrapper = document.getElementById('zone-wrapper');
-
-    const sousTotal = {{ $sousTotal }};
-    const tarifExpedition = {{ $zoneExpedition ? $zoneExpedition->tarif : 0 }};
-
-    function updateFieldsVisibility() {
-        const selectedMode = document.querySelector('.mode-livraison-radio:checked')?.value;
-        const isExpedition = selectedMode === 'expedition';
-
-        zoneWrapper.style.display = isExpedition ? 'none' : 'block';
-        zoneSelect.required = !isExpedition;
-
-        if (isExpedition) {
-            zoneSelect.value = '';
-            updateTotals(tarifExpedition);
-        } else {
-            updateTotalsFromZone();
-        }
-
-        villeWrapper.style.display = isExpedition ? 'block' : 'none';
-        villeInput.required = isExpedition;
-        if (!isExpedition) villeInput.value = '';
-    }
-
-    function updateTotalsFromZone() {
-        const selected = zoneSelect.options[zoneSelect.selectedIndex];
-        const tarif = parseInt(selected?.dataset.tarif) || 0;
-        updateTotals(tarif);
-    }
-
-    function updateTotals(tarif) {
-        tarifDisplay.textContent = tarif > 0
-            ? new Intl.NumberFormat('fr-FR').format(tarif) + ' FCFA'
-            : '—';
-
-        const total = sousTotal + tarif;
-        totalGeneral.textContent = new Intl.NumberFormat('fr-FR').format(total) + ' FCFA';
-    }
-
-    modeLivraisonRadios.forEach(radio => {
-        radio.addEventListener('change', updateFieldsVisibility);
-    });
-
-    zoneSelect.addEventListener('change', updateTotalsFromZone);
-
-    updateFieldsVisibility();
-
-    if (zoneSelect.value) {
-        updateTotalsFromZone();
-    }
-});
-</script>
-
 @endsection
