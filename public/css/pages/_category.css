@@ -453,15 +453,58 @@
 }
 
 @media (max-width: 600px) {
-    .cp-breadcrumb { gap: 8px; font-size: 14px; }
-    .cp-back span { display: none; }
-    .cp-back { padding: 9px 12px; }
-    .cp-hero { min-height: 210px; }
-    .cp-hero-content { padding: 32px 18px; }
-    .cp-strip { border-radius: 18px; }
-    .cp-strip-track { gap: 14px; padding-inline: 16px; }
-    .cp-products { padding: 32px 0 56px; }
-    .cp-grid { grid-template-columns: minmax(0, 1fr); }
+    /* --- CORRECTION DU FIL D'ARIANE MOBILE SUR UNE SEULE LIGNE --- */
+    .cp-breadcrumb {
+        display: flex;
+        align-items: center;
+        flex-wrap: nowrap;
+        gap: 6px;
+        padding-block: 12px;
+        font-size: 14px;
+    }
+    
+    .cp-back {
+        padding: 8px 12px;
+        flex-shrink: 0; /* Empêche le bouton retour de rétrécir */
+    }
+
+    .cp-back span {
+        display: none; /* On cache le texte "Retour" pour gagner de la place */
+    }
+
+    .cp-crumb {
+        flex-shrink: 0;
+        white-space: nowrap;
+    }
+
+    .cp-sep {
+        display: none; /* On cache les séparateurs pour gagner de la place */
+    }
+
+    .cp-current {
+        padding: 8px 12px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis; /* Coupe le texte long avec "..." */
+    }
+
+    .cp-meta {
+        margin-left: auto; /* Pousse les badges (produits + horloge) à droite */
+        margin-top: 0;
+        width: auto;
+        flex-shrink: 0; /* Empêche les badges de s'écraser */
+        gap: 6px;
+    }
+
+    .cp-pill {
+        padding: 6px 10px;
+        font-size: 13px;
+    }
+
+    /* On masque le compteur de produits sur mobile pour laisser de la place à l'horloge */
+    .cp-pill:not(:last-child) {
+        display: none;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {

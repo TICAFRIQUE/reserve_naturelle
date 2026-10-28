@@ -544,3 +544,76 @@ body.has-fixed-header {
     .slider-arrow-prev { left: 8px; }
     .slider-arrow-next { right: 8px; }
 }
+/* --- CORRECTION NAVBAR MOBILE --- */
+@media (max-width: 992px) {
+    /* 1. On donne un fond opaque au menu déroulé pour qu'il ne se mélange pas avec le contenu de la page */
+    .navbar.active {
+        background: var(--green); /* ou var(--green-dark) pour plus de contraste */
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 20px 15px !important;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        border-radius: 0 0 12px 12px;
+    }
+
+    /* 2. On s'assure que les liens ont une belle apparence */
+    .nav-pill {
+        background: rgba(255, 255, 255, 0.08); /* Un léger fond pour séparer les boutons */
+        margin-bottom: 5px;
+    }
+    
+    .nav-pill.active {
+        background: #ffffff;
+        color: var(--green);
+    }
+
+    /* 3. Gestion du menu déroulant du compte (Admin/Client) sur mobile */
+    .account-dropdown {
+        position: relative;
+        width: 100%;
+    }
+
+    .account-dropdown .dropdown-menu {
+        position: static; /* Sur mobile, on le met dans le flux plutôt qu'en absolu */
+        width: 100%;
+        box-shadow: none;
+        background: rgba(0, 0, 0, 0.15); /* Fond plus sombre pour le sous-menu */
+        border: none;
+        margin-top: 10px;
+        border-radius: 8px;
+        display: none; /* Caché par défaut */
+    }
+
+    /* Quand on clique, on affiche le menu */
+    .account-dropdown.active .dropdown-menu {
+        display: block;
+    }
+
+    /* Le texte dans le sous-menu doit être blanc sur le fond sombre */
+    .account-dropdown .dropdown-menu a,
+    .account-dropdown .btn-logout-dropdown {
+        color: #ffffff;
+    }
+
+    .account-dropdown .dropdown-menu a i,
+    .account-dropdown .btn-logout-dropdown i {
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .account-dropdown .dropdown-menu a:hover,
+    .account-dropdown .btn-logout-dropdown:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--gold-light);
+        padding-left: 20px; /* Évite le saut de 24px qui casse le mobile */
+    }
+    
+    .account-dropdown .dropdown-menu a:hover i {
+        color: var(--gold-light);
+    }
+    
+    /* Le bouton du compte sur mobile prend toute la largeur */
+    .account-btn {
+        width: 100%;
+        justify-content: center;
+        margin-top: 15px;
+    }
+}

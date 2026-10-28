@@ -101,14 +101,14 @@
                 <span class="nav-badge">{{ $sidebarCounts['orders'] }}</span>
             </a>
 
-            <div class="nav-section">Livraison</div>
+            {{-- <div class="nav-section">Livraison</div>
 
             <a href="{{ route('admin.tournees.index') }}" class="nav-item {{ request()->routeIs('admin.tournees.*') ? 'active' : '' }}">
                 <i class="fas fa-route"></i> Livraison
             </a>
             <a href="{{ route('admin.zones.index') }}" class="nav-item {{ request()->routeIs('admin.zones.*') ? 'active' : '' }}">
                 <i class="fas fa-map-marked-alt"></i> Zones de livraison
-            </a>
+            </a> --}}
 
             <div class="nav-section">Utilisateurs</div>
 

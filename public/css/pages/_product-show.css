@@ -452,16 +452,52 @@
 
 
 @media (max-width: 600px) {
-    .pd-page { padding: 20px 0 52px; }
-    .pd-card { padding: 16px; border-radius: 18px; }
-    .pd-btn { flex: 1 1 100%; }
-    .pd-options li { grid-template-columns: 1fr auto; }
-    .pd-opt-state { grid-column: 1 / -1; justify-self: start; }
-    .pd-heading { margin-block: 40px 20px; }
-    .pd-similar-grid { gap: 12px; }
-    .pd-sim-card { padding: 10px 10px 14px; }
-    .pd-sim-name { font-size: 13.5px; }
-    .pd-sim-price { font-size: 15.5px; }
+    /* --- CORRECTION DU FIL D'ARIANE MOBILE SUR UNE SEULE LIGNE --- */
+    .cp-breadcrumb {
+        display: flex;
+        align-items: center;
+        flex-wrap: nowrap;
+        gap: 6px;
+        padding-block: 12px;
+        font-size: 14px;
+    }
+    
+    .cp-back {
+        padding: 8px 12px;
+        flex-shrink: 0; /* Empêche le bouton retour de rétrécir */
+    }
+
+    .cp-back span {
+        display: none; /* On cache le texte "Retour" pour gagner de la place */
+    }
+
+    .cp-crumb {
+        flex-shrink: 0;
+        white-space: nowrap;
+    }
+
+    .cp-sep {
+        display: none; /* On cache les séparateurs pour gagner de la place */
+    }
+
+    .cp-current {
+        padding: 8px 12px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis; /* Coupe le texte long avec "..." */
+    }
+
+    .cp-meta {
+        margin-left: auto; /* Pousse l'horloge tout à droite */
+        margin-top: 0;
+        width: auto;
+        flex-shrink: 0; /* Empêche l'horloge de s'écraser */
+    }
+
+    .cp-pill {
+        padding: 6px 10px;
+        font-size: 13px;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -668,16 +668,45 @@
 
 @media (max-width: 600px) {
     .contact-breadcrumb {
+        display: flex;
+        align-items: center;
+        flex-wrap: nowrap;
         gap: 8px;
+        padding-block: 12px;
         font-size: 14px;
     }
 
+    .contact-back {
+        padding: 8px 12px;
+        flex-shrink: 0; /* Empêche le bouton retour de rétrécir */
+    }
+
+    /* On cache le texte "Retour" pour gagner de la place, ne gardant que l'icône */
     .contact-back span {
         display: none;
     }
 
-    .contact-back {
-        padding: 9px 12px;
+    .contact-crumb-sep {
+        display: none; /* On cache le séparateur pour gagner de la place */
+    }
+
+    .contact-crumb-current {
+        padding: 8px 12px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .contact-meta {
+        margin-left: auto; /* Pousse l'horloge tout à droite */
+        margin-top: 0;
+        width: auto;
+        flex-shrink: 0; /* Empêche l'horloge de s'écraser */
+    }
+
+    .contact-pill {
+        padding: 6px 10px;
+        font-size: 13px;
     }
 }
 
