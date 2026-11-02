@@ -41,8 +41,13 @@ class CheckoutController extends Controller
             return redirect()->route('client.cart.index')->with('error', 'Votre commande est vide.');
         }
 
+        $validated = $request->validate([
+            'mode_livraison'  => 'required|in:retrait,yango',
+            'adresse_precise' => 'required_if:mode_livraison,yango|nullable|string|max:1000',
+        ]);
+
         try {
-            $commande = DB::transaction(function () use ($order) {
+            $commande = DB::transaction(function () use ($order, $validated) {
                 $locked = Order::whereKey($order->id)->lockForUpdate()->firstOrFail();
 
                 if ($locked->statut !== 'panier_converti') {
@@ -90,11 +95,11 @@ class CheckoutController extends Controller
                 }
 
                 $locked->update([
-                    'mode_livraison'   => null,
-                    'adresse_precise'  => null,
+                    'mode_livraison'   => $validated['mode_livraison'],
+                    'adresse_precise'  => $validated['mode_livraison'] === 'yango' ? $validated['adresse_precise'] : null,
                     'zone_id'          => null,
                     'ville_expedition' => null,
-                    'tarif_livraison'  => 0,
+                    'tarif_livraison'  => 0, // frais Yango payés directement au chauffeur
                     'mt_total'         => $sousTotal,
                     'montant_ttc'      => $sousTotal,
                     'statut'           => 'en_attente',

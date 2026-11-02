@@ -22,10 +22,16 @@ class OrderController extends Controller
     /**
      * Afficher la liste des commandes
      */
-    public function index(){
-        // 3. with(['user', 'zone']) devient with('user')
-        $orders = Order::with('user')->where('statut', '!=', 'panier_converti')
-                ->latest('date_order')->paginate(10);
+    public function index(Request $request){
+        $orders = Order::with(['user', 'zone'])
+            ->withCount('items')
+            ->where('statut', '!=', 'panier_converti')
+            ->when($request->filled('statut'), fn($q) => $q->where('statut', $request->statut))
+            ->when($request->filled('date_debut'), fn($q) => $q->whereDate('date_order', '>=', $request->date_debut))
+            ->when($request->filled('date_fin'), fn($q) => $q->whereDate('date_order', '<=', $request->date_fin))
+            ->latest('date_order')
+            ->paginate(10)
+            ->withQueryString();
         return view('admin.orders.index', compact('orders'));
     }
 

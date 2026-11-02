@@ -12,7 +12,7 @@
         <!-- STEPPER -->
         <div class="checkout-stepper">
             @php
-                $steps = ['Panier' => true, 'Confirmation' => false];
+                $steps = ['Panier' => true, 'Récupération' => true, 'Confirmation' => false];
             @endphp
             @foreach($steps as $label => $done)
                 <div class="step">
@@ -112,6 +112,57 @@
                         @endforeach
                     </div>
 
+                    <!-- Mode de récupération -->
+                    <div class="checkout-card">
+                        <h2 class="checkout-card-title">
+                            <i class="fas fa-truck"></i>
+                            Récupération de la commande
+                        </h2>
+
+                        <div class="form-group-checkout">
+                            <label>
+                                Comment souhaitez-vous recevoir votre commande ? <span class="required">*</span>
+                            </label>
+                            <div class="delivery-modes">
+                                <label class="delivery-option">
+                                    <input type="radio" name="mode_livraison" value="retrait"
+                                           class="mode-livraison-radio"
+                                           {{ old('mode_livraison', 'retrait') === 'retrait' ? 'checked' : '' }} required>
+                                    <span><i class="fas fa-store"></i> Je viens récupérer sur place</span>
+                                </label>
+
+                                <label class="delivery-option">
+                                    <input type="radio" name="mode_livraison" value="yango"
+                                           class="mode-livraison-radio"
+                                           {{ old('mode_livraison') === 'yango' ? 'checked' : '' }} required>
+                                    <span><i class="fas fa-motorcycle"></i> Livraison Yango (à mes frais)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group-checkout" id="adresse-wrapper" style="display: none;">
+                            <label for="adresse_precise">
+                                Adresse précise / repère <span class="required">*</span>
+                            </label>
+                            <textarea name="adresse_precise" id="adresse_precise" rows="2"
+                                      placeholder="Ex: Cocody Angré, 8e tranche, près de la pharmacie">{{ old('adresse_precise') }}</textarea>
+                        </div>
+
+                        <div class="checkout-info-box" id="yango-info" style="display: none;">
+                            <i class="fas fa-info-circle"></i>
+                            <div>
+                                <span>Nous commandons le Yango pour vous. Les frais de course sont à régler directement au chauffeur à la réception.</span>
+                            </div>
+                        </div>
+
+                        <div class="checkout-info-box" id="retrait-info">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <div>
+                                <span>Retrait chez TICAFRIQUE – Abidjan. Vous serez contacté lorsque votre commande sera prête.</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Prochaine étape -->
                     <div class="checkout-card">
                         <h2 class="checkout-card-title">
@@ -162,4 +213,26 @@
         </form>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const radios = document.querySelectorAll('.mode-livraison-radio');
+    const adresseWrapper = document.getElementById('adresse-wrapper');
+    const adresse = document.getElementById('adresse_precise');
+    const yangoInfo = document.getElementById('yango-info');
+    const retraitInfo = document.getElementById('retrait-info');
+
+    function update() {
+        const yango = document.querySelector('.mode-livraison-radio:checked')?.value === 'yango';
+        adresseWrapper.style.display = yango ? 'block' : 'none';
+        yangoInfo.style.display = yango ? 'flex' : 'none';
+        retraitInfo.style.display = yango ? 'none' : 'flex';
+        adresse.required = yango;
+    }
+
+    radios.forEach(r => r.addEventListener('change', update));
+    update();
+});
+</script>
+
 @endsection

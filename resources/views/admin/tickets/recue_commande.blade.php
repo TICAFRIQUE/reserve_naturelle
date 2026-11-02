@@ -20,10 +20,15 @@
     </style>
 </head>
 <body>
-    @php
+   @php
         $clientNom = trim(($order->user->prenom ?? '') . ' ' . ($order->user->nom ?? $order->user->name ?? ''));
         $dateOrder = \Carbon\Carbon::parse($order->date_order)->format('d/m/Y');
-        $modes = ['domicile' => 'Livraison à domicile', 'expedition' => 'Expédition'];
+        $modes = [
+            'retrait'    => 'Retrait sur place',
+            'yango'      => 'Livraison Yango (frais à la charge du client)',
+            'domicile'   => 'Livraison à domicile',
+            'expedition' => 'Expédition',
+        ];
         $mode = $modes[$order->mode_livraison] ?? null;
     @endphp
 
@@ -35,13 +40,13 @@
 
     <div class="infos">
         <p><strong>Client :</strong> {{ $clientNom ?: 'N/A' }}</p>
-        {{-- Bloc livraison : uniquement pour les anciennes commandes --}}
         @if ($mode)
-            <p><strong>Adresse :</strong> {{ $order->adresse_precise ?: 'Non renseignée' }}</p>
-            <p><strong>Mode de livraison :</strong> {{ $mode }}</p>
+            <p><strong>Mode de récupération :</strong> {{ $mode }}</p>
+            @if ($order->adresse_precise)
+                <p><strong>Adresse :</strong> {{ $order->adresse_precise }}</p>
+            @endif
         @endif
     </div>
-
     <table>
         <thead>
             <tr>
