@@ -1,5 +1,4 @@
 <?php
-// app/Services/RecueCommandeService.php
 
 namespace App\Services;
 
@@ -9,9 +8,8 @@ use Illuminate\Support\Facades\Storage;
 
 class RecueCommandeService
 {
-    public function generate(Order $order): string
-    {
-        $order->load(['items.product', 'user']);
+    public function generate(Order $order): string{
+        $order->load(['items.product', 'items.variant', 'user']);
 
         $pdf = Pdf::loadView('admin.tickets.recue_commande', ['order' => $order]);
         $path = "tickets/ticket-{$order->num_order}.pdf";

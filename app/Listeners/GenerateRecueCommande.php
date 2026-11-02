@@ -1,24 +1,15 @@
 <?php
-// app/Services/RecueCommandeService.php
 
-namespace App\Services;
+namespace App\Listeners;
 
-use App\Models\Order;
-use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Facades\Storage;
+use App\Events\OrderValidated;
+use App\Services\RecueCommandeService;
 
-class RecueCommandeService
+class GenerateRecueCommande
 {
-    public function generate(Order $order): string
-    {
-        $order->load(['items.product', 'items.variant', 'user']);
+    public function __construct(private RecueCommandeService $service) {}
 
-        $pdf = Pdf::loadView('admin.tickets.recue_commande', ['order' => $order]);
-        $path = "tickets/ticket-{$order->num_order}.pdf";
-
-        Storage::disk('local')->put($path, $pdf->output());
-        $order->update(['ticket_path' => $path]);
-
-        return $path;
+    public function handle(OrderValidated $event): void{
+        $this->service->generate($event->order);
     }
 }
