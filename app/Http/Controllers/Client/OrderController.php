@@ -103,7 +103,7 @@ class OrderController extends Controller
 
     public function downloadTicket(Order $order, RecueCommandeService $tickets){
         abort_unless($order->user_id === auth()->id(), 403);
-        abort_if(in_array($order->statut, ['panier_converti', 'en_attente', 'annulee']), 404);
+        abort_if(in_array($order->statut, ['panier_converti', 'annulee']), 404);
 
         try {
             // Régénération systématique (temporaire, voir note ci-dessous)
