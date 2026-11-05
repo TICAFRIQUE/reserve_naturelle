@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\ProductVariant;
 use App\Services\StockService;
 use App\Events\OrderValidated;
+use App\Notifications\OrderValidatedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -33,8 +34,9 @@ class CheckoutController extends Controller
     {
         abort_unless($order->user_id === auth()->id(), 403, 'Vous n\'êtes pas autorisé à modifier cette commande.');
 
+        // Double envoi / rafraîchissement : commande déjà validée, pas d'erreur trompeuse
         if ($order->statut !== 'panier_converti') {
-            return redirect()->route('client.orders.index')->with('error', 'Cette commande a déjà été traitée.');
+            return redirect()->route('client.orders.index');
         }
 
         if ($order->items()->doesntExist()) {
@@ -102,7 +104,7 @@ class CheckoutController extends Controller
                     'tarif_livraison'  => 0, // frais Yango payés directement au chauffeur
                     'mt_total'         => $sousTotal,
                     'montant_ttc'      => $sousTotal,
-                    'statut'           => 'en_attente',
+                    'statut'           => 'validee',
                 ]);
 
                 return $locked;
@@ -112,13 +114,21 @@ class CheckoutController extends Controller
         }
 
         if ($commande === null) {
-            return redirect()->route('client.orders.index')->with('error', 'Cette commande a déjà été traitée.');
+            return redirect()->route('client.orders.index');
         }
 
         session()->forget('panier_converti_order_id');
+
+        // Génère le reçu PDF (listener)
         OrderValidated::dispatch($commande);
 
+        try {
+            $commande->user?->notify(new OrderValidatedNotification($commande));
+        } catch (\Throwable $e) {
+            report($e); // un échec d'envoi ne doit pas casser une commande déjà enregistrée
+        }
+
         return redirect()->route('client.orders.index')
-            ->with('success', 'Commande validée avec succès ! Elle est en attente de traitement.');
+            ->with('success', 'Commande validée avec succès ! Vous pouvez télécharger votre reçu.');
     }
 }

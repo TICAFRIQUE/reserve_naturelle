@@ -4,13 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Order;
 use App\Models\ProductVariant;
-use App\Models\User;
 use Illuminate\Http\Request;
 use App\Services\StockService;
 use App\Events\OrderValidated;
-use Illuminate\Support\Facades;
 use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\Controller; 
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use App\Services\RecueCommandeService;
@@ -19,10 +17,17 @@ use App\Notifications\OrderValidatedNotification;
 class OrderController extends Controller
 {
     public function __construct(protected StockService $stockService) {}
+
+    /**
+     * Statuts pour lesquels le stock a déjà été décrémenté (au checkout).
+     */
+    private const STATUTS_STOCK_SORTI = ['en_attente', 'payee', 'validee', 'en_livraison', 'livree'];
+
     /**
      * Afficher la liste des commandes
      */
-    public function index(Request $request){
+    public function index(Request $request)
+    {
         $orders = Order::with(['user', 'zone'])
             ->withCount('items')
             ->where('statut', '!=', 'panier_converti')
@@ -32,28 +37,26 @@ class OrderController extends Controller
             ->latest('date_order')
             ->paginate(10)
             ->withQueryString();
+
         return view('admin.orders.index', compact('orders'));
     }
 
     /**
      * Afficher une commande spécifique
      */
-    public function show(Order $order){
+    public function show(Order $order)
+    {
         $order->load(['user', 'items', 'items.variant', 'products']);
         return view('admin.orders.show', compact('order'));
     }
 
     /**
-     * Statuts pour lesquels le stock a déjà été décrémenté (au checkout).
-     */
-    private const STATUTS_STOCK_SORTI = ['en_attente', 'payee', 'validee', 'en_livraison', 'livree'];
-
-    /**
      * Changer le statut d'une commande
-     **/
-    public function changeStatus(Request $request, Order $order){
+     */
+    public function changeStatus(Request $request, Order $order)
+    {
         $validator = Validator::make($request->all(), [
-            'statut' => 'required|in:en_attente,payee,validee,livree,annulee',
+            'statut' => 'required|in:validee,livree,annulee',
         ]);
         if ($validator->fails()) {
             return back()->with('error', $validator->errors()->first());
@@ -66,9 +69,8 @@ class OrderController extends Controller
                 // Verrou : deux clics sur "Annuler" ne peuvent pas restituer le stock deux fois
                 $locked = Order::whereKey($order->id)->lockForUpdate()->firstOrFail();
 
-                // 1. Remplacement des gardes
                 if ($locked->statut === 'en_livraison') {
-                    throw new \RuntimeException('Cette commande est en tournée (ancien système). Terminez-la depuis la page de la tournée.');
+                    throw new \RuntimeException('Cette commande est en tournée (ancien système).');
                 }
                 if (in_array($locked->statut, ['annulee', 'livree'], true)) {
                     throw new \RuntimeException('Une commande ' . ($locked->statut === 'livree' ? 'livrée' : 'annulée') . ' ne peut plus être modifiée.');
@@ -80,11 +82,11 @@ class OrderController extends Controller
                     return null;
                 }
 
-                // 2. Cohérence du flux (empêche les sauts directs)
                 $transitions = [
-                    'en_attente' => ['payee', 'validee', 'annulee'],
-                    'payee'      => ['validee', 'annulee'],
                     'validee'    => ['livree', 'annulee'],
+                    // anciennes commandes
+                    'en_attente' => ['validee', 'annulee'],
+                    'payee'      => ['validee', 'annulee'],
                 ];
                 if (!in_array($nouveauStatut, $transitions[$locked->statut] ?? [], true)) {
                     throw new \RuntimeException("Passage de « {$locked->statut} » à « {$nouveauStatut} » non autorisé.");
@@ -102,16 +104,24 @@ class OrderController extends Controller
             return back()->with('error', $e->getMessage());
         }
 
+        // Uniquement pour les anciennes commandes en_attente/payee passées en validee
         if ($commande && $commande->statut === 'validee') {
-            event(new OrderValidated($commande));   // génère le reçu PDF (listener synchrone)
-            $commande->user?->notify(new OrderValidatedNotification($commande));
+            event(new OrderValidated($commande));
+            try {
+                $commande->user?->notify(new OrderValidatedNotification($commande));
+            } catch (\Throwable $e) {
+                report($e);
+            }
         }
+
         return redirect()->back()->with('success', 'Statut mis à jour avec succès !');
     }
+
     /**
-     * Supprimer une commande en attente (le stock décrémenté est restitué)
+     * Supprimer une ancienne commande en attente (le stock décrémenté est restitué)
      */
-    public function destroy(Order $order){
+    public function destroy(Order $order)
+    {
         try {
             DB::transaction(function () use ($order) {
                 $locked = Order::whereKey($order->id)->lockForUpdate()->firstOrFail();
@@ -126,12 +136,15 @@ class OrderController extends Controller
         } catch (\RuntimeException $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
+
         return redirect()->route('admin.orders.index')->with('success', 'Commande supprimée avec succès !');
     }
+
     /**
      * Remet en stock toutes les lignes de la commande (à appeler dans une transaction).
      */
-    private function restituerStock(Order $order, string $notes): void{
+    private function restituerStock(Order $order, string $notes): void
+    {
         $order->load('items.variant');
 
         foreach ($order->items as $item) {
@@ -153,10 +166,11 @@ class OrderController extends Controller
     }
 
     /**
-     * Télécharger le ticket PDF d'une commande (régénéré s'il manque).
+     * Télécharger le ticket PDF d'une commande (régénéré à chaque appel).
      */
-    public function downloadTicket(Order $order, RecueCommandeService $service){
-        $path = $service->generate($order); // régénère + met à jour ticket_path
+    public function downloadTicket(Order $order, RecueCommandeService $service)
+    {
+        $path = $service->generate($order);
         return Storage::disk('local')->download($path, "recu-{$order->num_order}.pdf");
     }
 }

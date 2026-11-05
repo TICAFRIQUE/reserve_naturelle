@@ -233,6 +233,12 @@ document.addEventListener('DOMContentLoaded', () => {
     radios.forEach(r => r.addEventListener('change', update));
     update();
 });
+document.getElementById('checkout-form').addEventListener('submit', function (e) {
+    const btn = this.querySelector('.btn-checkout-submit');
+    if (btn.disabled) { e.preventDefault(); return; }
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Validation en cours...';
+});
 </script>
 
 @endsection

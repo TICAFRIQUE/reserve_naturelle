@@ -79,7 +79,7 @@
   @stack('structured_data')
   @stack('styles')
 </head>
-<body class="has-fixed-header">
+<body class="has-fixed-header is-top">
 
 <!-- ============================================
      HEADER
@@ -258,7 +258,7 @@
           </a>
         </div>
         <div class="footer-socials">
-          <a href="https://facebook.com/lareservenaturelle" target="_blank" rel="noopener" aria-label="Facebook">
+          <a href="https://www.facebook.com/LARESERVENATURE" target="_blank" rel="noopener" aria-label="Facebook">
             <i class="fab fa-facebook-f"></i>
           </a>
           <a href="https://instagram.com/lareservenaturelle" target="_blank" rel="noopener" aria-label="Instagram">
@@ -349,7 +349,7 @@
     const MOBILE_BP = 992;
     const hamburger = document.getElementById('hamburger');
     const navbar = document.getElementById('navbar');
-    const dropdowns = document.querySelectorAll('.dropdown');
+    const dropdowns = document.querySelectorAll('.account-dropdown');
 
     const closeAll = () => {
       hamburger.classList.remove('active');
@@ -455,6 +455,43 @@
 
     start();
   })();
+    // Navbar transparente en haut de page
+  document.addEventListener('DOMContentLoaded', function() {
+    const body = document.body;
+    const scrollThreshold = 50; // Nombre de pixels avant de rendre la navbar opaque
+
+    function handleScroll() {
+      if (window.scrollY > scrollThreshold) {
+        body.classList.remove('is-top');
+      } else {
+        body.classList.add('is-top');
+      }
+    }
+
+    // Vérifier l'état au chargement
+    handleScroll();
+
+    // Écouter le scroll
+    window.addEventListener('scroll', handleScroll, { passive: true });
+  });
+  // Footer transparent en bas de page
+  document.addEventListener('DOMContentLoaded', function() {
+    const body = document.body;
+
+    function handleFooterScroll() {
+      // On calcule si on est tout en bas (tolérance de 50px)
+      const isBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 50;
+      
+      if (isBottom) {
+        body.classList.add('is-bottom');
+      } else {
+        body.classList.remove('is-bottom');
+      }
+    }
+
+    window.addEventListener('scroll', handleFooterScroll, { passive: true });
+    handleFooterScroll(); // Vérifier au chargement
+  });
 </script>
 
 <script src="{{ asset('js/client/client-cart.js') }}" defer></script>
