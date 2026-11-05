@@ -30,7 +30,16 @@ class RegisterController extends Controller
             'tel' => ['required', 'regex:/^[0-9]{8,15}$/'],
         ],
         [
-            'tel.regex' => 'Le numéro de téléphone doit contenir uniquement des chiffres (8 à 15 chiffres).'
+            'tel.regex' => 'Le numéro de téléphone doit contenir uniquement des chiffres (8 à 15 chiffres).',
+            'password.letters' => 'Le mot de passe doit contenir au moins une lettre.',
+            'password.numbers' => 'Le mot de passe doit contenir au moins un chiffre.',
+            'password.min' => 'Le mot de passe doit contenir au moins 8 caractères.',
+            'password.confirmed' => 'La confirmation du mot de passe ne correspond pas.',
+            'email.unique' => 'Cette adresse e-mail est déjà utilisée.',
+            'email.required' => 'Le champ e-mail est obligatoire.',
+            'email.email' => 'Veuillez saisir une adresse e-mail valide.',
+            'nom.required' => 'Le champ nom est obligatoire.',
+            'prenom.required' => 'Le champ prénom est obligatoire.',
         ]);
 
         if ($validator->fails()) {

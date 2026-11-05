@@ -1,0 +1,31 @@
+/* ============================================
+   BREADCRUMB (fil d'Ariane)
+============================================ */
+.breadcrumb {
+    margin-bottom: 30px;
+    font-size: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+
+.breadcrumb a {
+    color: var(--green);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.breadcrumb a:hover {
+    color: var(--green-dark);
+    text-decoration: underline;
+}
+
+.breadcrumb-sep {
+    color: var(--muted);
+}
+
+.breadcrumb-current {
+    color: var(--text);
+    font-weight: 500;
+}
