@@ -1,13 +1,12 @@
 /* ============================================
    FOOTER — Style moderne
    Fond : #ffffff (blanc) — identique au header
-   Logo : 76px — identique au .brand-circle du header
 ============================================ */
 .footer {
     background: #ffffff;
     color: var(--green);
     padding: 70px 0 0;
-    margin-top: 60px;
+    margin-top: 0; /* <--- On passe de 60px à 0 */
     position: relative;
 }
 
@@ -46,10 +45,10 @@
     margin: 0;
 }
 
-/* Logo — identique au header (76px, overflow hidden) */
+/* Logo — même hauteur que la navbar (70px) */
 .footer-logo-circle {
-    width: 130px;
-    height: 120px;
+    width: 140px;
+    height: 70px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -324,7 +323,7 @@
     }
 
     .footer-logo-circle {
-        width: 60px;
+        width: 110px;
         height: 60px;
     }
 
@@ -371,8 +370,8 @@
     }
 
     .footer-logo-circle {
-        width: 52px;
-        height: 52px;
+        width: 100px;
+        height: 55px;
     }
 
     .footer-cta {
@@ -416,50 +415,4 @@
         bottom: 85px;
         right: 20px;
     }
-}/* ============================================
-   FOOTER TRANSPARENT EN BAS DE PAGE
-============================================ */
-body.is-bottom .footer {
-    background: transparent !important;
-    border-top: 1px solid transparent !important;
-}
-
-/* Textes principaux en VERT */
-body.is-bottom .footer-col ul li,
-body.is-bottom .footer-col ul li a,
-body.is-bottom .footer-bottom,
-body.is-bottom .footer-bottom strong,
-body.is-bottom .footer-dev a {
-    color: var(--green) !important;
-}
-
-/* Titres en VERT */
-body.is-bottom .footer-col h4 {
-    color: var(--green) !important;
-}
-
-/* Petite barre sous les titres en VERT */
-body.is-bottom .footer-col h4::after {
-    background: var(--green) !important;
-}
-
-/* Icônes (téléphone, adresse, mail) en VERT */
-body.is-bottom .footer-col ul li i {
-    color: var(--green) !important;
-}
-
-/* Réseaux sociaux : fond vert très clair et icônes vertes */
-body.is-bottom .footer-socials a {
-    background: rgba(11, 122, 72, 0.08) !important;
-    color: var(--green) !important;
-}
-
-body.is-bottom .footer-socials a:hover {
-    background: var(--green) !important;
-    color: #ffffff !important;
-}
-
-/* Bordure de séparation des colonnes en vert clair */
-body.is-bottom .footer-main {
-    border-bottom: 1px solid rgba(11, 122, 72, 0.15) !important;
 }

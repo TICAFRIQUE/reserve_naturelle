@@ -63,7 +63,7 @@
                             @endif
 
                             <h3>
-                                <a href="{{ route('client.products.show', $product->id) }}">
+                                <a href="{{ route('client.products.show', $product) }}">
                                     {{ $product->designation }}
                                 </a>
                             </h3>

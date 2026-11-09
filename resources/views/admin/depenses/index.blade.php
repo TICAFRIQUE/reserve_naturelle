@@ -20,14 +20,18 @@
                     <a href="{{ route('admin.categorie-depenses.index') }}" style="
                         background: #f0ebe5; color: #2d5a27; padding: 12px 24px; border-radius: 30px;
                         text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 8px;
-                        transition: all 0.3s ease;
                     " onmouseover="this.style.background='#e0d6c8'" onmouseout="this.style.background='#f0ebe5'">
-                        <i class="fas fa-tags"></i> Catégories
+                        <i class="fas fa-tags"></i> Familles
+                    </a>
+                    <a href="{{ route('admin.libelle-depenses.index') }}" style="
+                        background: #f0ebe5; color: #2d5a27; padding: 12px 24px; border-radius: 30px;
+                        text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 8px;
+                    " onmouseover="this.style.background='#e0d6c8'" onmouseout="this.style.background='#f0ebe5'">
+                        <i class="fas fa-list-ul"></i> Libellés
                     </a>
                     <a href="{{ route('admin.depenses.create') }}" style="
                         background: #2d5a27; color: white; padding: 12px 24px; border-radius: 30px;
                         text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 8px;
-                        transition: all 0.3s ease; border: none; cursor: pointer;
                     " onmouseover="this.style.background='#1e3d1a'" onmouseout="this.style.background='#2d5a27'">
                         <i class="fas fa-plus-circle"></i> Nouvelle dépense
                     </a>
@@ -36,33 +40,21 @@
 
             <!-- Cartes statistiques -->
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 25px;">
-                <div style="background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border: 1px solid #e8e0d5; padding: 22px; display: flex; align-items: center; gap: 15px;">
-                    <div style="width: 50px; height: 50px; border-radius: 10px; background: #e8f5e9; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        <i class="fas fa-coins" style="color: #b8860b; font-size: 20px;"></i>
+                @foreach([
+                    ['fa-coins', 'Total période', number_format($totalPeriode, 0, ',', ' ') . ' FCFA'],
+                    ['fa-receipt', 'Nombre de dépenses', $nombreDepenses],
+                    ['fa-calculator', 'Dépense moyenne', number_format($depenseMoyenne, 0, ',', ' ') . ' FCFA'],
+                ] as [$icone, $titre, $valeur])
+                    <div style="background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border: 1px solid #e8e0d5; padding: 22px; display: flex; align-items: center; gap: 15px;">
+                        <div style="width: 50px; height: 50px; border-radius: 10px; background: #e8f5e9; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i class="fas {{ $icone }}" style="color: #b8860b; font-size: 20px;"></i>
+                        </div>
+                        <div>
+                            <div style="color: #6c757d; font-size: 0.85rem;">{{ $titre }}</div>
+                            <div style="color: #2d5a27; font-size: 1.4rem; font-weight: 700;">{{ $valeur }}</div>
+                        </div>
                     </div>
-                    <div>
-                        <div style="color: #6c757d; font-size: 0.85rem;">Total période</div>
-                        <div style="color: #2d5a27; font-size: 1.4rem; font-weight: 700;">{{ number_format($totalPeriode, 0, ',', ' ') }} FCFA</div>
-                    </div>
-                </div>
-                <div style="background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border: 1px solid #e8e0d5; padding: 22px; display: flex; align-items: center; gap: 15px;">
-                    <div style="width: 50px; height: 50px; border-radius: 10px; background: #e8f5e9; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        <i class="fas fa-receipt" style="color: #b8860b; font-size: 20px;"></i>
-                    </div>
-                    <div>
-                        <div style="color: #6c757d; font-size: 0.85rem;">Nombre de dépenses</div>
-                        <div style="color: #2d5a27; font-size: 1.4rem; font-weight: 700;">{{ $nombreDepenses }}</div>
-                    </div>
-                </div>
-                <div style="background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border: 1px solid #e8e0d5; padding: 22px; display: flex; align-items: center; gap: 15px;">
-                    <div style="width: 50px; height: 50px; border-radius: 10px; background: #e8f5e9; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        <i class="fas fa-calculator" style="color: #b8860b; font-size: 20px;"></i>
-                    </div>
-                    <div>
-                        <div style="color: #6c757d; font-size: 0.85rem;">Dépense moyenne</div>
-                        <div style="color: #2d5a27; font-size: 1.4rem; font-weight: 700;">{{ number_format($depenseMoyenne, 0, ',', ' ') }} FCFA</div>
-                    </div>
-                </div>
+                @endforeach
             </div>
 
             <!-- Filtres -->
@@ -70,35 +62,31 @@
                 <form action="{{ route('admin.depenses.index') }}" method="GET" style="display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end;">
                     <div style="flex: 1; min-width: 160px;">
                         <label for="date_from" style="display: block; font-weight: 600; color: #2d5a27; font-size: 0.9rem; margin-bottom: 5px;">
-                            <i class="fas fa-calendar" style="color: #2d5a27; margin-right: 5px;"></i> Du
+                            <i class="fas fa-calendar" style="margin-right: 5px;"></i> Du
                         </label>
                         <input type="date" name="date_from" id="date_from" value="{{ request('date_from') }}" style="
-                            width: 100%; padding: 10px 15px; border: 1px solid #e8e0d5; border-radius: 8px;
-                            font-size: 0.95rem; outline: none; background: white;
+                            width: 100%; padding: 10px 15px; border: 1px solid #e8e0d5; border-radius: 8px; font-size: 0.95rem; outline: none; background: white;
                         ">
                     </div>
                     <div style="flex: 1; min-width: 160px;">
                         <label for="date_to" style="display: block; font-weight: 600; color: #2d5a27; font-size: 0.9rem; margin-bottom: 5px;">
-                            <i class="fas fa-calendar" style="color: #2d5a27; margin-right: 5px;"></i> Au
+                            <i class="fas fa-calendar" style="margin-right: 5px;"></i> Au
                         </label>
                         <input type="date" name="date_to" id="date_to" value="{{ request('date_to') }}" style="
-                            width: 100%; padding: 10px 15px; border: 1px solid #e8e0d5; border-radius: 8px;
-                            font-size: 0.95rem; outline: none; background: white;
+                            width: 100%; padding: 10px 15px; border: 1px solid #e8e0d5; border-radius: 8px; font-size: 0.95rem; outline: none; background: white;
                         ">
                     </div>
                     <div style="flex: 1; min-width: 200px;">
                         <label for="categorie_depense_id" style="display: block; font-weight: 600; color: #2d5a27; font-size: 0.9rem; margin-bottom: 5px;">
-                            <i class="fas fa-tag" style="color: #2d5a27; margin-right: 5px;"></i> Catégorie
+                            <i class="fas fa-tag" style="margin-right: 5px;"></i> Famille
                         </label>
                         <select name="categorie_depense_id" id="categorie_depense_id" style="
                             width: 100%; padding: 10px 15px; border: 1px solid #e8e0d5; border-radius: 8px;
                             font-size: 0.95rem; background: white; cursor: pointer; outline: none;
                         ">
-                            <option value="">Toutes les catégories</option>
+                            <option value="">Toutes les familles</option>
                             @foreach($categories as $categorie)
-                                <option value="{{ $categorie->id }}" {{ request('categorie_depense_id') == $categorie->id ? 'selected' : '' }}>
-                                    {{ $categorie->nom }}
-                                </option>
+                                <option value="{{ $categorie->id }}" @selected(request('categorie_depense_id') == $categorie->id)>{{ $categorie->nom }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -126,9 +114,8 @@
                         <thead style="background: #f8f5f0; border-bottom: 2px solid #e8e0d5;">
                             <tr>
                                 <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27;">Date</th>
+                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27;">Famille</th>
                                 <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27;">Libellé</th>
-                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27;">Catégorie</th>
-                                <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #2d5a27;">Mode</th>
                                 <th style="padding: 15px 20px; text-align: right; font-weight: 600; color: #2d5a27;">Montant</th>
                                 <th style="padding: 15px 20px; text-align: center; font-weight: 600; color: #2d5a27;">Actions</th>
                             </tr>
@@ -137,18 +124,12 @@
                             @forelse($depenses as $depense)
                                 <tr style="border-bottom: 1px solid #f0ebe5; transition: background 0.2s;" onmouseover="this.style.background='#faf8f5'" onmouseout="this.style.background='transparent'">
                                     <td style="padding: 15px 20px; color: #6c757d;">{{ $depense->date_depense->format('d/m/Y') }}</td>
-                                    <td style="padding: 15px 20px; font-weight: 500; color: #2d5a27;">
-                                        {{ $depense->libelle }}
-                                        @if($depense->reference)
-                                            <div style="color: #adb5bd; font-size: 0.8rem;">Réf: {{ $depense->reference }}</div>
-                                        @endif
-                                    </td>
                                     <td style="padding: 15px 20px;">
                                         <span style="background: #f8f5f0; color: #2d5a27; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; display: inline-block;">
-                                            {{ $depense->categorie->nom }}
+                                            {{ $depense->libelle->categorie->nom }}
                                         </span>
                                     </td>
-                                    <td style="padding: 15px 20px; color: #6c757d; text-transform: capitalize;">{{ str_replace('_', ' ', $depense->mode_paiement) }}</td>
+                                    <td style="padding: 15px 20px; font-weight: 500; color: #2d5a27;">{{ $depense->libelle->nom }}</td>
                                     <td style="padding: 15px 20px; text-align: right; font-weight: 700; color: #2d5a27;">{{ number_format($depense->montant, 0, ',', ' ') }} FCFA</td>
                                     <td style="padding: 15px 20px; text-align: center;">
                                         <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
@@ -161,7 +142,8 @@
                                             <form action="{{ route('admin.depenses.destroy', $depense->id) }}" method="POST" style="display: inline-block;" id="delete-form-{{ $depense->id }}">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="button" class="btn-supprimer" data-id="{{ $depense->id }}" data-nom="{{ $depense->libelle }}" style="
+                                                <button type="button" class="btn-supprimer" data-id="{{ $depense->id }}"
+                                                    data-nom="{{ $depense->libelle->nom }} · {{ number_format($depense->montant, 0, ',', ' ') }} FCFA" style="
                                                     background: #f8d7da; color: #721c24; padding: 6px 12px; border-radius: 20px;
                                                     border: 1px solid #f5c6cb; font-size: 0.8rem; cursor: pointer;
                                                 " onmouseover="this.style.background='#f5c6cb'" onmouseout="this.style.background='#f8d7da'">
@@ -173,10 +155,10 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" style="padding: 60px 20px; text-align: center; color: #6c757d;">
+                                    <td colspan="5" style="padding: 60px 20px; text-align: center; color: #6c757d;">
                                         <i class="fas fa-wallet" style="font-size: 48px; display: block; margin-bottom: 15px; color: #d4c9bb;"></i>
                                         <p style="font-size: 1.1rem; margin: 0;">Aucune dépense trouvée</p>
-                                        <p style="margin-top: 5px;">Cliquez sur "Nouvelle dépense" pour en créer une</p>
+                                        <p style="margin-top: 5px;">Cliquez sur « Nouvelle dépense » pour en créer une</p>
                                     </td>
                                 </tr>
                             @endforelse
@@ -184,7 +166,7 @@
                         @if($depenses->isNotEmpty())
                             <tfoot>
                                 <tr style="background: #f8f5f0; border-top: 2px solid #e8e0d5;">
-                                    <td colspan="4" style="padding: 15px 20px; text-align: right; font-weight: 700; color: #2d5a27;">Total période</td>
+                                    <td colspan="3" style="padding: 15px 20px; text-align: right; font-weight: 700; color: #2d5a27;">Total période</td>
                                     <td style="padding: 15px 20px; text-align: right; font-weight: 700; color: #2d5a27;">{{ number_format($totalPeriode, 0, ',', ' ') }} FCFA</td>
                                     <td></td>
                                 </tr>
@@ -256,10 +238,12 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const escapeHtml = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
     document.querySelectorAll('.btn-supprimer').forEach(function(button) {
         button.addEventListener('click', function() {
             const id = this.dataset.id;
-            const nom = this.dataset.nom;
+            const nom = escapeHtml(this.dataset.nom);
             Swal.fire({
                 title: '🗑️ Supprimer cette dépense ?',
                 html: `<p style="font-weight: 600; color: #2d5a27; background: #f8f5f0; padding: 10px; border-radius: 5px;">${nom}</p>
@@ -280,10 +264,10 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     @if(session('success'))
-        Swal.fire({ icon: 'success', title: 'Succès !', text: "{{ session('success') }}", timer: 4000, timerProgressBar: true, showConfirmButton: false, toast: true, position: 'top-end' });
+        Swal.fire({ icon: 'success', title: 'Succès !', text: @json(session('success')), timer: 4000, timerProgressBar: true, showConfirmButton: false, toast: true, position: 'top-end' });
     @endif
     @if(session('error'))
-        Swal.fire({ icon: 'error', title: 'Erreur !', text: "{{ session('error') }}", timer: 5000, timerProgressBar: true, showConfirmButton: false, toast: true, position: 'top-end' });
+        Swal.fire({ icon: 'error', title: 'Erreur !', text: @json(session('error')), timer: 5000, timerProgressBar: true, showConfirmButton: false, toast: true, position: 'top-end' });
     @endif
 });
 </script>

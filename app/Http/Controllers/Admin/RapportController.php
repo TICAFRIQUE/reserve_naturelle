@@ -20,9 +20,10 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class RapportController extends Controller
 {
-   public const ONGLETS = ['vue-ensemble', 'mouvements', 'produits', 'achats', 'fournisseurs', 'users', 'ventes', 'depenses'];
+    public const ONGLETS = ['vue-ensemble', 'mouvements', 'produits', 'achats', 'fournisseurs', 'users', 'ventes', 'depenses'];
 
-    public function index(Request $request, string $onglet = 'vue-ensemble'){
+    public function index(Request $request, string $onglet = 'vue-ensemble')
+    {
         $request->validate([
             'date_from' => 'nullable|date',
             'date_to'   => 'nullable|date|after_or_equal:date_from',
@@ -34,10 +35,11 @@ class RapportController extends Controller
 
         $dateFrom = $request->filled('date_from') ? $request->date_from : now()->startOfMonth()->format('Y-m-d');
         $dateTo   = $request->filled('date_to') ? $request->date_to : now()->format('Y-m-d');
-        $nbJours = Carbon::parse($dateFrom)->diffInDays(Carbon::parse($dateTo)) + 1;
+        $nbJours  = Carbon::parse($dateFrom)->diffInDays(Carbon::parse($dateTo)) + 1;
         $prevFrom = Carbon::parse($dateFrom)->subDays($nbJours)->format('Y-m-d');
         $prevTo   = Carbon::parse($dateFrom)->subDay()->format('Y-m-d');
-        $cartes = $this->calculerCartes($dateFrom, $dateTo, $prevFrom, $prevTo);
+        $cartes   = $this->calculerCartes($dateFrom, $dateTo, $prevFrom, $prevTo);
+
         $data = match ($onglet) {
             'mouvements'   => $this->ongletMouvements($request, $dateFrom, $dateTo),
             'produits'     => $this->ongletProduits($request),
@@ -49,7 +51,7 @@ class RapportController extends Controller
             default        => $this->ongletVueEnsemble($dateFrom, $dateTo),
         };
 
-            return view('admin.rapports.' . $onglet, array_merge($cartes, $data, [
+        return view('admin.rapports.' . $onglet, array_merge($cartes, $data, [
             'onglet' => $onglet, 'dateFrom' => $dateFrom, 'dateTo' => $dateTo,
         ]));
     }
@@ -57,7 +59,8 @@ class RapportController extends Controller
     /**
      * Export PDF du rapport complet (données non paginées) pour l'onglet demandé.
      */
-    public function exportPdf(Request $request){
+    public function exportPdf(Request $request)
+    {
         $request->validate([
             'date_from' => 'nullable|date',
             'date_to'   => 'nullable|date|after_or_equal:date_from',
@@ -70,10 +73,11 @@ class RapportController extends Controller
         $dateFrom = $request->filled('date_from') ? $request->date_from : now()->startOfMonth()->format('Y-m-d');
         $dateTo   = $request->filled('date_to') ? $request->date_to : now()->format('Y-m-d');
         $onglet   = $request->input('onglet', 'vue-ensemble');
-        $nbJours = Carbon::parse($dateFrom)->diffInDays(Carbon::parse($dateTo)) + 1;
+        $nbJours  = Carbon::parse($dateFrom)->diffInDays(Carbon::parse($dateTo)) + 1;
         $prevFrom = Carbon::parse($dateFrom)->subDays($nbJours)->format('Y-m-d');
         $prevTo   = Carbon::parse($dateFrom)->subDay()->format('Y-m-d');
-        $cartes = $this->calculerCartes($dateFrom, $dateTo, $prevFrom, $prevTo);
+        $cartes   = $this->calculerCartes($dateFrom, $dateTo, $prevFrom, $prevTo);
+
         $data = match ($onglet) {
             'mouvements'   => $this->ongletMouvements($request, $dateFrom, $dateTo, null, true),
             'produits'     => $this->ongletProduits($request, true),
@@ -81,140 +85,102 @@ class RapportController extends Controller
             'fournisseurs' => $this->ongletFournisseurs($dateFrom, $dateTo, true),
             'users'        => $this->ongletUsers($dateFrom, $dateTo, true),
             'ventes'       => $this->ongletVentes($request, $dateFrom, $dateTo, true),
-            'depenses' => $this->ongletDepenses($request, $dateFrom, $dateTo, true),
-            default => $this->ongletVueEnsemble($dateFrom, $dateTo, true),
+            'depenses'     => $this->ongletDepenses($request, $dateFrom, $dateTo, true),
+            default        => $this->ongletVueEnsemble($dateFrom, $dateTo, true),
         };
+
+        // Une seule page PDF pour tous les onglets ; paysage pour les tableaux larges
+        $paysage = in_array($onglet, ['mouvements', 'ventes', 'produits', 'vue-ensemble'], true);
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.rapports.stock_pdf', array_merge($cartes, $data, [
             'onglet' => $onglet, 'dateFrom' => $dateFrom, 'dateTo' => $dateTo,
-        ]))->setPaper('a4', 'landscape');
+        ]))->setPaper('a4', $paysage ? 'landscape' : 'portrait');
 
         $nomFichier = 'rapport-stock-' . $onglet . '-' . $dateFrom . '-au-' . $dateTo . '.pdf';
 
         return $pdf->download($nomFichier);
     }
 
-    private function calculerCartes($dateFrom, $dateTo, $prevFrom, $prevTo): array{
-        // ==============================
-        // VALEUR DU STOCK
-        // ==============================
-        $valeurStock = (float) ProductVariant::sum(
-            DB::raw('qte_dispo * cmp')
-        );
+    private function calculerCartes($dateFrom, $dateTo, $prevFrom, $prevTo): array
+    {
+        // Valeur du stock
+        $valeurStock = (float) ProductVariant::sum(DB::raw('qte_dispo * cmp'));
 
-        // ==============================
-        // ACHATS
-        // ==============================
+        // Achats
         $entreesPeriode = Achat::whereDate('date_achat', '>=', $dateFrom)->whereDate('date_achat', '<=', $dateTo)->sum('mt_total');
-        $entreesPrec = Achat::whereDate('date_achat', '>=', $prevFrom)->whereDate('date_achat', '<=', $prevTo)->sum('mt_total');
+        $entreesPrec    = Achat::whereDate('date_achat', '>=', $prevFrom)->whereDate('date_achat', '<=', $prevTo)->sum('mt_total');
 
-        // ==============================
-        // VENTES
-        // ==============================
-        $sortiesPeriode = Order::where('statut', 'livree')->whereDate('date_order', '>=', $dateFrom)
-            ->whereDate('date_order', '<=', $dateTo)->sum('montant_ttc');
+        // Ventes
+        $sortiesPeriode = Order::where('statut', 'livree')
+            ->whereDate('date_order', '>=', $dateFrom)
+            ->whereDate('date_order', '<=', $dateTo)
+            ->sum('montant_ttc');
         $sortiesPrec = Order::where('statut', 'livree')
             ->whereDate('date_order', '>=', $prevFrom)
             ->whereDate('date_order', '<=', $prevTo)
             ->sum('montant_ttc');
 
-        // ==============================
-        // DEPENSES
-        // ==============================
+        // Dépenses (somme des montants, indépendante de la famille/libellé)
         $depensesPeriode = Depense::entre($dateFrom, $dateTo)->sum('montant');
-        $depensesPrec = Depense::entre($prevFrom, $prevTo)->sum('montant');
+        $depensesPrec    = Depense::entre($prevFrom, $prevTo)->sum('montant');
 
-        // ==============================
-        // ALERTES STOCK
-        // ==============================
-        $produitsAlerte = ProductVariant::whereColumn(
-            'qte_dispo',
-            '<=',
-            'stock_minimum'
-        )->count();
+        // Alertes stock
+        $produitsAlerte  = ProductVariant::whereColumn('qte_dispo', '<=', 'stock_minimum')->count();
+        $produitsRupture = ProductVariant::where('qte_dispo', '<=', 0)->count();
 
-        $produitsRupture = ProductVariant::where(
-            'qte_dispo',
-            '<=',
-            0
-        )->count();
-
-        // ==============================
-        // COMPTE D'EXPLOITATION
-        // ==============================
+        // Compte d'exploitation
         $service = app(CompteExploitationService::class);
-        $compteExploitation = $service->calculer(
-            Carbon::parse($dateFrom),
-            Carbon::parse($dateTo)
-        );
+        $compteExploitation = $service->calculer(Carbon::parse($dateFrom), Carbon::parse($dateTo));
+        $compteExploitationPrecedent = $service->calculer(Carbon::parse($prevFrom), Carbon::parse($prevTo));
 
-        $compteExploitationPrecedent = $service->calculer(
-            Carbon::parse($prevFrom),
-            Carbon::parse($prevTo)
-        );
-
-        $resultatExploitation = (float) $compteExploitation['resultat'];
+        $resultatExploitation          = (float) $compteExploitation['resultat'];
         $resultatExploitationPrecedent = (float) $compteExploitationPrecedent['resultat'];
 
-        // ==============================
-        // RETOUR
-        // ==============================
         return [
-
             // Stock
             'valeur_stock' => $valeurStock,
 
             // Achats
-            'entrees' => $entreesPeriode,
-            'entrees_var' => $this->variation(
-                $entreesPeriode,
-                $entreesPrec
-            ),
+            'entrees'     => $entreesPeriode,
+            'entrees_var' => $this->variation($entreesPeriode, $entreesPrec),
 
             // Ventes
-            'sorties' => $sortiesPeriode,
-            'sorties_var' => $this->variation(
-                $sortiesPeriode,
-                $sortiesPrec
-            ),
+            'sorties'     => $sortiesPeriode,
+            'sorties_var' => $this->variation($sortiesPeriode, $sortiesPrec),
 
             // Dépenses
-            'depenses' => $depensesPeriode,
-            'depenses_var' => $this->variation(
-                $depensesPeriode,
-                $depensesPrec
-            ),
+            'depenses'     => $depensesPeriode,
+            'depenses_var' => $this->variation($depensesPeriode, $depensesPrec),
 
             // Alertes
-            'produits_alerte' => $produitsAlerte,
+            'produits_alerte'  => $produitsAlerte,
             'produits_rupture' => $produitsRupture,
 
             // Compte d'exploitation
-            'chiffre_affaires' => (float) $compteExploitation['chiffre_affaires'],
-            'achats_consommes' => (float) $compteExploitation['achats_consommes'],
-            'total_charges' => (float) $compteExploitation['total_charges'],
-            'resultat_exploitation' => $resultatExploitation,
-            'resultat_exploitation_var' => $this->variation(
-                $resultatExploitation,
-                $resultatExploitationPrecedent
-            ),
+            'chiffre_affaires'          => (float) $compteExploitation['chiffre_affaires'],
+            'total_charges'             => (float) $compteExploitation['total_charges'],
+            'resultat_exploitation'     => $resultatExploitation,
+            'resultat_exploitation_var' => $this->variation($resultatExploitation, $resultatExploitationPrecedent),
         ];
     }
 
-    private function variation($actuel, $precedent): ?float{
+    private function variation($actuel, $precedent): ?float
+    {
         if ($precedent <= 0) {
             return null;
         }
+
         return round((($actuel - $precedent) / $precedent) * 100, 1);
     }
 
-    private function ongletMouvements(Request $request, $dateFrom, $dateTo, ?int $limit = null, bool $forPdf = false): array{
+    private function ongletMouvements(Request $request, $dateFrom, $dateTo, ?int $limit = null, bool $forPdf = false): array
+    {
         $baseQuery = StockMouvement::whereDate('created_at', '>=', $dateFrom)
             ->whereDate('created_at', '<=', $dateTo)
             ->when($request->filled('search'), fn ($q) => $q->whereHas('product', fn ($p) => $p->search($request->search)));
 
         $mouvementsTotal = (float) (clone $baseQuery)->sum(DB::raw('quantite * cmp_apres'));
-        $query = (clone $baseQuery)->with(['product', 'user', 'source'])->latest();
+        $query = (clone $baseQuery)->with(['product', 'variant', 'user', 'source'])->latest();
         $mouvements = match (true) {
             $forPdf => $query->get(),
             (bool) $limit => $query->limit($limit)->get(),
@@ -224,7 +190,8 @@ class RapportController extends Controller
         return compact('mouvements', 'mouvementsTotal');
     }
 
-   private function ongletProduits(Request $request, bool $forPdf = false): array{
+    private function ongletProduits(Request $request, bool $forPdf = false): array
+    {
         $baseQuery = ProductVariant::when($request->filled('search'), function ($q) use ($request) {
             $q->where(function ($sub) use ($request) {
                 $sub->where('reference_prod', 'like', '%' . $request->search . '%')
@@ -234,10 +201,12 @@ class RapportController extends Controller
         $variantsTotal = (float) (clone $baseQuery)->sum(DB::raw('qte_dispo * cmp'));
         $query = (clone $baseQuery)->with('product.category')->orderByDesc(DB::raw('qte_dispo * cmp'));
         $variants = $forPdf ? $query->get() : $query->paginate(15)->withQueryString();
+
         return compact('variants', 'variantsTotal');
     }
 
-    private function ongletAchats($dateFrom, $dateTo, bool $forPdf = false): array{
+    private function ongletAchats($dateFrom, $dateTo, bool $forPdf = false): array
+    {
         $baseQuery = Achat::whereDate('date_achat', '>=', $dateFrom)->whereDate('date_achat', '<=', $dateTo);
         $achatsTotal = (clone $baseQuery)->sum('mt_total');
         $query = (clone $baseQuery)->with('fournisseur')->latest('date_achat');
@@ -246,7 +215,8 @@ class RapportController extends Controller
         return compact('achats', 'achatsTotal');
     }
 
-    private function ongletFournisseurs($dateFrom, $dateTo, bool $forPdf = false): array{
+    private function ongletFournisseurs($dateFrom, $dateTo, bool $forPdf = false): array
+    {
         $query = Fournisseur::withCount(['achats' => fn ($q) => $q->whereDate('date_achat', '>=', $dateFrom)->whereDate('date_achat', '<=', $dateTo)])
             ->withSum(['achats' => fn ($q) => $q->whereDate('date_achat', '>=', $dateFrom)->whereDate('date_achat', '<=', $dateTo)], 'mt_total')
             ->orderByDesc('achats_sum_mt_total');
@@ -260,17 +230,20 @@ class RapportController extends Controller
     /**
      * Liste des clients (User) avec le nombre de commandes et le total dépensé sur la période.
      */
-    private function ongletUsers($dateFrom, $dateTo, bool $forPdf = false): array{
+    private function ongletUsers($dateFrom, $dateTo, bool $forPdf = false): array
+    {
         $query = User::withCount(['orders' => fn ($q) => $q->whereDate('date_order', '>=', $dateFrom)->whereDate('date_order', '<=', $dateTo)])
             ->withSum(['orders' => fn ($q) => $q->whereDate('date_order', '>=', $dateFrom)->whereDate('date_order', '<=', $dateTo)], 'montant_ttc')
             ->orderByDesc('orders_sum_montant_ttc');
 
         $users = $forPdf ? $query->get() : $query->paginate(15)->withQueryString();
         $usersTotal = $users->sum('orders_sum_montant_ttc');
+
         return compact('users', 'usersTotal');
     }
 
-    private function ongletVentes(Request $request, $dateFrom, $dateTo, bool $forPdf = false): array{
+    private function ongletVentes(Request $request, $dateFrom, $dateTo, bool $forPdf = false): array
+    {
         $baseQuery = Order::where('statut', '!=', 'panier_converti')
             ->whereDate('date_order', '>=', $dateFrom)
             ->whereDate('date_order', '<=', $dateTo)
@@ -286,24 +259,34 @@ class RapportController extends Controller
         return compact('ventes', 'ventesTotal', 'zones', 'statutsVentes');
     }
 
-    private function ongletDepenses(Request $request, $dateFrom, $dateTo, bool $forPdf = false): array{
+    /**
+     * Dépenses : le libellé et la famille se lisent via la relation libelle.categorie.
+     */
+    private function ongletDepenses(Request $request, $dateFrom, $dateTo, bool $forPdf = false): array
+    {
         $request->validate([
-            'libelle'               => 'nullable|string|max:255',
-            'categorie_depense_id'  => 'nullable|integer|exists:categorie_depenses,id',
+            'libelle'              => 'nullable|string|max:255',
+            'categorie_depense_id' => 'nullable|integer|exists:categorie_depenses,id',
         ]);
 
-           $baseQuery = Depense::entre($dateFrom, $dateTo)
-            ->when($request->filled('libelle'), fn ($q) => $q->where('libelle', 'like', '%' . $request->libelle . '%'))
-            ->when($request->filled('categorie_depense_id'), fn ($q) => $q->where('categorie_depense_id', $request->categorie_depense_id));
+        $baseQuery = Depense::entre($dateFrom, $dateTo)
+            ->when($request->filled('libelle'), fn ($q) => $q->whereHas('libelle',
+                fn ($l) => $l->where('nom', 'like', '%' . $request->libelle . '%')))
+            ->when($request->filled('categorie_depense_id'), fn ($q) => $q->whereHas('libelle',
+                fn ($l) => $l->where('categorie_depense_id', $request->categorie_depense_id)));
+
         $depensesTotal = (clone $baseQuery)->sum('montant');
-        $query = (clone $baseQuery)->with('categorie')->latest('date_depense');
+        $query = (clone $baseQuery)->with('libelle.categorie')->latest('date_depense')->latest('id');
         $depensesListe = $forPdf ? $query->get() : $query->paginate(15)->withQueryString();
         $categoriesDepenses = CategorieDepense::orderBy('nom')->get();
+
         return compact('depensesListe', 'depensesTotal', 'categoriesDepenses');
     }
 
-    private function ongletVueEnsemble($dateFrom, $dateTo, bool $forPdf = false): array{
-        $achats = Achat::whereDate('date_achat', '>=', $dateFrom)->whereDate('date_achat', '<=', $dateTo)
+    private function ongletVueEnsemble($dateFrom, $dateTo, bool $forPdf = false): array
+    {
+        $achats = Achat::with('fournisseur')
+            ->whereDate('date_achat', '>=', $dateFrom)->whereDate('date_achat', '<=', $dateTo)
             ->get()->map(fn ($a) => (object) [
                 'date'            => $a->date_achat,
                 'type'            => 'Achat',
@@ -312,6 +295,7 @@ class RapportController extends Controller
                 'montant_depense' => null,
                 'libelle'         => $a->fournisseur->full_name ?? $a->numero,
             ]);
+
         $ventes = Order::where('statut', '!=', 'panier_converti')
             ->whereDate('date_order', '>=', $dateFrom)->whereDate('date_order', '<=', $dateTo)
             ->get()->map(fn ($v) => (object) [
@@ -322,15 +306,17 @@ class RapportController extends Controller
                 'montant_depense' => null,
                 'libelle'         => $v->num_order,
             ]);
-        $depenses = Depense::entre($dateFrom, $dateTo)
+
+        $depenses = Depense::with('libelle')->entre($dateFrom, $dateTo)
             ->get()->map(fn ($d) => (object) [
                 'date'            => $d->date_depense,
                 'type'            => 'Dépense',
                 'montant_achat'   => null,
                 'montant_vente'   => null,
                 'montant_depense' => $d->montant,
-                'libelle'         => $d->libelle,
+                'libelle'         => $d->libelle->nom ?? '—',
             ]);
+
         $tousLesMouvements = $achats->concat($ventes)->concat($depenses)->sortByDesc('date')->values();
         $vueEnsembleTotal = [
             'achats'   => $achats->sum('montant_achat'),
@@ -351,6 +337,7 @@ class RapportController extends Controller
                 ['path' => request()->url(), 'query' => request()->query()]
             );
         }
+
         return compact('mouvementsVue', 'vueEnsembleTotal');
     }
 }

@@ -1,7 +1,7 @@
 {{-- resources/views/admin/categorie_depenses/edit.blade.php --}}
 @extends('layouts.admin')
 
-@section('title', 'Modifier la catégorie - La Réserve Naturelle')
+@section('title', 'Modifier la famille - La Réserve Naturelle')
 
 @section('content')
 <div class="container" style="padding: 40px 0;">
@@ -10,7 +10,7 @@
             <div style="margin-bottom: 30px;">
                 <h1 style="font-family: 'Playfair Display', serif; color: #2d5a27; font-size: 2rem; margin: 0;">
                     <i class="fas fa-edit" style="color: #b8860b; margin-right: 10px;"></i>
-                    Modifier la catégorie
+                    Modifier la famille
                 </h1>
                 <p style="color: #6c757d; margin: 5px 0 0 0;">
                     <i class="fas fa-tag" style="color: #b8860b;"></i>
@@ -26,7 +26,7 @@
                     <div style="margin-bottom: 25px;">
                         <label for="nom" style="display: block; font-weight: 600; color: #2d5a27; margin-bottom: 6px;">
                             <i class="fas fa-tag" style="color: #b8860b; margin-right: 6px;"></i>
-                            Nom de la catégorie <span style="color: #dc3545;">*</span>
+                            Nom de la famille <span style="color: #dc3545;">*</span>
                         </label>
                         <input type="text" name="nom" id="nom" value="{{ old('nom', $categorieDepense->nom) }}" required style="
                             width: 100%; padding: 12px 16px; border: 2px solid #e8e0d5; border-radius: 8px; font-size: 1rem; outline: none;

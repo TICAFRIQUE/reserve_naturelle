@@ -52,7 +52,13 @@ class AuthController extends Controller
             }
             return redirect()->intended(route('client.products.index'));
         }
-        return back()->withErrors(["email" => "Identifiants invalides ou compte inactif"])->withInput($request->only("email"));
+        $message = "Email ou mot de passe incorrect.";
+        return back()
+            ->withErrors([
+                'email' => $message,
+                // 'password' => $message,
+            ])
+            ->withInput($request->only('email'));
     }
 
     public function destroy(Request $request){

@@ -1,3 +1,7 @@
+{{-- resources/views/layouts/admin.blade.php --}}
+@php
+    $depensesActive = request()->routeIs('admin.depenses.*', 'admin.categorie-depenses.*', 'admin.libelle-depenses.*');
+@endphp
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -126,13 +130,14 @@
             <a href="{{ route('admin.rapports.index') }}" class="nav-item {{ request()->routeIs('admin.rapports.*') ? 'active' : '' }}">
                 <i class="fas fa-chart-line"></i> Rapports
             </a>
+
             <div class="nav-item-dropdown">
-                <a href="#" class="nav-item nav-item-toggle {{ request()->routeIs('admin.depenses.*', 'admin.categorie-depenses.*') ? 'active' : '' }}" id="depensesToggle" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">
+                <a href="#" class="nav-item nav-item-toggle {{ $depensesActive ? 'active' : '' }}" id="depensesToggle" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">
                     <span><i class="fas fa-wallet"></i> Dépenses</span>
-                    <i class="fas fa-chevron-down" style="font-size: 11px; transition: transform 0.2s;" id="depensesChevron"></i>
+                    <i class="fas fa-chevron-down" style="font-size: 11px; transition: transform 0.2s; transform: {{ $depensesActive ? 'rotate(180deg)' : 'rotate(0deg)' }};" id="depensesChevron"></i>
                 </a>
                 <div id="depensesSubmenu" style="
-                    max-height: {{ request()->routeIs('admin.depenses.*', 'admin.categorie-depenses.*') ? '100px' : '0' }};
+                    max-height: {{ $depensesActive ? '150px' : '0' }};
                     overflow: hidden;
                     transition: max-height 0.25s ease;
                 ">
@@ -140,10 +145,14 @@
                         <i class="fas fa-list"></i> Toutes les dépenses
                     </a>
                     <a href="{{ route('admin.categorie-depenses.index') }}" class="nav-item nav-subitem {{ request()->routeIs('admin.categorie-depenses.*') ? 'active' : '' }}" style="padding-left: 45px; font-size: 0.92rem;">
-                        <i class="fas fa-tags"></i> Catégories de dépenses
+                        <i class="fas fa-tags"></i> Famille de dépenses
+                    </a>
+                    <a href="{{ route('admin.libelle-depenses.index') }}" class="nav-item nav-subitem {{ request()->routeIs('admin.libelle-depenses.*') ? 'active' : '' }}" style="padding-left: 45px; font-size: 0.92rem;">
+                        <i class="fas fa-list-ul"></i> Libellés de dépenses
                     </a>
                 </div>
             </div>
+
             {{-- <div class="sidebar-divider"></div>
 
             <form action="{{ route('logout') }}" method="POST">
@@ -335,8 +344,9 @@
 
     depensesToggle?.addEventListener('click', e => {
         e.preventDefault();
-        const isOpen = depensesSubmenu.style.maxHeight !== '0px' && depensesSubmenu.style.maxHeight !== '';
-        depensesSubmenu.style.maxHeight = isOpen ? '0' : '100px';
+        // parseInt gère '0', '0px' et '150px'
+        const isOpen = parseInt(depensesSubmenu.style.maxHeight, 10) > 0;
+        depensesSubmenu.style.maxHeight = isOpen ? '0' : '150px';
         depensesChevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
     });
 

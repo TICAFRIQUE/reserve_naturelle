@@ -2,9 +2,9 @@
    PAGE BOUTIQUE (css/pages/_catalogue.css)
    Dépend uniquement de _shop-common.css.
 ========================================================== */
+
 /* ==========================================================
-   FIL D'ARIANE + HEURE (à coller dans _catalogue.css,
-   juste APRÈS le commentaire d'en-tête, avant « Titres centrés »)
+   FIL D'ARIANE + HEURE
 ========================================================== */
 .cp-breadcrumb-bar {
     background: #fff;
@@ -74,79 +74,74 @@
 
 .cp-pill i { color: var(--cp-green); }
 
-/* Le fil d'Ariane remplace l'espace au-dessus de la bannière */
-.cp-breadcrumb-bar + .bq-hero,
-.cp-breadcrumb-bar + .bq-banner { margin-top: 0; }
-
-@media (max-width: 992px) {
-    .cp-meta { width: 100%; margin-left: 0; }
+/* ==========================================================
+   BANNIÈRE HERO (partagée avec la page catégorie)
+========================================================== */
+.cp-hero {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: 300px;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--cp-green-dark), var(--cp-green));
+    color: #fff;
+    text-align: center;
 }
 
-@media (max-width: 600px) {
-    .bq-hero { padding: 55px 20px 65px; }
-    .bq-hero h1 { font-size: 28px; }
-    .bq-hero p { font-size: 15px; }
-    .bq-hero-icon { width: 54px; height: 54px; margin-bottom: 16px; font-size: 24px; }
-    .bq-hero-fade { height: 50px; }
-    .bq-banner-slide { aspect-ratio: 1.8 / 1; }
-    .bq-heading { margin-block: 36px 20px; }
-
-    .bq-cats-track { gap: 14px; padding-inline: 16px; }
-    .bq-cat { flex-basis: 150px; }
-    .bq-arrow { width: 38px; height: 38px; }
-    .bq-arrow--prev { left: 6px; }
-    .bq-arrow--next { right: 6px; }
-
-    .bq-page .cp-container { padding-top: 28px; }
-    .bq-sections { gap: 24px; }
-    .bq-section { border-radius: 18px; }
-    .bq-main { padding: 18px 14px 20px; }
-    .bq-head { flex-wrap: wrap; }
-    .bq-grid { gap: 12px; }
-    .bq-card { padding: 10px 10px 12px; }
-    .bq-badge { top: 16px; right: 16px; font-size: 10px; }
-    .bq-card-name { font-size: 13.5px; }
-    .bq-card-price { font-size: 15.5px; }
-
-    /* --- CORRECTION DU FIL D'ARIANE MOBILE SUR UNE SEULE LIGNE --- */
-    .cp-breadcrumb {
-        display: flex;
-        align-items: center;
-        flex-wrap: nowrap;
-        gap: 8px;
-        padding-block: 12px;
-    }
-    
-    .cp-back {
-        padding: 8px 12px;
-        font-size: 14px;
-        flex-shrink: 0; /* Empêche le bouton retour de rétrécir */
-    }
-
-    .cp-sep {
-        display: none; /* On cache le séparateur pour gagner de la place */
-    }
-
-    .cp-current {
-        padding: 8px 12px;
-        font-size: 14px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .cp-meta {
-        margin-left: auto; /* Pousse l'horloge tout à droite */
-        margin-top: 0;
-        width: auto;
-        flex-shrink: 0; /* Empêche l'horloge de s'écraser */
-    }
-
-    .cp-pill {
-        padding: 6px 10px;
-        font-size: 13px;
-    }
+.cp-hero-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
+
+.cp-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg,
+        rgba(8, 95, 57, .84) 0%,
+        rgba(11, 122, 72, .64) 55%,
+        rgba(26, 150, 96, .5) 100%);
+}
+
+.cp-hero-content {
+    position: relative;
+    z-index: 1;
+    max-width: 780px;
+    padding: 48px 24px;
+}
+
+.cp-hero-content::before {
+    content: "";
+    display: block;
+    width: min(260px, 60%);
+    height: 2px;
+    margin: 0 auto 18px;
+    background: rgba(255, 255, 255, .55);
+}
+
+.cp-hero h1 {
+    margin: 0 0 12px;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(34px, 6vw, 62px);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, .35);
+}
+
+.cp-hero p {
+    margin: 0 auto;
+    max-width: 600px;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(16px, 1.8vw, 21px);
+    font-style: italic;
+    line-height: 1.45;
+    color: rgba(255, 255, 255, .95);
+}
+
 /* ---------- Titres centrés ---------- */
 .bq-heading {
     margin: 52px 0 26px;
@@ -177,132 +172,6 @@
     background: var(--cp-gold);
     transform: translateX(-50%);
 }
-
-/* ==========================================================
-   BANNIÈRE TEXTE (repli quand $banners est absent)
-   Autonome : ne dépend plus des styles .contact-hero
-========================================================== */
-.bq-hero {
-    position: relative;
-    margin: 24px 0 50px;
-    padding: 90px 40px 100px;
-    overflow: hidden;
-    background: linear-gradient(135deg, #0a6b3f 0%, #0b7a48 50%, #1a9660 100%);
-    color: #fff;
-    text-align: center;
-}
-
-.bq-hero-pattern {
-    position: absolute;
-    inset: 0;
-    background-image: radial-gradient(circle, rgba(255, 255, 255, .08) 1.5px, transparent 1.5px);
-    background-size: 32px 32px;
-    pointer-events: none;
-}
-
-.bq-hero-content {
-    position: relative;
-    z-index: 2;
-    max-width: 820px;
-    margin: 0 auto;
-}
-
-.bq-hero-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 70px;
-    height: 70px;
-    margin-bottom: 22px;
-    border: 2px solid rgba(255, 255, 255, .45);
-    border-radius: 14px;
-    background: rgba(255, 255, 255, .12);
-    backdrop-filter: blur(4px);
-    font-size: 32px;
-}
-
-.bq-hero h1 {
-    margin: 0 0 18px;
-    font-size: clamp(32px, 4.5vw, 52px);
-    font-weight: 900;
-    line-height: 1.15;
-    letter-spacing: -.02em;
-    text-shadow: 0 2px 20px rgba(0, 0, 0, .15);
-}
-
-.bq-hero p {
-    max-width: 700px;
-    margin: 0 auto;
-    font-size: clamp(15px, 1.4vw, 19px);
-    line-height: 1.6;
-    color: rgba(255, 255, 255, .92);
-}
-
-.bq-hero-fade {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 3;
-    height: 70px;
-    background: linear-gradient(to bottom, transparent, rgba(250, 248, 245, .7), #faf8f5);
-    pointer-events: none;
-}
-
-/* ==========================================================
-   BANNIÈRES
-========================================================== */
-.bq-banner { margin-top: 24px; }
-
-.bq-banner-track {
-    position: relative;
-    display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-    background: var(--cp-green);
-}
-
-.bq-banner-track::-webkit-scrollbar { display: none; }
-
-.bq-banner-slide {
-    flex: 0 0 100%;
-    aspect-ratio: 3.2 / 1;
-    scroll-snap-align: start;
-}
-
-.bq-banner-slide a { display: block; height: 100%; }
-
-.bq-banner-slide img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.bq-dots {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    padding-top: 16px;
-}
-
-.bq-dots[hidden] { display: none; }
-
-.bq-dot {
-    position: relative;
-    width: 12px;
-    height: 12px;
-    padding: 0;
-    border: 0;
-    border-radius: 50%;
-    background: #cfd6d2;
-    cursor: pointer;
-    transition: background .2s, transform .2s;
-}
-
-.bq-dot::after { content: ""; position: absolute; inset: -9px; }
-.bq-dot.is-active { background: var(--cp-green-dark); transform: scale(1.15); }
 
 /* ==========================================================
    SLIDER DE CATÉGORIES
@@ -337,7 +206,6 @@
     transition: box-shadow .2s, border-color .2s;
 }
 
-/* centre les cartes quand il y en a peu ; sans effet quand ça déborde */
 .bq-cat:first-child { margin-left: auto; }
 .bq-cat:last-child  { margin-right: auto; }
 
@@ -398,7 +266,7 @@
 ========================================================== */
 .bq-page {
     padding: 8px 0 72px;
-    background: linear-gradient(180deg, #fff 0%, #f7f2ef 14%, #fbeeed 100%);
+    background: #faf8f5;
 }
 
 .bq-page .cp-container { padding-top: 40px; }
@@ -414,7 +282,6 @@
     box-shadow: 0 8px 30px rgba(40, 30, 20, .08);
 }
 
-/* teintes alternées : vert, or, terre cuite, brun */
 .bq-section--c0 { --tint: 11, 122, 72; }
 .bq-section--c1 { --tint: 168, 118, 6; }
 .bq-section--c2 { --tint: 190, 92, 30; }
@@ -649,9 +516,8 @@
 }
 
 @media (max-width: 992px) {
-    .bq-hero { padding: 70px 24px 80px; }
-    .bq-hero-icon { width: 60px; height: 60px; font-size: 28px; }
-    .bq-banner-slide { aspect-ratio: 2.4 / 1; }
+    .cp-meta { width: 100%; margin-left: 0; }
+    .cp-hero { min-height: 250px; }
 
     .bq-section { grid-template-columns: 1fr; }
     .bq-side { min-height: 170px; }
@@ -660,12 +526,9 @@
 }
 
 @media (max-width: 600px) {
-    .bq-hero { padding: 55px 20px 65px; }
-    .bq-hero h1 { font-size: 28px; }
-    .bq-hero p { font-size: 15px; }
-    .bq-hero-icon { width: 54px; height: 54px; margin-bottom: 16px; font-size: 24px; }
-    .bq-hero-fade { height: 50px; }
-    .bq-banner-slide { aspect-ratio: 1.8 / 1; }
+    .cp-hero { min-height: 220px; }
+    .cp-hero-content { padding: 32px 18px; }
+
     .bq-heading { margin-block: 36px 20px; }
 
     .bq-cats-track { gap: 14px; padding-inline: 16px; }
@@ -684,6 +547,43 @@
     .bq-badge { top: 16px; right: 16px; font-size: 10px; }
     .bq-card-name { font-size: 13.5px; }
     .bq-card-price { font-size: 15.5px; }
+
+    /* --- FIL D'ARIANE MOBILE --- */
+    .cp-breadcrumb {
+        display: flex;
+        align-items: center;
+        flex-wrap: nowrap;
+        gap: 8px;
+        padding-block: 12px;
+    }
+
+    .cp-back {
+        padding: 8px 12px;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+
+    .cp-sep { display: none; }
+
+    .cp-current {
+        padding: 8px 12px;
+        font-size: 14px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .cp-meta {
+        margin-left: auto;
+        margin-top: 0;
+        width: auto;
+        flex-shrink: 0;
+    }
+
+    .cp-pill {
+        padding: 6px 10px;
+        font-size: 13px;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {

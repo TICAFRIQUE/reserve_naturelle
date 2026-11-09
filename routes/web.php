@@ -23,6 +23,7 @@
     use App\Http\Controllers\Admin\CompteExploitationController;
     use App\Http\Controllers\Admin\DepenseController;
     use App\Http\Controllers\Admin\BannerController;
+    use App\Http\Controllers\Admin\LibelleDepenseController;
     use App\Http\Controllers\Admin\OrderController as AdminOrderController;
     use App\Http\Controllers\Admin\ProductController as AdminProductController;
     use App\Http\Controllers\Client\ProductController as ClientProductController;
@@ -31,7 +32,6 @@
     use App\Http\Controllers\Client\CheckoutController;
     use App\Notifications\OrderValidatedNotification;
     use App\Models\Order;
-
     use Illuminate\Support\Facades\Route;
 
     // Accueil = catalogue produit (public)
@@ -168,7 +168,6 @@
                 Route::get('/create', [AchatController::class,'create'])->name('create');
                 Route::post('/', [AchatController::class, 'store'])->name('store');
                 Route::get('/{achat}', [AchatController::class, 'show'])->name('show');
-                // Route::post('/{achat}/confirmer',    [AchatController::class, 'confirmer'])->name('confirmer');
                 Route::get('/{achat}/reception',     [AchatController::class, 'receptionForm'])->name('reception');
                 Route::post('/{achat}/receptionner', [AchatController::class, 'receptionner'])->name('receptionner');
                 Route::post('/{achat}/annuler',      [AchatController::class, 'annuler'])->name('annuler');
@@ -179,7 +178,6 @@
                 Route::get('/create', [InventaireController::class, 'create'])->name('create');
                 Route::post('/', [InventaireController::class, 'store'])->name('store');
                 Route::get('/{inventaire}', [InventaireController::class, 'show'])->name('show');
-                // Route::patch('/{inventaire}', [InventaireController::class, 'update'])->name('update');
                 Route::post('/{inventaire}/valider', [InventaireController::class, 'valider'])->name('valider');
                 Route::post('/{inventaire}/annuler', [InventaireController::class, 'annuler'])->name('annuler');
                 Route::delete('/{inventaire}', [InventaireController::class, 'destroy'])->name('destroy');
@@ -207,6 +205,8 @@
             //ROUTE POUR LES DEPENSES (paiements fournisseurs)
             Route::resource('depenses', DepenseController::class)->except('show');
             Route::resource('categorie-depenses', CategorieDepenseController::class)->except('show');
+            Route::resource('libelle-depenses', LibelleDepenseController::class)->except('show')
+                ->parameters(['libelle-depenses' => 'libelleDepense']);
 
             // Bannière
             Route::get('/banner', [BannerController::class, 'edit'])->name('banner.edit');

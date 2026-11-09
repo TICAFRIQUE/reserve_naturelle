@@ -10,11 +10,9 @@ class Depense extends Model
     use HasFactory;
 
     protected $fillable = [
-        'categorie_depense_id',
-        'libelle', 'description',
-        'montant', 'date_depense',
-        'mode_paiement',
-        'reference',
+        'libelle_depense_id',
+        'montant',
+        'date_depense',
         'created_by',
     ];
 
@@ -23,8 +21,8 @@ class Depense extends Model
         'montant'      => 'integer',
     ];
 
-    public function categorie(){
-        return $this->belongsTo(CategorieDepense::class, 'categorie_depense_id');
+    public function libelle(){
+        return $this->belongsTo(LibelleDepense::class, 'libelle_depense_id');
     }
 
     public function createur(){

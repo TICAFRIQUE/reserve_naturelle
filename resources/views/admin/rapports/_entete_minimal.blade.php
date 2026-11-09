@@ -8,6 +8,7 @@
         'fournisseurs' => 'Fournisseurs',
         'users'        => 'Utilisateurs',
         'ventes'       => 'Total ventes',
+        'depenses' => 'Dépenses',
     ];
 @endphp
 

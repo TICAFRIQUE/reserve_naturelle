@@ -8,8 +8,17 @@ class CategorieDepense extends Model
 {
     protected $fillable = ['nom'];
 
-    public function depenses()
-    {
-        return $this->hasMany(Depense::class);
+    public function libelles(){
+        return $this->hasMany(LibelleDepense::class, 'categorie_depense_id');
+    }
+
+    // Dépenses de la famille, via ses libellés
+    public function depenses(){
+        return $this->hasManyThrough(
+            Depense::class,
+            LibelleDepense::class,
+            'categorie_depense_id', // FK sur libelle_depenses
+            'libelle_depense_id'    // FK sur depenses
+        );
     }
 }

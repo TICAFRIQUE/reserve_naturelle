@@ -7,6 +7,8 @@
 @section('hide_slider', true)
 @section('content')
 
+<link rel="stylesheet" href="{{ asset('css/pages/_contact.css') }}">
+
 <!-- ============================================
      FIL D'ARIANE
 ============================================ -->
@@ -24,25 +26,21 @@
                 <span class="contact-pill"><i class="far fa-clock" aria-hidden="true"></i><time id="cpClock">--:--</time></span>
             </div>
         </nav>
-        </nav>
     </div>
 </div>
 
 <!-- ============================================
-     BANNIÈRE CONTACT (Style FOANI)
+     BANNIÈRE CONTACT (style catalogue/catégorie)
 ============================================ -->
-<section class="contact-hero">
-    <div class="contact-hero-pattern"></div>
-
-    <div class="contact-hero-content">
-        <div class="contact-hero-icon">
-            <i class="fas fa-envelope-open-text"></i>
+<section class="cp-hero">
+    <div class="cp-hero-overlay"></div>
+    <div class="cp-hero-content">
+        <div class="cp-hero-icon">
+            <i class="fas fa-envelope-open-text" aria-hidden="true"></i>
         </div>
         <h1>Contactez-nous</h1>
         <p>Nous sommes à votre écoute pour répondre à toutes vos questions et vous accompagner dans vos projets</p>
     </div>
-
-    <div class="contact-hero-fade"></div>
 </section>
 
 <!-- ============================================

@@ -20,7 +20,7 @@
 @endphp
 
 <div class="cp bq">
-            {{-- ============ FIL D'ARIANE ============ --}}
+    {{-- ============ FIL D'ARIANE ============ --}}
     <div class="cp-breadcrumb-bar">
         <nav class="cp-container cp-breadcrumb" aria-label="Fil d'Ariane">
             <a href="{{ url('/') }}" class="cp-back" aria-label="Retour"
@@ -35,40 +35,24 @@
             </div>
         </nav>
     </div>
-    {{-- ============ BANNIÈRES (optionnel : $banners) / repli : bannière texte ============ --}}
-    @if(isset($banners) && $banners->isNotEmpty())
-        <section class="bq-banner" aria-roledescription="carrousel" aria-label="À la une">
-            <div class="bq-banner-track" id="bqBannerTrack" tabindex="0">
-                @foreach($banners as $banner)
-                    <div class="bq-banner-slide" role="group" aria-roledescription="diapositive"
-                         aria-label="{{ $loop->iteration }} sur {{ $loop->count }}">
-                        @if(!empty($banner->lien))
-                            <a href="{{ $banner->lien }}" aria-label="{{ $banner->titre ?? 'En savoir plus' }}">
-                        @endif
-                            <img src="{{ $banner->image_url }}" alt="{{ $banner->titre ?? '' }}"
-                                 @if($loop->first) fetchpriority="high" @else loading="lazy" @endif>
-                        @if(!empty($banner->lien))
-                            </a>
-                        @endif
-                    </div>
-                @endforeach
-            </div>
-            <div class="bq-dots" id="bqBannerDots" hidden></div>
-        </section>
-    @else
-        <section class="bq-hero">
-            <div class="bq-hero-pattern"></div>
-            <div class="bq-hero-content">
-                <div class="bq-hero-icon"><i class="fas fa-store" aria-hidden="true"></i></div>
-                <h1>Notre Catalogue</h1>
-                <p>
-                    Découvrez tous nos produits naturels et locaux en Côte d'Ivoire :
-                    céréales, huiles, légumineuses, farines, épices et cosmétiques naturels.
-                </p>
-            </div>
-            <div class="bq-hero-fade"></div>
-        </section>
-    @endif
+
+    {{-- ============ BANNIÈRE (style catégorie) ============ --}}
+    <section class="cp-hero">
+        @php
+            // Image de fond : première bannière si disponible, sinon image par défaut
+            $heroImage = isset($banners) && $banners->isNotEmpty()
+                ? $banners->first()->image_url
+                : null;
+        @endphp
+        @if($heroImage)
+            <img src="{{ $heroImage }}" alt="" class="cp-hero-bg" fetchpriority="high" onerror="this.remove()">
+        @endif
+        <div class="cp-hero-overlay"></div>
+        <div class="cp-hero-content">
+            <h1>Notre Boutique</h1>
+            <p>Découvrez tous nos produits naturels et locaux en Côte d'Ivoire : céréales, huiles, légumineuses, farines, épices et cosmétiques naturels.</p>
+        </div>
+    </section>
 
     {{-- ============ CATÉGORIES ============ --}}
     @if(isset($categories) && $categories->isNotEmpty())

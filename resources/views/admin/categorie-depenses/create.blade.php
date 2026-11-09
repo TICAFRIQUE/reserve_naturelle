@@ -1,7 +1,7 @@
 {{-- resources/views/admin/categorie_depenses/create.blade.php --}}
 @extends('layouts.admin')
 
-@section('title', 'Nouvelle catégorie de dépense - La Réserve Naturelle')
+@section('title', 'Nouvelle famille de dépense - La Réserve Naturelle')
 
 @section('content')
 <div class="container" style="padding: 40px 0;">
@@ -10,9 +10,9 @@
             <div style="margin-bottom: 30px;">
                 <h1 style="font-family: 'Playfair Display', serif; color: #2d5a27; font-size: 2rem; margin: 0;">
                     <i class="fas fa-plus-circle" style="color: #b8860b; margin-right: 10px;"></i>
-                    Nouvelle catégorie
+                    Nouvelle famille de depense
                 </h1>
-                <p style="color: #6c757d; margin: 5px 0 0 0;">Ajoutez une catégorie pour classer vos dépenses</p>
+                <p style="color: #6c757d; margin: 5px 0 0 0;">Ajoutez une famille pour classer vos dépenses</p>
             </div>
 
             <div style="background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border: 1px solid #e8e0d5; padding: 35px;">
@@ -22,7 +22,7 @@
                     <div style="margin-bottom: 25px;">
                         <label for="nom" style="display: block; font-weight: 600; color: #2d5a27; margin-bottom: 6px;">
                             <i class="fas fa-tag" style="color: #b8860b; margin-right: 6px;"></i>
-                            Nom de la catégorie <span style="color: #dc3545;">*</span>
+                            Nom de la famille <span style="color: #dc3545;">*</span>
                         </label>
                         <input type="text" name="nom" id="nom" value="{{ old('nom') }}" required style="
                             width: 100%; padding: 12px 16px; border: 2px solid #e8e0d5; border-radius: 8px; font-size: 1rem; outline: none;
@@ -43,7 +43,7 @@
                             padding: 12px 32px; background: #2d5a27; color: white; border: none; border-radius: 30px;
                             font-size: 1rem; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
                         " onmouseover="this.style.background='#1e3d1a'" onmouseout="this.style.background='#2d5a27'">
-                            <i class="fas fa-save"></i> Créer la catégorie
+                            <i class="fas fa-save"></i> Créer la famille
                         </button>
                     </div>
                 </form>
