@@ -16,29 +16,30 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('login') }}">
+    <form method="POST" action="{{ route('login.store') }}" data-recaptcha-action="login">
         @csrf
 
         <div style="margin-bottom: 15px;">
-            <label for="email" style="display: block; margin-bottom: 5px; font-weight: bold;">Email</label>
-            <input type="email" id="email" name="email" value="{{ old('email') }}" 
-                   style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" 
+            <label for="tel" style="display: block; margin-bottom: 5px; font-weight: bold;">Téléphone</label>
+            <input type="tel" id="tel" name="tel" value="{{ old('tel') }}"
+                   inputmode="tel" autocomplete="username"
+                   style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;"
                    required autofocus>
         </div>
 
         <div style="margin-bottom: 15px;">
             <label for="password" style="display: block; margin-bottom: 5px; font-weight: bold;">Mot de passe</label>
-            <input type="password" id="password" name="password" 
-                   style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" 
+            <input type="password" id="password" name="password" autocomplete="current-password"
+                   style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;"
                    required>
         </div>
+
         <button type="submit" style="width: 100%; padding: 12px; background: #4CAF50; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer;">
             Se connecter
         </button>
         <a href="{{ route('register') }}" style="display: block; text-align: center; margin-top: 15px; color: #4CAF50; text-decoration: none; font-weight: bold;">
             S'inscrire
         </a>
-
     </form>
 </div>
 @endsection

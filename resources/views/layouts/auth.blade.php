@@ -7,6 +7,7 @@
   <title>@yield('title', 'Connexion - La Réserve Naturelle')</title>
 
   <link rel="icon" type="image/webp" href="{{ asset('img/logo.webp') }}">
+  <link rel="preconnect" href="https://www.google.com">
 
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Dancing+Script:wght@700&family=Lato:wght@400;500;700&display=swap" rel="stylesheet">
@@ -401,7 +402,49 @@
   </div>
 
 </div>
+{{-- ============================================
+     reCAPTCHA v3 — Auth
+============================================ --}}
+<script src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}" async defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const siteKey = '{{ config('services.recaptcha.site_key') }}';
+    if (!siteKey) return;
 
+    document.querySelectorAll('form[data-recaptcha-action]').forEach(function (form) {
+        form.addEventListener('submit', async function (e) {
+            if (form.dataset.submitted === '1') return;
+            e.preventDefault();
+
+            const action = form.dataset.recaptchaAction;
+            let hiddenInput = form.querySelector('input[name="recaptcha_token"]');
+
+            if (!hiddenInput) {
+                hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'recaptcha_token';
+                form.appendChild(hiddenInput);
+            }
+
+            try {
+                await new Promise(resolve => {
+                    if (typeof grecaptcha !== 'undefined') grecaptcha.ready(resolve);
+                    else setTimeout(resolve, 1200);
+                });
+                if (typeof grecaptcha !== 'undefined') {
+                    const token = await grecaptcha.execute(siteKey, { action });
+                    hiddenInput.value = token;
+                }
+            } catch (err) {
+                console.error('reCAPTCHA error:', err);
+            }
+
+            form.dataset.submitted = '1';
+            form.submit();
+        });
+    });
+});
+</script>
 @stack('scripts')
 </body>
 </html>

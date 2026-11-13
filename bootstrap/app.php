@@ -56,8 +56,11 @@ return Application::configure(basePath: dirname(__DIR__))
             
             //  Vos middlewares personnalisés
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
+            'recaptcha' => \App\Http\Middleware\VerifyRecaptcha::class,
+
        
         ]);
+        
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

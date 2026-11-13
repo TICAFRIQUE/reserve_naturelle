@@ -25,7 +25,7 @@ class RegisterController extends Controller
         $validator = Validator::make($request->all(), [
             'nom' => ['required', 'string', 'max:255'],
             'prenom' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'email' => ['nullable', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', Password::min(8)->letters()->numbers(), 'confirmed'],
             'tel' => ['required', 'regex:/^[0-9]{8,15}$/'],
         ],
@@ -36,7 +36,7 @@ class RegisterController extends Controller
             'password.min' => 'Le mot de passe doit contenir au moins 8 caractères.',
             'password.confirmed' => 'La confirmation du mot de passe ne correspond pas.',
             'email.unique' => 'Cette adresse e-mail est déjà utilisée.',
-            'email.required' => 'Le champ e-mail est obligatoire.',
+            // 'email.required' => 'Le champ e-mail est obligatoire.',
             'email.email' => 'Veuillez saisir une adresse e-mail valide.',
             'nom.required' => 'Le champ nom est obligatoire.',
             'prenom.required' => 'Le champ prénom est obligatoire.',

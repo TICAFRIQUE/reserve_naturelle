@@ -129,7 +129,7 @@
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 25px;">
                         <!-- Email -->
-                        <div>
+                        {{-- <div>
                             <label for="email" style="display: block; font-weight: 600; color: #2d5a27; margin-bottom: 8px; font-size: 0.95rem;">
                                 <i class="fas fa-envelope" style="color: #b8860b; margin-right: 5px;"></i>
                                 Email <span style="color: #dc3545;">*</span>
@@ -156,7 +156,7 @@
                                     <i class="fas fa-exclamation-circle"></i> {{ $message }}
                                 </div>
                             @enderror
-                        </div>
+                        </div> --}}
 
                         <!-- Téléphone -->
                         <div>

@@ -3,154 +3,120 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request){
         $query = User::query();
-
-        // Filtre par rôle
         if ($request->filled('role')) {
             $query->where('role', $request->role);
         }
 
-        // Recherche par nom/email
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('nom', 'LIKE', "%{$search}%")
-                    ->orWhere('prenom', 'LIKE', "%{$search}%")
-                    ->orWhere('email', 'LIKE', "%{$search}%");
+                  ->orWhere('prenom', 'LIKE', "%{$search}%")
+                  ->orWhere('email', 'LIKE', "%{$search}%")
+                  ->orWhere('tel', 'LIKE', "%{$search}%");
             });
         }
-
-        $users = $query->orderBy('nom')->paginate(10);
+        $users = $query->orderBy('nom')->paginate(10)->withQueryString();
         return view('admin.users.index', compact('users'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create(){
         return view('admin.users.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request){
-        // Validation
+        $this->normalizeInput($request);
+
         $data = $request->validate([
-            'nom' => 'required|string|max:255',
-            'prenom' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'nom'      => 'required|string|max:255',
+            'prenom'   => 'required|string|max:255',
+            'email'    => 'nullable|string|email|max:255|unique:users,email',
             'password' => ['required', 'string', Password::min(8)->letters()->numbers(), 'confirmed'],
-            'tel' => ['required', 'regex:/^[0-9]{8,15}$/'],
-            'role' => ['required', Rule::in(['admin', 'fournisseur', 'user'])],
+            'tel'      => ['required', 'regex:/^[0-9]{8,15}$/', 'unique:users,tel'],
+            'role'     => ['required', Rule::in(['admin', 'fournisseur', 'user'])],
         ]);
 
-        // Hash du mot de passe
         $data['password'] = Hash::make($data['password']);
         User::create($data);
         return redirect()->route('admin.users.index')->with('success', 'Utilisateur créé avec succès.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id){
-        // Afficher un utilisateur avec ses relations
         $user = User::with(['carts', 'achats', 'orders'])->findOrFail($id);
         return view('admin.users.show', compact('user'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(string $id){
         $user = User::findOrFail($id);
         return view('admin.users.edit', compact('user'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id){
         $user = User::findOrFail($id);
+        $this->normalizeInput($request);
 
-        // Validation
         $data = $request->validate([
-            'nom' => 'required|string|max:255',
-            'prenom' => 'required|string|max:255',
-            'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'nom'      => 'required|string|max:255',
+            'prenom'   => 'required|string|max:255',
+            'email'    => ['nullable', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
             'password' => ['nullable', 'string', Password::min(8)->letters()->numbers(), 'confirmed'],
-            'tel' => ['required', 'regex:/^[0-9]{8,15}$/'],
-            'role' => ['required', Rule::in(['admin', 'fournisseur', 'user'])],
+            'tel'      => ['required', 'regex:/^[0-9]{8,15}$/', Rule::unique('users', 'tel')->ignore($user->id)],
+            'role'     => ['required', Rule::in(['admin', 'fournisseur', 'user'])],
         ]);
 
-        // Empêcher un administrateur de se rétrograder lui-même
         if ($user->id === auth()->id() && $data['role'] !== 'admin') {
             return redirect()->route('admin.users.index')
                 ->with('error', 'Vous ne pouvez pas retirer votre propre rôle administrateur.');
         }
 
-        // Empêcher le retrait du dernier administrateur
-        if ($user->role === 'admin' && $data['role'] !== 'admin') {
-            $adminCount = User::where('role', 'admin')->count();
-
-            if ($adminCount <= 1) {
-                return redirect()->route('admin.users.index')->with('error', 'Impossible de retirer le rôle du dernier administrateur.');
-            }
+        if ($user->role === 'admin' && $data['role'] !== 'admin'
+            && User::where('role', 'admin')->count() <= 1) {
+            return redirect()->route('admin.users.index')
+                ->with('error', 'Impossible de retirer le rôle du dernier administrateur.');
         }
 
-        // Si le mot de passe est rempli, on le hash
-        if (!empty($data['password'])) {
+        if (! empty($data['password'])) {
             $data['password'] = Hash::make($data['password']);
         } else {
-            // Sinon on le retire des données à mettre à jour
             unset($data['password']);
         }
-
         $user->update($data);
-
         return redirect()->route('admin.users.index')->with('success', 'Utilisateur mis à jour avec succès.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id){
-        // Récupérer l'utilisateur
         $user = User::findOrFail($id);
-
-        // Empêcher l'auto-suppression
         if ($user->id === auth()->id()) {
-            return redirect()->route('admin.users.index')->with('error', 'Vous ne pouvez pas supprimer votre propre compte.');
+            return redirect()->route('admin.users.index')
+                ->with('error', 'Vous ne pouvez pas supprimer votre propre compte.');
         }
-
-        // Empêcher la suppression du dernier administrateur
-        if ($user->role === 'admin') {
-            $adminCount = User::where('role', 'admin')->count();
-
-            if ($adminCount <= 1) {
-                return redirect()->route('admin.users.index')->with('error', 'Impossible de supprimer le dernier administrateur.');
-            }
+        if ($user->role === 'admin' && User::where('role', 'admin')->count() <= 1) {
+            return redirect()->route('admin.users.index')
+                ->with('error', 'Impossible de supprimer le dernier administrateur.');
         }
-
-        // Vérifier si l'utilisateur a des commandes ou achats
         if ($user->orders()->exists() || $user->achats()->exists()) {
-            return redirect()->route('admin.users.index')->with('error', 'Impossible de supprimer cet utilisateur car il a des commandes ou achats.');
+            return redirect()->route('admin.users.index')
+                ->with('error', 'Impossible de supprimer cet utilisateur car il a des commandes ou achats.');
         }
-
         $user->delete();
         return redirect()->route('admin.users.index')->with('success', 'Utilisateur supprimé avec succès.');
+    }
+
+    /** '' → null pour l'email, chiffres uniquement pour le téléphone */
+    private function normalizeInput(Request $request): void{
+        $request->merge([
+            'email' => $request->filled('email') ? trim($request->email) : null,
+            'tel'   => preg_replace('/\D/', '', (string) $request->tel),
+        ]);
     }
 }

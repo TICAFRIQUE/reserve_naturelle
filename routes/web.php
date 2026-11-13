@@ -69,7 +69,7 @@
 
         Route::prefix('panier')->name('cart.')->group(function(){
             Route::get('/', [CartController::class, 'index'])->name('index');
-            Route::post('/', [CartController::class, 'store'])->name('store');
+            Route::post('/', [CartController::class, 'store'])->name('store')->middleware(['recaptcha:cart_add,0.5', 'throttle:30,1']);
             Route::patch('/items/{item}', [CartController::class, 'update'])->name('update');
             Route::delete('/items/{item}', [CartController::class, 'destroy'])->name('destroy');
             Route::delete('/', [CartController::class, 'clear'])->name('clear');
@@ -107,11 +107,11 @@
 
  // Authentification
     Route::get('/login', [AuthController::class, 'create'])->name('login');
-    Route::post('/login', [AuthController::class, 'store'])->name('login.store')->middleware('throttle:login');
+    Route::post('/login', [AuthController::class, 'store'])->name('login.store')->middleware(['throttle:login', 'recaptcha:login']);
     Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
 
     Route::get('/register', [RegisterController::class, 'create'])->name('register');
-    Route::post('/register', [RegisterController::class, 'store'])->middleware('throttle:10,1');
+    Route::post('/register', [RegisterController::class, 'store'])->middleware(['throttle:10,1', 'recaptcha:register']);
     Route::post('/check-email', [RegisterController::class, 'checkEmail'])->name('check.email')->middleware('throttle:10,1');
 
     Route::middleware(['auth', 'auth.session'])->group(function () {

@@ -1,5 +1,6 @@
 /**
  * Gestion du panier client : ajout via bouton .add-to-cart-btn
+ * Protégé par reCAPTCHA v3 (header X-Recaptcha-Token)
  */
 (function () {
     'use strict';
@@ -10,7 +11,7 @@
 
         e.preventDefault();
 
-        const variantId  = btn.dataset.productVariantId;  
+        const variantId  = btn.dataset.productVariantId;
         const qteInputId = btn.dataset.qteInput;
         const qte        = qteInputId
             ? (parseInt(document.getElementById(qteInputId)?.value) || 1)
@@ -21,38 +22,47 @@
             return;
         }
 
-        const cartUrl    = btn.dataset.cartUrl || '/client/panier';
-        const csrfToken  = document.querySelector('meta[name="csrf-token"]').content;
+        const cartUrl   = btn.dataset.cartUrl || '/client/panier';
+        const action    = btn.dataset.recaptchaAction || 'cart_add';
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
         const originalText = btn.innerHTML;
         btn.disabled  = true;
         btn.innerHTML = '...';
 
+        const reset = () => {
+            btn.disabled  = false;
+            btn.innerHTML = originalText;
+        };
+
         try {
+            const recaptchaToken = await window.getRecaptchaToken(action);
+
             const response = await fetch(cartUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
                     'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'X-Recaptcha-Token': recaptchaToken,
                 },
                 body: JSON.stringify({
-                    product_variant_id: variantId,   // ✅ corrigé
-                    qte: qte,
+                    product_variant_id: variantId,
+                    qte,
                 }),
             });
 
-            const data = await response.json();
+            // Évite le crash si la réponse n'est pas du JSON (419, 500 HTML...)
+            const data = await response.json().catch(() => ({}));
 
             if (!response.ok) {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Oups',
-                    text: data.message || 'Erreur lors de l\'ajout au panier.',
+                    title: response.status === 403 ? 'Vérification échouée' : 'Oups',
+                    text: data.message || data.error || 'Erreur lors de l\'ajout au panier.',
                     confirmButtonColor: '#dc3545',
                 });
-                btn.disabled  = false;
-                btn.innerHTML = originalText;
+                reset();
                 return;
             }
 
@@ -71,15 +81,19 @@
             });
 
             btn.innerHTML = '✓ Ajouté';
-            setTimeout(() => {
-                btn.innerHTML = originalText;
-                btn.disabled  = false;
-            }, 1200);
+            setTimeout(reset, 1200);
 
         } catch (err) {
-            Swal.fire({ icon: 'error', title: 'Erreur réseau', confirmButtonColor: '#dc3545' });
-            btn.innerHTML = originalText;
-            btn.disabled  = false;
+            const isCaptcha = err.message === 'recaptcha_unavailable';
+            Swal.fire({
+                icon: 'error',
+                title: isCaptcha ? 'reCAPTCHA indisponible' : 'Erreur réseau',
+                text: isCaptcha
+                    ? 'Désactivez votre bloqueur de publicités ou rechargez la page.'
+                    : undefined,
+                confirmButtonColor: '#dc3545',
+            });
+            reset();
         }
     });
 })();

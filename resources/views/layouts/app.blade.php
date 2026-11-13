@@ -15,6 +15,7 @@
   <link rel="preconnect" href="https://cdnjs.cloudflare.com">
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+  <link rel="preconnect" href="https://www.google.com">
 
   <link rel="preload" as="image" href="{{ asset('img/b-hero.webp') }}" fetchpriority="high">
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Dancing+Script:wght@700&family=Lato:wght@400;500;700&display=swap">
@@ -384,6 +385,69 @@
     });
 </script>
 @endif
+
+{{-- ============================================
+     reCAPTCHA v3 — Global
+============================================ --}}
+<script src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}" async defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const siteKey = '{{ config('services.recaptcha.site_key') }}';
+    if (!siteKey) return;
+
+    document.querySelectorAll('form[data-recaptcha-action]').forEach(function (form) {
+        form.addEventListener('submit', async function (e) {
+            if (form.dataset.submitted === '1') return;
+            e.preventDefault();
+
+            const action = form.dataset.recaptchaAction;
+            let hiddenInput = form.querySelector('input[name="recaptcha_token"]');
+
+            if (!hiddenInput) {
+                hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'recaptcha_token';
+                form.appendChild(hiddenInput);
+            }
+
+            try {
+                await new Promise(resolve => {
+                    if (typeof grecaptcha !== 'undefined') {
+                        grecaptcha.ready(resolve);
+                    } else {
+                        // fallback : attend 1s max que le script charge
+                        const t = setInterval(() => {
+                            if (typeof grecaptcha !== 'undefined') {
+                                clearInterval(t);
+                                grecaptcha.ready(resolve);
+                            }
+                        }, 100);
+                        setTimeout(() => { clearInterval(t); resolve(); }, 1500);
+                    }
+                });
+
+                if (typeof grecaptcha !== 'undefined') {
+                    const token = await grecaptcha.execute(siteKey, { action });
+                    hiddenInput.value = token;
+                }
+            } catch (err) {
+                console.error('reCAPTCHA error:', err);
+            }
+
+            form.dataset.submitted = '1';
+            form.submit();
+        });
+    });
+});
+</script>
+<script>
+window.getRecaptchaToken = async function (action) {
+    const siteKey = @json(config('services.recaptcha.site_key'));
+    if (typeof grecaptcha === 'undefined') throw new Error('recaptcha_unavailable');
+    await new Promise(resolve => grecaptcha.ready(resolve));
+    return grecaptcha.execute(siteKey, { action });
+};
+</script>
 @stack('scripts')
 </body>
 </html>

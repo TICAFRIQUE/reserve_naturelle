@@ -10,61 +10,55 @@ use Illuminate\Support\Facades\Auth;
 class AuthController extends Controller
 {
     public function create(Request $request){
-       if ($redirectUrl = $this->safeIntendedUrl($request->query('redirect'))) {
+        if ($redirectUrl = $this->safeIntendedUrl($request->query('redirect'))) {
             session()->put('url.intended', $redirectUrl);
         }
         return view('auth.login');
     }
 
     public function store(Request $request, CartService $carts){
-        $credentials = $request->validate([
-            "email" => ["required", "email"],
-            "password" => ["required", "string"],
+        $request->validate([
+            'tel'      => ['required', 'string'],
+            'password' => ['required', 'string'],
         ]);
-        $remember = $request->boolean("remember");
 
-        if (Auth::attempt([
-            "email" => $credentials["email"],
-            "password" => $credentials["password"],
-        ], $remember)) {
+        // Même normalisation qu'à l'inscription : chiffres uniquement
+        $tel      = preg_replace('/\D/', '', $request->tel);
+        $remember = $request->boolean('remember');
 
-            // Sauvegarder avant de regenerate()
-            $pending = $request->session()->get("reservation_pending");
-            $intended = $request->session()->get("url.intended");
-            $cartSessionId = $request->cookie('cart_uuid');
-            $request->session()->regenerate();
-
-            // Restaurer après avoir regénéré
-            if ($pending) {
-                $request->session()->put("reservation_pending", $pending);
-            }
-            if ($intended) {
-                $request->session()->put("url.intended", $intended);
-            }
-
-            $user = Auth::user();
-
-            $carts->mergeGuestCart($user, $cartSessionId);
-
-            // Si admin alors dashboard sinon page client
-            if ($user->isAdmin()) {
-                return redirect()->intended(route("admin.dashboard"));
-            }
-            return redirect()->intended(route('client.products.index'));
+        if (! Auth::attempt(['tel' => $tel, 'password' => $request->password], $remember)) {
+            return back()
+                ->withErrors(['tel' => 'Téléphone ou mot de passe incorrect.'])
+                ->withInput($request->only('tel'));
         }
-        $message = "Email ou mot de passe incorrect.";
-        return back()
-            ->withErrors([
-                'email' => $message,
-                // 'password' => $message,
-            ])
-            ->withInput($request->only('email'));
+
+        // Sauvegarder avant regenerate()
+        $pending       = $request->session()->get('reservation_pending');
+        $intended      = $request->session()->get('url.intended');
+        $cartSessionId = $request->cookie('cart_uuid');
+
+        $request->session()->regenerate();
+
+        // Restaurer après regenerate()
+        if ($pending) {
+            $request->session()->put('reservation_pending', $pending);
+        }
+        if ($intended) {
+            $request->session()->put('url.intended', $intended);
+        }
+
+        $user = Auth::user();
+        $carts->mergeGuestCart($user, $cartSessionId);
+
+        return $user->isAdmin()
+            ? redirect()->intended(route('admin.dashboard'))
+            : redirect()->intended(route('client.products.index'));
     }
 
     public function destroy(Request $request){
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect("/");
+        return redirect('/');
     }
 }
