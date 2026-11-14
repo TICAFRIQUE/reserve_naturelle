@@ -1,25 +1,26 @@
 <?php
-// app/Http/Middleware/VerifyRecaptcha.php
+
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Http\Client\ConnectionException;
 
 class VerifyRecaptcha
 {
-    public function handle(Request $request, Closure $next, string $action = '', float $minScore = 0.5){
-        $token = $request->input('recaptcha_token') ?? $request->header('X-Recaptcha-Token');
-
+    public function handle(Request $request, Closure $next)
+    {
         $fail = fn (string $msg) => $request->expectsJson()
             ? response()->json(['error' => $msg], 403)
             : back()
-                ->withInput($request->except('password', 'password_confirmation', 'recaptcha_token'))
+                ->withInput($request->except('password', 'password_confirmation', 'g-recaptcha-response'))
                 ->withErrors(['recaptcha' => $msg]);
 
+        $token = $request->input('g-recaptcha-response');
+
         if (! $token) {
-            return $fail('Vérification reCAPTCHA manquante. Rechargez la page.');
+            return $fail('Cochez la case « Je ne suis pas un robot ».');
         }
 
         try {
@@ -38,14 +39,6 @@ class VerifyRecaptcha
 
         if (! ($response['success'] ?? false)) {
             return $fail('La vérification reCAPTCHA a échoué. Réessayez.');
-        }
-
-        if ($action && ($response['action'] ?? '') !== $action) {
-            return $fail('Action reCAPTCHA invalide.');
-        }
-
-        if (($response['score'] ?? 0) < $minScore) {
-            return $fail('Comportement suspect détecté. Réessayez.');
         }
         return $next($request);
     }

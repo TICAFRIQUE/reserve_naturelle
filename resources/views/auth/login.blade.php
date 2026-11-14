@@ -16,7 +16,7 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('login.store') }}" data-recaptcha-action="login">
+    <form method="POST" action="{{ route('login.store') }}">
         @csrf
 
         <div style="margin-bottom: 15px;">
@@ -33,7 +33,7 @@
                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;"
                    required>
         </div>
-
+        <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site_key') }}"></div>
         <button type="submit" style="width: 100%; padding: 12px; background: #4CAF50; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer;">
             Se connecter
         </button>
