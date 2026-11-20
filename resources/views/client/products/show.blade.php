@@ -30,6 +30,7 @@
     $prixMax     = $variants->max('prix_vente');
     $stockTotal  = $variants->sum('qte_dispo');
     $hasStock    = $variants->count() > 0 && $stockTotal > 0;
+    $hasOutVariant = $variants->contains(fn ($v) => $v->qte_dispo <= 0);
     $category    = $product->category;
     $categoryUrl = $category ? route('client.products.category', $category) : route('client.products.catalogue');
     $productUrl  = route('client.products.show', $product);
@@ -110,7 +111,6 @@
     {{-- ============ FIL D'ARIANE ============ --}}
     <div class="cp-breadcrumb-bar">
         <nav class="cp-container cp-breadcrumb" aria-label="Fil d'Ariane">
-            {{-- Retour : page précédente si elle existe, sinon la catégorie --}}
             <a href="{{ $categoryUrl }}" class="cp-back" aria-label="Retour"
                onclick="if (history.length > 1) { history.back(); return false; }">
                 <i class="fas fa-arrow-left" aria-hidden="true"></i><span>Retour</span>
@@ -180,7 +180,8 @@
                                 <i class="fas fa-shopping-cart" aria-hidden="true"></i> Ajouter au panier
                             </button>
                         @else
-                            <button type="button" class="pd-btn pd-btn--reserve" disabled>
+                            <button type="button" class="pd-btn pd-btn--reserve"
+                                    data-reserve-dialog="reserve-dialog-{{ $product->id }}">
                                 <i class="far fa-clock" aria-hidden="true"></i> Réserver
                             </button>
                         @endif
@@ -198,7 +199,16 @@
                                     <li class="{{ $v->qte_dispo <= 0 ? 'is-out' : '' }}">
                                         <span class="pd-opt-name">{{ $v->conditionnement }}</span>
                                         <span class="pd-opt-price">{{ number_format($v->prix_vente, 0, ',', ' ') }} FCFA</span>
-                                        <span class="pd-opt-state">{{ $v->qte_dispo > 0 ? 'En stock' : 'Indisponible' }}</span>
+                                        @if($v->qte_dispo > 0)
+                                            <span class="pd-opt-state">En stock</span>
+                                        @else
+                                            <button type="button" class="pd-opt-state"
+                                                    data-reserve-dialog="reserve-dialog-{{ $product->id }}"
+                                                    data-variant="{{ $v->id }}"
+                                                    style="cursor:pointer; border:none; font:inherit;">
+                                                Réserver
+                                            </button>
+                                        @endif
                                     </li>
                                 @endforeach
                             </ul>
@@ -272,6 +282,7 @@
                                         <div class="qty-controls" data-variant-id="{{ $v->id }}">
                                             <button type="button" class="qty-btn-minus" aria-label="Diminuer">−</button>
                                             <input type="number" min="1" max="{{ $v->qte_dispo }}" value="1"
+                                                   id="qty-input-{{ $v->id }}"
                                                    class="qty-input" data-variant-id="{{ $v->id }}">
                                             <button type="button" class="qty-btn-plus" aria-label="Augmenter">+</button>
                                         </div>
@@ -300,6 +311,11 @@
         </div>
     @endif
 
+    {{-- Modale de réservation : dès qu'au moins une variante est en rupture --}}
+    @if($hasOutVariant)
+        @include('client.products._reserve-dialog', ['product' => $product])
+    @endif
+
 </div>
 
 @endsection
@@ -311,4 +327,22 @@
 
 @push('scripts')
 <script src="{{ asset('js/client/catalogue.js') }}" defer></script>
+
+{{-- Bouton réserver (présélectionne la variante cliquée) --}}
+<script>
+document.addEventListener('click', function (e) {
+    const open = e.target.closest('[data-reserve-dialog]');
+    if (open) {
+        const dialog = document.getElementById(open.dataset.reserveDialog);
+        if (open.dataset.variant) {
+            const select = dialog?.querySelector('select[name="product_variant_id"]');
+            if (select) select.value = open.dataset.variant;
+        }
+        dialog?.showModal();
+        return;
+    }
+    if (e.target.closest('[data-reserve-close]')) { e.target.closest('dialog').close(); return; }
+    if (e.target.tagName === 'DIALOG') e.target.close(); // clic sur le fond
+});
+</script>
 @endpush

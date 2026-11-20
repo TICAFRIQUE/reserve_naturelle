@@ -123,6 +123,11 @@
               </a>
             </li>
             <li>
+              <a href="{{ route('client.reservations.index') }}">
+                <i class="fas fa-shopping-bag"></i> Mes réservations
+              </a>
+            </li>
+            <li>
               <a href="{{ route('password.edit') }}">
                 <i class="fas fa-key"></i> Changer mot de passe
               </a>

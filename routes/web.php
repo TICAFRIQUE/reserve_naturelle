@@ -28,6 +28,8 @@
     use App\Http\Controllers\Admin\ProductController as AdminProductController;
     use App\Http\Controllers\Client\ProductController as ClientProductController;
     use App\Http\Controllers\Client\OrderController as ClientOrderController;
+    use App\Http\Controllers\Client\ReservationController as ClientReservationController;
+    use App\Http\Controllers\Admin\ReservationController as AdminReservationController;
     use App\Http\Controllers\Client\CartController;
     use App\Http\Controllers\Client\CheckoutController;
     use App\Notifications\OrderValidatedNotification;
@@ -52,8 +54,8 @@
     ->name('sitemap');
 
     Route::get('/preview-mail/{order}', function (Order $order) {
-    return (new OrderValidatedNotification($order))->toMail($order->user)->render();
-})->middleware('auth'); 
+        return (new OrderValidatedNotification($order))->toMail($order->user)->render();
+    })->middleware('auth'); 
 
     // Public (invité + connecté)
     Route::prefix('client')->name('client.')->group(function () {
@@ -98,6 +100,15 @@
         Route::prefix('checkout')->name('checkout.')->group(function(){
             Route::get('/{order}', [CheckoutController::class, 'show'])->name('show');
             Route::post('/{order}', [CheckoutController::class, 'store'])->name('store');
+        });
+
+        //Reservation client
+        Route::prefix('reservations')->name('reservations.')->group(function () {
+            Route::get('/', [ClientReservationController::class, 'index'])->name('index');
+            Route::get('/{reservation}', [ClientReservationController::class, 'show'])->name('show');
+            Route::get('/{reservation}/recu', [ClientReservationController::class, 'downloadReceipt'])->name('receipt');
+            Route::post('/', [ClientReservationController::class, 'store'])->name('store')->middleware('throttle:10,1');
+            Route::patch('/{reservation}/annuler', [ClientReservationController::class, 'cancel'])->name('cancel');
         });
     });
 
@@ -150,18 +161,26 @@
             Route::delete('orders/{order}', [AdminOrderController::class, 'destroy'])->name('orders.destroy');
             Route::get('/orders/{order}/ticket', [AdminOrderController::class, 'downloadTicket'])->name('orders.ticket');
 
+            //Reservations admin
+            Route::get('/reservations', [AdminReservationController::class, 'index'])->name('reservations.index');
+            Route::get('/reservations/create', [AdminReservationController::class, 'create'])->name('reservations.create');
+            Route::get('/reservations/{reservation}', [AdminReservationController::class, 'show'])->name('reservations.show');
+            Route::get('/reservations/{reservation}/recu', [AdminReservationController::class, 'downloadReceipt'])->name('reservations.receipt');
+            Route::post('/reservations', [AdminReservationController::class, 'store'])->name('reservations.store');
+            Route::patch('/reservations/{reservation}/status', [AdminReservationController::class, 'changeStatus'])->name('reservations.status');
+            
             //Routes concernant les tournées(Livraison et expedition)
-            Route::prefix('tournees')->name('tournees.')->group(function(){
-                Route::get('/', [TourneeController::class, 'index'])->name('index');
-                Route::get('/create', [TourneeController::class, 'create'])->name('create');
-                Route::get('/zones/{zone}/orders', [TourneeController::class, 'ordersByZone'])->name('orders-by-zone');
-                Route::post('/', [TourneeController::class, 'store'])->name('store');
-                Route::get('/{tournee}', [TourneeController::class, 'show'])->name('show');
-                Route::post('/{tournee}/orders/{order}/deliver', [TourneeController::class, 'markOrderDelivered'])->name('deliver-order');
-                Route::post('/{tournee}/close', [TourneeController::class, 'close'])->name('close');
-                Route::patch('/{tournee}/close', [TourneeController::class, 'close'])->name('terminer');
-                Route::delete('/{tournee}', [TourneeController::class, 'destroy'])->name('destroy');
-            });
+            // Route::prefix('tournees')->name('tournees.')->group(function(){
+            //     Route::get('/', [TourneeController::class, 'index'])->name('index');
+            //     Route::get('/create', [TourneeController::class, 'create'])->name('create');
+            //     Route::get('/zones/{zone}/orders', [TourneeController::class, 'ordersByZone'])->name('orders-by-zone');
+            //     Route::post('/', [TourneeController::class, 'store'])->name('store');
+            //     Route::get('/{tournee}', [TourneeController::class, 'show'])->name('show');
+            //     Route::post('/{tournee}/orders/{order}/deliver', [TourneeController::class, 'markOrderDelivered'])->name('deliver-order');
+            //     Route::post('/{tournee}/close', [TourneeController::class, 'close'])->name('close');
+            //     Route::patch('/{tournee}/close', [TourneeController::class, 'close'])->name('terminer');
+            //     Route::delete('/{tournee}', [TourneeController::class, 'destroy'])->name('destroy');
+            // });
             //Routes pour les achats PARTIE GESTION DE STOCK
             Route::prefix('achat')->name('achats.')->group(function (){
                 Route::get('/', [AchatController::class, 'index'])->name('index');

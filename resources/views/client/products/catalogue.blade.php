@@ -152,7 +152,8 @@
                                                         <i class="fas fa-shopping-cart" aria-hidden="true"></i> Ajouter
                                                     </button>
                                                 @else
-                                                    <button type="button" class="bq-btn bq-btn--reserve" disabled>
+                                                    <button type="button" class="bq-btn bq-btn--reserve"
+                                                            data-reserve-dialog="reserve-dialog-{{ $product->id }}">
                                                         <i class="far fa-clock" aria-hidden="true"></i> Réserver
                                                     </button>
                                                 @endif
@@ -225,6 +226,14 @@
                     @endforeach
                 @endforeach
 
+                @foreach($sections as $cat)
+                    @foreach($cat->products as $product)
+                        @if($product->variants->sum('qte_dispo') <= 0)
+                            @include('client.products._reserve-dialog', ['product' => $product])
+                        @endif
+                    @endforeach
+                @endforeach
+
             @else
                 <div class="cp-empty">
                     <div class="cp-empty-icon" aria-hidden="true">📦</div>
@@ -242,4 +251,14 @@
 
 @push('scripts')
 <script src="{{ asset('js/client/catalogue.js') }}" defer></script>
+
+{{-- Bouton réserver --}}
+<script>
+document.addEventListener('click', function (e) {
+    const open = e.target.closest('[data-reserve-dialog]');
+    if (open) { document.getElementById(open.dataset.reserveDialog)?.showModal(); return; }
+    if (e.target.closest('[data-reserve-close]')) { e.target.closest('dialog').close(); return; }
+    if (e.target.tagName === 'DIALOG') e.target.close(); // clic sur le fond
+});
+</script>
 @endpush

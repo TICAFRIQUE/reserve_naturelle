@@ -104,6 +104,10 @@
                 <i class="fas fa-shopping-cart"></i> Commandes
                 <span class="nav-badge">{{ $sidebarCounts['orders'] }}</span>
             </a>
+            <a href="{{ route('admin.reservations.index') }}" class="nav-item {{ request()->routeIs('admin.reservations.*') ? 'active' : '' }}">
+                <i class="fas fa-calendar-check"></i> Réservations
+                <span class="nav-badge">{{ $sidebarCounts['reservations'] }}</span>
+            </a>
 
             {{-- <div class="nav-section">Livraison</div>
 

@@ -11,7 +11,7 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
-use App\Models\{Fournisseur, Achat, Category, SousCategory, Product, Order, User, Livreur};
+use App\Models\{Fournisseur, Achat, Category, SousCategory, Product, Order, User, Livreur, Reservation};
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -46,6 +46,7 @@ class AppServiceProvider extends ServiceProvider
                                 Order::where('statut', '!=', 'panier_converti')->count()),
                 'users'           => User::count(),
                 'livreurs'        => Livreur::count(),
+                'reservations'    => Reservation    ::count(),
             ]);
         });
     }

@@ -1,6 +1,5 @@
 /**
  * Gestion du panier client : ajout via bouton .add-to-cart-btn
- * Protégé par reCAPTCHA v3 (header X-Recaptcha-Token)
  */
 (function () {
     'use strict';
@@ -23,8 +22,7 @@
         }
 
         const cartUrl   = btn.dataset.cartUrl || '/client/panier';
-        const action    = btn.dataset.recaptchaAction || 'cart_add';
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
 
         const originalText = btn.innerHTML;
         btn.disabled  = true;
@@ -36,30 +34,25 @@
         };
 
         try {
-            const recaptchaToken = await window.getRecaptchaToken(action);
-
             const response = await fetch(cartUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
                     'X-CSRF-TOKEN': csrfToken,
-                    'X-Recaptcha-Token': recaptchaToken,
                 },
-                body: JSON.stringify({
-                    product_variant_id: variantId,
-                    qte,
-                }),
+                body: JSON.stringify({ product_variant_id: variantId, qte }),
             });
 
             // Évite le crash si la réponse n'est pas du JSON (419, 500 HTML...)
             const data = await response.json().catch(() => ({}));
 
             if (!response.ok) {
+                console.error('[add-to-cart] HTTP', response.status, data);
                 Swal.fire({
                     icon: 'error',
-                    title: response.status === 403 ? 'Vérification échouée' : 'Oups',
-                    text: data.message || data.error || 'Erreur lors de l\'ajout au panier.',
+                    title: 'Oups',
+                    text: data.message || data.error || ('Erreur lors de l\'ajout au panier (HTTP ' + response.status + ').'),
                     confirmButtonColor: '#dc3545',
                 });
                 reset();
@@ -84,13 +77,11 @@
             setTimeout(reset, 1200);
 
         } catch (err) {
-            const isCaptcha = err.message === 'recaptcha_unavailable';
+            console.error('[add-to-cart]', err);
             Swal.fire({
                 icon: 'error',
-                title: isCaptcha ? 'reCAPTCHA indisponible' : 'Erreur réseau',
-                text: isCaptcha
-                    ? 'Désactivez votre bloqueur de publicités ou rechargez la page.'
-                    : undefined,
+                title: 'Erreur réseau',
+                text: 'Vérifiez votre connexion et réessayez.',
                 confirmButtonColor: '#dc3545',
             });
             reset();

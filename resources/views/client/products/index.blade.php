@@ -78,7 +78,7 @@
                                 @if($variant && $variant->qte_dispo > 0)
                                     <x-add-to-cart-button :product-variant-id="$variant->id" />
                                 @else
-                                    <span style="color:var(--muted);font-size:13px;">Indisponible</span>
+                                    <a href="{{ route('client.products.show', $product) }}" class="btn-outline" style="font-size:13px;">Réserver</a>
                                 @endif
                             </div>
                         </div>
