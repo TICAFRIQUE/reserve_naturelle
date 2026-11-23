@@ -27,7 +27,13 @@
         @if($products->count() > 0)
             <div class="products-grid">
                 @foreach($products as $product)
-                    @php $variant = $product->variants->first(); @endphp
+                    @php
+                        $stockTotal  = $product->variants->sum('qte_dispo');
+                        $inStock     = $stockTotal > 0;
+                        $price       = $product->variants->min('prix_vente') ?? 0;
+                        // Variante ajoutable au panier (la moins chère peut être en rupture)
+                        $cartVariant = $product->variants->firstWhere('qte_dispo', '>', 0);
+                    @endphp
                     <article class="product-card">
 
                         <a href="{{ route('client.products.show', $product) }}">
@@ -42,14 +48,14 @@
                                 @endif
 
                                 {{-- Badge PROMO (produits < 1000 FCFA) --}}
-                                @if($variant && $variant->prix_vente < 1000)
+                                @if($price > 0 && $price < 1000)
                                     <span class="product-badge promo">🔥 Promo</span>
                                 @endif
 
-                                {{-- Badge STOCK --}}
-                                @if($variant && $variant->qte_dispo > 10)
+                                {{-- Badge STOCK (stock total, cohérent avec catalogue/show) --}}
+                                @if($stockTotal > 10)
                                     <span class="product-badge stock">✓ En stock</span>
-                                @elseif($variant && $variant->qte_dispo > 0)
+                                @elseif($inStock)
                                     <span class="product-badge limited">⚠ Stock limité</span>
                                 @else
                                     <span class="product-badge out">✗ Rupture</span>
@@ -73,18 +79,30 @@
                             @endif
 
                             <div class="product-footer">
-                                <strong>{{ number_format($variant->prix_vente ?? 0, 0, ',', ' ') }} FCFA</strong>
+                                <strong>
+                                    @if($product->variants->count() > 1)<small>dès </small>@endif{{ number_format($price, 0, ',', ' ') }} FCFA
+                                </strong>
 
-                                @if($variant && $variant->qte_dispo > 0)
-                                    <x-add-to-cart-button :product-variant-id="$variant->id" />
+                                @if($inStock && $cartVariant)
+                                    <x-add-to-cart-button :product-variant-id="$cartVariant->id" />
                                 @else
-                                    <a href="{{ route('client.products.show', $product) }}" class="btn-outline" style="font-size:13px;">Réserver</a>
+                                    <button type="button" class="btn-outline" style="font-size:13px;"
+                                            data-reserve-dialog="reserve-dialog-{{ $product->id }}">
+                                        Réserver
+                                    </button>
                                 @endif
                             </div>
                         </div>
                     </article>
                 @endforeach
             </div>
+
+            {{-- Dialogs de réservation (hors de la grille) --}}
+            @foreach($products as $product)
+                @if($product->variants->sum('qte_dispo') <= 0)
+                    @include('client.products._reserve-dialog', ['product' => $product])
+                @endif
+            @endforeach
 
             @if($isPaginated && $products->hasPages())
                 <div class="home-pagination">
@@ -124,3 +142,15 @@
 </section>
 
 @endsection
+
+@push('scripts')
+{{-- Bouton réserver : ouvre le <dialog> de réservation --}}
+<script>
+document.addEventListener('click', function (e) {
+    const open = e.target.closest('[data-reserve-dialog]');
+    if (open) { document.getElementById(open.dataset.reserveDialog)?.showModal(); return; }
+    if (e.target.closest('[data-reserve-close]')) { e.target.closest('dialog').close(); return; }
+    if (e.target.tagName === 'DIALOG') e.target.close(); // clic sur le fond
+});
+</script>
+@endpush
