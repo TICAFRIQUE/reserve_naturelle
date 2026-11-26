@@ -53,7 +53,6 @@ class RegisterController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'tel' => $request->tel,
-            'role' => 'user',
         ]);
 
         // 3. Sauvegarder avant regenerate()

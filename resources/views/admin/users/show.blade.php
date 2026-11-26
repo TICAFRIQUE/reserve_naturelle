@@ -87,11 +87,12 @@
                     align-items: center;
                     gap: 16px;
                 ">
+                    {{-- Modification 1 : Avatar --}}
                     <div style="
                         width: 60px;
                         height: 60px;
                         border-radius: 50%;
-                        background: {{ $user->role === 'admin' ? '#2d5a27' : ($user->role === 'fournisseur' ? '#b8860b' : '#6c757d') }};
+                        background: {{ $user->role_style['avatar'] }};
                         color: white;
                         display: flex;
                         align-items: center;
@@ -125,14 +126,8 @@
                         </div>
                     </div>
                     <div style="margin-left: auto;">
-                        @php
-                            $roleColors = [
-                                'admin' => ['bg' => '#2d5a27', 'text' => 'white', 'icon' => 'fa-user-shield'],
-                                'fournisseur' => ['bg' => '#b8860b', 'text' => 'white', 'icon' => 'fa-truck'],
-                                'user' => ['bg' => '#e8e0d5', 'text' => '#2d5a27', 'icon' => 'fa-user']
-                            ];
-                            $config = $roleColors[$user->role] ?? ['bg' => '#6c757d', 'text' => 'white', 'icon' => 'fa-user'];
-                        @endphp
+                        {{-- Modification 2 : Remplacement du bloc roleColors --}}
+                        @php $config = $user->role_style; @endphp
                         <span style="
                             background: {{ $config['bg'] }};
                             color: {{ $config['text'] }};
@@ -143,7 +138,8 @@
                             display: inline-block;
                         ">
                             <i class="fas {{ $config['icon'] }}" style="margin-right: 6px;"></i>
-                            {{ ucfirst($user->role) }}
+                            {{-- Modification 3 : role_label --}}
+                            {{ $user->role_label }}
                         </span>
                     </div>
                 </div>
@@ -232,7 +228,8 @@
                                     display: inline-block;
                                 ">
                                     <i class="fas {{ $config['icon'] }}" style="margin-right: 5px;"></i>
-                                    {{ ucfirst($user->role) }}
+                                    {{-- Modification 4 : role_label --}}
+                                    {{ $user->role_label }}
                                 </span>
                             </td>
                         </tr>

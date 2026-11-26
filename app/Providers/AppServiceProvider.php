@@ -7,10 +7,11 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Cache;
 use App\Services\CartService;
-use Illuminate\Cache\RateLimiting\Limit;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Cache\RateLimiting\Limit;
 use App\Models\{Fournisseur, Achat, Category, SousCategory, Product, Order, User, Livreur, Reservation};
 
 class AppServiceProvider extends ServiceProvider
@@ -21,6 +22,8 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void{
         Paginator::useBootstrapFive();
+
+        Gate::before(fn ($user) => $user->hasRole('admin') ? true : null);
 
           // Limitation des tentatives de connexion
         RateLimiter::for('login', function (Request $request) {
@@ -36,17 +39,20 @@ class AppServiceProvider extends ServiceProvider
         });
 
         View::composer('layouts.admin', function ($view) {
+            $u = auth()->user();
+            $n = fn (string $perm, callable $count) => $u?->can($perm) ? $count() : 0;
+
             $view->with('sidebarCounts', [
-                'fournisseurs'    => Fournisseur::count(),
-                'achats'          => Achat::count(),
-                'categories'      => Category::count(),
-                'sousCategories'  => SousCategory::count(),
-                'produits'        => Product::count(),
-                'orders'          => Cache::remember('sidebar_orders_count', 60, fn () =>
-                                Order::where('statut', '!=', 'panier_converti')->count()),
-                'users'           => User::count(),
-                'livreurs'        => Livreur::count(),
-                'reservations'    => Reservation    ::count(),
+                'fournisseurs'   => $n('fournisseurs.voir',     fn () => Fournisseur::count()),
+                'achats'         => $n('achats.voir',           fn () => Achat::count()),
+                'categories'     => $n('categories.voir',       fn () => Category::count()),
+                'sousCategories' => $n('sous-categories.voir',  fn () => SousCategory::count()),
+                'produits'       => $n('produits.voir',         fn () => Product::count()),
+                'orders'         => $n('orders.voir',           fn () => Cache::remember('sidebar_orders_count', 60, fn () =>
+                                        Order::where('statut', '!=', 'panier_converti')->count())),
+                'users'          => $n('users.voir',            fn () => User::count()),
+                'livreurs'       => $n('livreurs.voir',         fn () => Livreur::count()),
+                'reservations'   => $n('reservations.voir',     fn () => Reservation::count()),
             ]);
         });
     }

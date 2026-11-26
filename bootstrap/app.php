@@ -57,6 +57,9 @@ return Application::configure(basePath: dirname(__DIR__))
             //  Vos middlewares personnalisés
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
             'recaptcha' => \App\Http\Middleware\VerifyRecaptcha::class,
+            'role'               => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'permission'         => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
 
        
         ]);

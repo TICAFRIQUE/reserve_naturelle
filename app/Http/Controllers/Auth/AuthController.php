@@ -50,8 +50,8 @@ class AuthController extends Controller
         $user = Auth::user();
         $carts->mergeGuestCart($user, $cartSessionId);
 
-        return $user->isAdmin()
-            ? redirect()->intended(route('admin.dashboard'))
+        return $user->isStaff()
+            ? redirect()->intended(route($user->adminHomeRoute()))
             : redirect()->intended(route('client.products.index'));
     }
 

@@ -88,11 +88,12 @@
                 align-items: center;
             ">
                 <div style="display: flex; align-items: center; gap: 12px;">
+                    <!-- Modification 1 : Avatar -->
                     <div style="
                         width: 45px;
                         height: 45px;
                         border-radius: 50%;
-                        background: {{ $user->role === 'admin' ? '#2d5a27' : ($user->role === 'fournisseur' ? '#b8860b' : '#6c757d') }};
+                        background: {{ $user->role_style['avatar'] }};
                         color: white;
                         display: flex;
                         align-items: center;
@@ -100,7 +101,7 @@
                         font-weight: bold;
                         font-size: 16px;
                     ">
-                        {{ strtoupper(substr($user->prenom, 0, 1)) }}{{ strtoupper(substr($user->nom, 0, 1)) }}
+                        {{ strtoupper(substr($user->prenom ?? '', 0, 1)) }}{{ strtoupper(substr($user->nom ?? '', 0, 1)) }}
                     </div>
                     <div>
                         <div style="font-weight: 600; color: #2d5a27; font-size: 1.05rem;">{{ $user->full_name }}</div>
@@ -124,17 +125,18 @@
                 <div style="margin-left: auto; display: flex; gap: 15px;">
                     <div style="text-align: center;">
                         <div style="font-weight: 600; color: #2d5a27;">Rôle</div>
+                        <!-- Modification 2 : Badge -->
                         <span style="
-                            background: {{ $user->role === 'admin' ? '#2d5a27' : ($user->role === 'fournisseur' ? '#b8860b' : '#e8e0d5') }};
-                            color: {{ $user->role === 'user' ? '#2d5a27' : 'white' }};
+                            background: {{ $user->role_style['bg'] }};
+                            color: {{ $user->role_style['text'] }};
                             padding: 4px 16px;
                             border-radius: 20px;
                             font-size: 0.85rem;
                             display: inline-block;
                             margin-top: 2px;
                         ">
-                            <i class="fas fa-{{ $user->role === 'admin' ? 'user-shield' : ($user->role === 'fournisseur' ? 'truck' : 'user') }}"></i>
-                            {{ ucfirst($user->role) }}
+                            <i class="fas {{ $user->role_style['icon'] }}"></i>
+                            {{ $user->role_label }}
                         </span>
                     </div>
                     <div style="text-align: center;">
@@ -220,36 +222,6 @@
                     </div>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 25px;">
-                        <!-- Email -->
-                        {{-- <div>
-                            <label for="email" style="display: block; font-weight: 600; color: #2d5a27; margin-bottom: 8px; font-size: 0.95rem;">
-                                <i class="fas fa-envelope" style="color: #b8860b; margin-right: 5px;"></i>
-                                Email <span style="color: #dc3545;">*</span>
-                            </label>
-                            <input type="email" 
-                                   id="email" 
-                                   name="email" 
-                                   value="{{ old('email', $user->email) }}"
-                                   style="
-                                       width: 100%;
-                                       padding: 12px 16px;
-                                       border: 2px solid {{ $errors->has('email') ? '#dc3545' : '#e8e0d5' }};
-                                       border-radius: 8px;
-                                       font-size: 1rem;
-                                       transition: border-color 0.3s;
-                                       outline: none;
-                                       background: #faf8f5;
-                                   "
-                                   onfocus="this.style.borderColor='#2d5a27'; this.style.background='white'"
-                                   onblur="this.style.borderColor='{{ $errors->has('email') ? '#dc3545' : '#e8e0d5' }}'; this.style.background='#faf8f5'"
-                                   required>
-                            @error('email')
-                                <div style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;">
-                                    <i class="fas fa-exclamation-circle"></i> {{ $message }}
-                                </div>
-                            @enderror
-                        </div> --}}
-
                         <!-- Téléphone -->
                         <div>
                             <label for="tel" style="display: block; font-weight: 600; color: #2d5a27; margin-bottom: 8px; font-size: 0.95rem;">
@@ -362,11 +334,15 @@
                                 onfocus="this.style.borderColor='#2d5a27'"
                                 onblur="this.style.borderColor='{{ $errors->has('role') ? '#dc3545' : '#e8e0d5' }}'"
                                 required>
-                            <option value="admin" {{ old('role', $user->role) === 'admin' ? 'selected' : '' }}>Administrateur</option>
-                            <option value="fournisseur" {{ old('role', $user->role) === 'fournisseur' ? 'selected' : '' }}>Fournisseur</option>
-                            <option value="user" {{ old('role', $user->role) === 'user' ? 'selected' : '' }}>Utilisateur</option>
+                            <option value="">Sélectionner un rôle</option>
+                            {{-- Modification 3 : Options dynamiques --}}
+                            @foreach($roles as $r)
+                                <option value="{{ $r }}" {{ old('role', $user->role) === $r ? 'selected' : '' }}>{{ __('permissions.roles.'.$r) }}</option>
+                            @endforeach
                         </select>
-                        @if($user->role === 'admin' && \App\Models\User::where('role', 'admin')->count() <= 1)
+                        
+                        {{-- Modification 4 : Méthode Spatie --}}
+                        @if($user->role === 'admin' && \App\Models\User::role('admin')->count() <= 1)
                             <div style="color: #b8860b; font-size: 0.85rem; margin-top: 5px;">
                                 <i class="fas fa-exclamation-triangle"></i> Vous ne pouvez pas changer le rôle du dernier administrateur.
                             </div>

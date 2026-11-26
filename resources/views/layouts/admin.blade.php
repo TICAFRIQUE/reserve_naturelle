@@ -1,7 +1,3 @@
-{{-- resources/views/layouts/admin.blade.php --}}
-@php
-    $depensesActive = request()->routeIs('admin.depenses.*', 'admin.categorie-depenses.*', 'admin.libelle-depenses.*');
-@endphp
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -54,117 +50,190 @@
         <!-- Navigation -->
         <nav class="sidebar-nav">
 
-            <div class="nav-section">Navigation</div>
-
-            <a href="{{ route('admin.dashboard') }}" class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                <i class="fas fa-th-large"></i> Dashboard
-            </a>
-
-            <div class="nav-section">Stock</div>
-
-            <a href="{{ route('admin.stock.index') }}" class="nav-item {{ request()->routeIs('admin.stock.*') ? 'active' : '' }}">
-                <i class="fas fa-warehouse"></i> Stock
-            </a>
-            <a href="{{ route('admin.inventaires.index') }}" class="nav-item {{ request()->routeIs('admin.inventaires.*') ? 'active' : '' }}">
-                <i class="fas fa-clipboard-list"></i> Inventaire
-            </a>
-            <a href="{{ route('admin.fournisseurs.index') }}" class="nav-item {{ request()->routeIs('admin.fournisseurs.*') ? 'active' : '' }}">
-                <i class="fas fa-truck"></i> Fournisseurs
-                <span class="nav-badge">{{ $sidebarCounts['fournisseurs'] }}</span>
-            </a>
-            <a href="{{ route('admin.achats.index') }}" class="nav-item {{ request()->routeIs('admin.achats.*') ? 'active' : '' }}">
-                <i class="fas fa-shopping-basket"></i> Achats
-                <span class="nav-badge">{{ $sidebarCounts['achats'] }}</span>
-            </a>
-            <a href="{{ route('admin.stock-mouvements.index') }}" class="nav-item {{ request()->routeIs('admin.stock-mouvements.*') ? 'active' : '' }}">
-                <i class="fas fa-exchange-alt"></i> Mouvements de stock
-            </a>
-
-            <div class="nav-section">Catalogue</div>
-
-            <a href="{{ route('admin.categories.index') }}" class="nav-item {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
-                <i class="fas fa-tags"></i> Catégories
-                <span class="nav-badge">{{ $sidebarCounts['categories'] }}</span>
-            </a>
-            <a href="{{ route('admin.sous-categories.index') }}" class="nav-item {{ request()->routeIs('admin.sous-categories.*') ? 'active' : '' }}">
-                <i class="fas fa-sitemap"></i> Sous-catégories
-                <span class="nav-badge">{{ $sidebarCounts['sousCategories'] }}</span>
-            </a>
-            <a href="{{ route('admin.produits.index') }}" class="nav-item {{ request()->routeIs('admin.produits.*') ? 'active' : '' }}">
-                <i class="fas fa-boxes"></i> Produits
-                <span class="nav-badge">{{ $sidebarCounts['produits'] }}</span>
-            </a>
-            <a href="{{ route('admin.banner.edit') }}" class="nav-item {{ request()->routeIs('admin.banner.*') ? 'active' : '' }}">
-                <i class="fas fa-image"></i> Bannière
-            </a>
-
-            <div class="nav-section">Ventes</div>
-
-            <a href="{{ route('admin.orders.index') }}" class="nav-item {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
-                <i class="fas fa-shopping-cart"></i> Commandes
-                <span class="nav-badge">{{ $sidebarCounts['orders'] }}</span>
-            </a>
-            <a href="{{ route('admin.reservations.index') }}" class="nav-item {{ request()->routeIs('admin.reservations.*') ? 'active' : '' }}">
-                <i class="fas fa-calendar-check"></i> Réservations
-                <span class="nav-badge">{{ $sidebarCounts['reservations'] }}</span>
-            </a>
-
-            {{-- <div class="nav-section">Livraison</div>
-
-            <a href="{{ route('admin.tournees.index') }}" class="nav-item {{ request()->routeIs('admin.tournees.*') ? 'active' : '' }}">
-                <i class="fas fa-route"></i> Livraison
-            </a>
-            <a href="{{ route('admin.zones.index') }}" class="nav-item {{ request()->routeIs('admin.zones.*') ? 'active' : '' }}">
-                <i class="fas fa-map-marked-alt"></i> Zones de livraison
-            </a> --}}
-
-            <div class="nav-section">Utilisateurs</div>
-
-            <a href="{{ route('admin.users.index') }}" class="nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-                <i class="fas fa-users"></i> Utilisateurs
-                <span class="nav-badge">{{ $sidebarCounts['users'] }}</span>
-            </a>
-            <a href="{{ route('admin.livreurs.index') }}" class="nav-item {{ request()->routeIs('admin.livreurs.*') ? 'active' : '' }}">
-                <i class="fas fa-motorcycle"></i> Livreurs
-                <span class="nav-badge">{{ $sidebarCounts['livreurs'] }}</span>
-            </a>
-
-            <div class="nav-section">Rapports</div>
-
-            <a href="{{ route('admin.rapports.index') }}" class="nav-item {{ request()->routeIs('admin.rapports.*') ? 'active' : '' }}">
-                <i class="fas fa-chart-line"></i> Rapports
-            </a>
-
-            <div class="nav-item-dropdown">
-                <a href="#" class="nav-item nav-item-toggle {{ $depensesActive ? 'active' : '' }}" id="depensesToggle" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">
-                    <span><i class="fas fa-wallet"></i> Dépenses</span>
-                    <i class="fas fa-chevron-down" style="font-size: 11px; transition: transform 0.2s; transform: {{ $depensesActive ? 'rotate(180deg)' : 'rotate(0deg)' }};" id="depensesChevron"></i>
+            @can('dashboard.voir')
+                <div class="nav-section">Navigation</div>
+                <a href="{{ route('admin.dashboard') }}" class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                    <i class="fas fa-th-large"></i> Dashboard
                 </a>
-                <div id="depensesSubmenu" style="
-                    max-height: {{ $depensesActive ? '150px' : '0' }};
-                    overflow: hidden;
-                    transition: max-height 0.25s ease;
-                ">
-                    <a href="{{ route('admin.depenses.index') }}" class="nav-item nav-subitem {{ request()->routeIs('admin.depenses.*') ? 'active' : '' }}" style="padding-left: 45px; font-size: 0.92rem;">
-                        <i class="fas fa-list"></i> Toutes les dépenses
-                    </a>
-                    <a href="{{ route('admin.categorie-depenses.index') }}" class="nav-item nav-subitem {{ request()->routeIs('admin.categorie-depenses.*') ? 'active' : '' }}" style="padding-left: 45px; font-size: 0.92rem;">
-                        <i class="fas fa-tags"></i> Famille de dépenses
-                    </a>
-                    <a href="{{ route('admin.libelle-depenses.index') }}" class="nav-item nav-subitem {{ request()->routeIs('admin.libelle-depenses.*') ? 'active' : '' }}" style="padding-left: 45px; font-size: 0.92rem;">
-                        <i class="fas fa-list-ul"></i> Libellés de dépenses
-                    </a>
-                </div>
-            </div>
+            @endcan
 
-            {{-- <div class="sidebar-divider"></div>
+            @canany(['stock.voir', 'inventaires.voir', 'fournisseurs.voir', 'achats.voir', 'stock-mouvements.voir'])
+                <div class="nav-section">Stock</div>
+
+                @can('stock.voir')
+                    <a href="{{ route('admin.stock.index') }}" class="nav-item {{ request()->routeIs('admin.stock.*') ? 'active' : '' }}">
+                        <i class="fas fa-warehouse"></i> Stock
+                    </a>
+                @endcan
+
+                @can('inventaires.voir')
+                    <a href="{{ route('admin.inventaires.index') }}" class="nav-item {{ request()->routeIs('admin.inventaires.*') ? 'active' : '' }}">
+                        <i class="fas fa-clipboard-list"></i> Inventaire
+                    </a>
+                @endcan
+
+                @can('fournisseurs.voir')
+                    <a href="{{ route('admin.fournisseurs.index') }}" class="nav-item {{ request()->routeIs('admin.fournisseurs.*') ? 'active' : '' }}">
+                        <i class="fas fa-truck"></i> Fournisseurs
+                        <span class="nav-badge">{{ $sidebarCounts['fournisseurs'] }}</span>
+                    </a>
+                @endcan
+
+                @can('achats.voir')
+                    <a href="{{ route('admin.achats.index') }}" class="nav-item {{ request()->routeIs('admin.achats.*') ? 'active' : '' }}">
+                        <i class="fas fa-shopping-basket"></i> Achats
+                        <span class="nav-badge">{{ $sidebarCounts['achats'] }}</span>
+                    </a>
+                @endcan
+
+                @can('stock-mouvements.voir')
+                    <a href="{{ route('admin.stock-mouvements.index') }}" class="nav-item {{ request()->routeIs('admin.stock-mouvements.*') ? 'active' : '' }}">
+                        <i class="fas fa-exchange-alt"></i> Mouvements de stock
+                    </a>
+                @endcan
+            @endcanany
+
+            @canany(['categories.voir', 'sous-categories.voir', 'produits.voir', 'banner.voir'])
+                <div class="nav-section">Catalogue</div>
+
+                @can('categories.voir')
+                    <a href="{{ route('admin.categories.index') }}" class="nav-item {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
+                        <i class="fas fa-tags"></i> Catégories
+                        <span class="nav-badge">{{ $sidebarCounts['categories'] }}</span>
+                    </a>
+                @endcan
+
+                @can('sous-categories.voir')
+                    <a href="{{ route('admin.sous-categories.index') }}" class="nav-item {{ request()->routeIs('admin.sous-categories.*') ? 'active' : '' }}">
+                        <i class="fas fa-sitemap"></i> Sous-catégories
+                        <span class="nav-badge">{{ $sidebarCounts['sousCategories'] }}</span>
+                    </a>
+                @endcan
+
+                @can('produits.voir')
+                    <a href="{{ route('admin.produits.index') }}" class="nav-item {{ request()->routeIs('admin.produits.*') ? 'active' : '' }}">
+                        <i class="fas fa-boxes"></i> Produits
+                        <span class="nav-badge">{{ $sidebarCounts['produits'] }}</span>
+                    </a>
+                @endcan
+
+                @can('banner.voir')
+                    <a href="{{ route('admin.banner.edit') }}" class="nav-item {{ request()->routeIs('admin.banner.*') ? 'active' : '' }}">
+                        <i class="fas fa-image"></i> Bannière
+                    </a>
+                @endcan
+            @endcanany
+
+            @canany(['orders.voir', 'reservations.voir'])
+                <div class="nav-section">Ventes</div>
+
+                @can('orders.voir')
+                    <a href="{{ route('admin.orders.index') }}" class="nav-item {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
+                        <i class="fas fa-shopping-cart"></i> Commandes
+                        <span class="nav-badge">{{ $sidebarCounts['orders'] }}</span>
+                    </a>
+                @endcan
+
+                @can('reservations.voir')
+                    <a href="{{ route('admin.reservations.index') }}" class="nav-item {{ request()->routeIs('admin.reservations.*') ? 'active' : '' }}">
+                        <i class="fas fa-calendar-check"></i> Réservations
+                        <span class="nav-badge">{{ $sidebarCounts['reservations'] }}</span>
+                    </a>
+                @endcan
+            @endcanany
+
+            {{-- @canany(['tournees.voir', 'zones.voir'])
+                <div class="nav-section">Livraison</div>
+
+                @can('tournees.voir')
+                    <a href="{{ route('admin.tournees.index') }}" class="nav-item {{ request()->routeIs('admin.tournees.*') ? 'active' : '' }}">
+                        <i class="fas fa-route"></i> Livraison
+                    </a>
+                @endcan
+
+                @can('zones.voir')
+                    <a href="{{ route('admin.zones.index') }}" class="nav-item {{ request()->routeIs('admin.zones.*') ? 'active' : '' }}">
+                        <i class="fas fa-map-marked-alt"></i> Zones de livraison
+                    </a>
+                @endcan
+            @endcanany --}}
+
+            @canany(['users.voir', 'livreurs.voir'])
+                <div class="nav-section">Utilisateurs</div>
+
+                @can('users.voir')
+                    <a href="{{ route('admin.users.index') }}" class="nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                        <i class="fas fa-users"></i> Utilisateurs
+                        <span class="nav-badge">{{ $sidebarCounts['users'] }}</span>
+                    </a>
+                @endcan
+
+                @can('livreurs.voir')
+                    <a href="{{ route('admin.livreurs.index') }}" class="nav-item {{ request()->routeIs('admin.livreurs.*') ? 'active' : '' }}">
+                        <i class="fas fa-motorcycle"></i> Livreurs
+                        <span class="nav-badge">{{ $sidebarCounts['livreurs'] }}</span>
+                    </a>
+                @endcan
+
+                @role('admin')
+                    <a href="{{ route('admin.roles.index') }}" class="nav-item {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">
+                        <i class="fas fa-user-lock"></i> Rôles et permissions
+                    </a>
+                @endrole
+            @endcanany
+
+            @canany(['rapports.voir', 'depenses.voir', 'categorie-depenses.voir'])
+                <div class="nav-section">Rapports</div>
+
+                @can('rapports.voir')
+                    <a href="{{ route('admin.rapports.index') }}" class="nav-item {{ request()->routeIs('admin.rapports.*') ? 'active' : '' }}">
+                        <i class="fas fa-chart-line"></i> Rapports
+                    </a>
+                @endcan
+
+                @canany(['depenses.voir', 'categorie-depenses.voir'])
+                    <div class="nav-item-dropdown">
+                        <a href="#" class="nav-item nav-item-toggle {{ request()->routeIs('admin.depenses.*', 'admin.categorie-depenses.*') ? 'active' : '' }}" id="depensesToggle" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">
+                            <span><i class="fas fa-wallet"></i> Dépenses</span>
+                            <i class="fas fa-chevron-down" style="font-size: 11px; transition: transform 0.2s;" id="depensesChevron"></i>
+                        </a>
+                        <div id="depensesSubmenu" style="max-height: {{ request()->routeIs('admin.depenses.*', 'admin.categorie-depenses.*') ? '100px' : '0' }}; overflow: hidden; transition: max-height 0.25s ease;">
+                            @can('depenses.voir')
+                                <a href="{{ route('admin.depenses.index') }}" class="nav-item nav-subitem {{ request()->routeIs('admin.depenses.*') ? 'active' : '' }}" style="padding-left: 45px; font-size: 0.92rem;">
+                                    <i class="fas fa-list"></i> Toutes les dépenses
+                                </a>
+                            @endcan
+
+                            @can('categorie-depenses.voir')
+                                <a href="{{ route('admin.categorie-depenses.index') }}" class="nav-item nav-subitem {{ request()->routeIs('admin.categorie-depenses.*') ? 'active' : '' }}" style="padding-left: 45px; font-size: 0.92rem;">
+                                    <i class="fas fa-tags"></i> Catégories de dépenses
+                                </a>
+                            @endcan
+                        </div>
+                    </div>
+                @endcanany
+            @endcanany
+
+            <div class="nav-section">Aide</div>
+
+            <a href="{{ route('admin.guide') }}" target="_blank" rel="noopener" class="nav-item">
+                <i class="fas fa-book-open"></i> Guide d'utilisation
+            </a>
+            
+            @role('admin')
+                <a href="{{ route('admin.documentation') }}" target="_blank" rel="noopener" class="nav-item">
+                    <i class="fas fa-file-code"></i> Documentation technique
+                </a>
+            @endrole
+
+            <div class="sidebar-divider"></div>
 
             <form action="{{ route('logout') }}" method="POST">
                 @csrf
                 <button type="submit" class="nav-item logout-btn">
                     <i class="fas fa-sign-out-alt"></i> Déconnexion
                 </button>
-            </form> --}}
+            </form>
 
         </nav>
     </aside>
@@ -174,7 +243,7 @@
     <!-- ========================================= -->
     <div class="admin-main-wrapper">
 
-        <!-- HEADER (aligné sur app.blade) -->
+        <!-- HEADER -->
         <header class="header">
             <div class="nav">
 
@@ -184,7 +253,7 @@
                 </button>
 
                 <!-- LOGO -->
-                <a class="brand" href="{{ route('admin.dashboard') }}">
+                <a class="brand" href="{{ route('admin.index') }}">
                     <div class="brand-circle">
                         <img src="{{ asset('img/logo.webp') }}" alt="La Réserve Naturelle">
                     </div>
@@ -193,11 +262,13 @@
                 <!-- NAVBAR -->
                 <nav class="navbar" id="navbar">
                     <ul class="nav-links">
-                        <li>
-                            <a href="{{ route('admin.dashboard') }}" class="nav-pill {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                                <i class="fas fa-th-large"></i> Dashboard
-                            </a>
-                        </li>
+                        @can('dashboard.voir')
+                            <li>
+                                <a href="{{ route('admin.dashboard') }}" class="nav-pill {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                                    <i class="fas fa-th-large"></i> Dashboard
+                                </a>
+                            </li>
+                        @endcan
                         <li>
                             <a href="{{ route('home') }}" class="nav-pill">
                                 <i class="fas fa-store"></i> Boutique
@@ -248,7 +319,7 @@
             @yield('content')
         </main>
 
-        <!-- FOOTER (aligné sur app.blade) -->
+        <!-- FOOTER -->
         <footer class="footer" id="contact">
             <div class="footer-container">
 
@@ -268,9 +339,9 @@
                     <div class="footer-col">
                         <h4>Administration</h4>
                         <ul>
-                            <li><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
-                            <li><a href="{{ route('admin.orders.index') }}">Commandes</a></li>
-                            <li><a href="{{ route('admin.produits.index') }}">Produits</a></li>
+                            @can('dashboard.voir')<li><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>@endcan
+                            @can('orders.voir')<li><a href="{{ route('admin.orders.index') }}">Commandes</a></li>@endcan
+                            @can('produits.voir')<li><a href="{{ route('admin.produits.index') }}">Produits</a></li>@endcan
                         </ul>
                     </div>
 
@@ -348,9 +419,8 @@
 
     depensesToggle?.addEventListener('click', e => {
         e.preventDefault();
-        // parseInt gère '0', '0px' et '150px'
-        const isOpen = parseInt(depensesSubmenu.style.maxHeight, 10) > 0;
-        depensesSubmenu.style.maxHeight = isOpen ? '0' : '150px';
+        const isOpen = depensesSubmenu.style.maxHeight !== '0px' && depensesSubmenu.style.maxHeight !== '';
+        depensesSubmenu.style.maxHeight = isOpen ? '0' : '100px';
         depensesChevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
     });
 

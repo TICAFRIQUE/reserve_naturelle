@@ -128,36 +128,6 @@
                     </div>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 25px;">
-                        <!-- Email -->
-                        {{-- <div>
-                            <label for="email" style="display: block; font-weight: 600; color: #2d5a27; margin-bottom: 8px; font-size: 0.95rem;">
-                                <i class="fas fa-envelope" style="color: #b8860b; margin-right: 5px;"></i>
-                                Email <span style="color: #dc3545;">*</span>
-                            </label>
-                            <input type="email" 
-                                   id="email" 
-                                   name="email" 
-                                   value="{{ old('email') }}"
-                                   style="
-                                       width: 100%;
-                                       padding: 12px 16px;
-                                       border: 2px solid {{ $errors->has('email') ? '#dc3545' : '#e8e0d5' }};
-                                       border-radius: 8px;
-                                       font-size: 1rem;
-                                       transition: border-color 0.3s;
-                                       outline: none;
-                                       background: #faf8f5;
-                                   "
-                                   onfocus="this.style.borderColor='#2d5a27'; this.style.background='white'"
-                                   onblur="this.style.borderColor='{{ $errors->has('email') ? '#dc3545' : '#e8e0d5' }}'; this.style.background='#faf8f5'"
-                                   required>
-                            @error('email')
-                                <div style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;">
-                                    <i class="fas fa-exclamation-circle"></i> {{ $message }}
-                                </div>
-                            @enderror
-                        </div> --}}
-
                         <!-- Téléphone -->
                         <div>
                             <label for="tel" style="display: block; font-weight: 600; color: #2d5a27; margin-bottom: 8px; font-size: 0.95rem;">
@@ -271,9 +241,9 @@
                                 onblur="this.style.borderColor='{{ $errors->has('role') ? '#dc3545' : '#e8e0d5' }}'"
                                 required>
                             <option value="">Sélectionner un rôle</option>
-                            <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Administrateur</option>
-                            <option value="fournisseur" {{ old('role') === 'fournisseur' ? 'selected' : '' }}>Fournisseur</option>
-                            <option value="user" {{ old('role') === 'user' ? 'selected' : '' }}>Utilisateur</option>
+                            @foreach($roles as $r)
+                                <option value="{{ $r }}" {{ old('role', 'client') === $r ? 'selected' : '' }}>{{ __('permissions.roles.'.$r) }}</option>
+                            @endforeach
                         </select>
                         <div style="color: #6c757d; font-size: 0.8rem; margin-top: 5px;">
                             <i class="fas fa-info-circle"></i> Détermine les permissions de l'utilisateur

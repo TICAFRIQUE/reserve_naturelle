@@ -10,11 +10,11 @@ class AdminMiddleware
 {
     public function handle(Request $request, Closure $next)
     {
-        if (Auth::check() && Auth::user()->isAdmin()) {
+        if (Auth::check() && Auth::user()->can('acces-admin')) {
             return $next($request);
         }
 
         // Si pas admin, rediriger vers page d'accueil
-        return redirect()->route('client.products.index')->with('Erreur', 'Accès réservé à l\'administrateur');
+        return redirect()->route('client.products.index')->with('Erreur', 'Accès réservé au personnel autorisé');
     }
 }

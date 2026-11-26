@@ -80,11 +80,12 @@
                             transition: border-color 0.3s;
                             outline: none;
                             cursor: pointer;
-                        " onfocus="this.style.borderColor='#2d5a27'" onblur="this.style.borderColor='#e8e0d5'">
+                            " onfocus="this.style.borderColor='#2d5a27'" onblur="this.style.borderColor='#e8e0d5'">
                             <option value="">Tous les rôles</option>
-                            <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>Administrateur</option>
-                            <option value="fournisseur" {{ request('role') === 'fournisseur' ? 'selected' : '' }}>Fournisseur</option>
-                            <option value="user" {{ request('role') === 'user' ? 'selected' : '' }}>Utilisateur</option>
+                            {{-- Modification 1 : Filtre de rôle --}}
+                            @foreach($roles as $r)
+                                <option value="{{ $r }}" {{ request('role') === $r ? 'selected' : '' }}>{{ __('permissions.roles.'.$r) }}</option>
+                            @endforeach
                         </select>
                     </div>
                     
@@ -154,11 +155,12 @@
                                 <tr style="border-bottom: 1px solid #f0ebe5; transition: background 0.2s;" onmouseover="this.style.background='#faf8f5'" onmouseout="this.style.background='transparent'">
                                     <td style="padding: 15px 20px; font-weight: 500; color: #2d5a27;">
                                         <div style="display: flex; align-items: center; gap: 10px;">
+                                            {{-- Modification 2 : Avatar --}}
                                             <div style="
                                                 width: 38px;
                                                 height: 38px;
                                                 border-radius: 50%;
-                                                background: {{ $user->role === 'admin' ? '#2d5a27' : ($user->role === 'fournisseur' ? '#b8860b' : '#6c757d') }};
+                                                background: {{ $user->role_style['avatar'] }};
                                                 color: white;
                                                 display: flex;
                                                 align-items: center;
@@ -202,29 +204,18 @@
                                         @endif
                                     </td>
                                     <td style="padding: 15px 20px; text-align: center;">
-                                        @php
-                                            $roleColors = [
-                                                'admin' => ['bg' => '#2d5a27', 'text' => 'white'],
-                                                'fournisseur' => ['bg' => '#b8860b', 'text' => 'white'],
-                                                'user' => ['bg' => '#e8e0d5', 'text' => '#2d5a27']
-                                            ];
-                                            $roleIcons = [
-                                                'admin' => 'fa-user-shield',
-                                                'fournisseur' => 'fa-truck',
-                                                'user' => 'fa-user'
-                                            ];
-                                        @endphp
+                                        {{-- Modification 3 : Badge --}}
                                         <span style="
-                                            background: {{ $roleColors[$user->role]['bg'] ?? '#6c757d' }};
-                                            color: {{ $roleColors[$user->role]['text'] ?? 'white' }};
+                                            background: {{ $user->role_style['bg'] }};
+                                            color: {{ $user->role_style['text'] }};
                                             padding: 5px 16px;
                                             border-radius: 20px;
                                             font-size: 0.8rem;
                                             font-weight: 500;
                                             display: inline-block;
                                         ">
-                                            <i class="fas {{ $roleIcons[$user->role] ?? 'fa-user' }}" style="margin-right: 5px;"></i>
-                                            {{ ucfirst($user->role) }}
+                                            <i class="fas {{ $user->role_style['icon'] }}" style="margin-right: 5px;"></i>
+                                            {{ $user->role_label }}
                                         </span>
                                     </td>
                                     <td style="padding: 15px 20px; text-align: center;">
@@ -281,7 +272,8 @@
                                                         data-id="{{ $user->id }}"
                                                         data-nom="{{ $user->full_name }}"
                                                         data-email="{{ $user->email }}"
-                                                        data-role="{{ ucfirst($user->role) }}"
+                                                        data-role="{{ $user->role_label }}"
+                                                        data-icon="{{ $user->role_style['icon'] }}"
                                                         style="
                                                             background: #f8d7da;
                                                             color: #721c24;
@@ -443,9 +435,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const email = this.dataset.email;
             const role = this.dataset.role;
             
-            // Déterminer la couleur de l'icône selon le rôle
-            const roleIcon = role === 'Admin' ? 'fa-user-shield' : 
-                            role === 'Fournisseur' ? 'fa-truck' : 'fa-user';
+            // Modification 4 : Utilisation de data-icon
+            const roleIcon = this.dataset.icon;
             
             Swal.fire({
                 title: '🗑️ Supprimer cet utilisateur ?',
